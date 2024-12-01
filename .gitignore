@@ -36,5 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 
-# application.yml 제외
-!application.yml
+# application.yml 무시
+application.yml
