@@ -1,0 +1,22 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mediko
+    username: root
+    password: 1234
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        hbm2ddl:
+          auto: update
+        default_batch_fetch_size: 1000
+jwt:
+  secret-key: p9PNp4Kss7aLht/SqsQNK+1bfVH1GLmcZp47Aw8v5rC82XK0h+xt2YWuDU9XFyup
+  expiration-time: 604800000 #7일
+  refresh-expiration-time: 1209600000  # 14일
