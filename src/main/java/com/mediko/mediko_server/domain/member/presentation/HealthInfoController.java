@@ -3,10 +3,12 @@ package com.mediko.mediko_server.domain.member.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.application.HealthInfoService;
 import com.mediko.mediko_server.domain.member.dto.request.HealthInfoRequestDTO;
+import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +21,21 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/v1/healthInfo")
 public class HealthInfoController {
 
-    HealthInfoService healthInfoService;
+    private final HealthInfoService healthInfoService;
 
     // HealthInfo 저장
-    @PostMapping("/health-info")
-    public ResponseEntity<String> saveHealthInfo(
+    @PostMapping
+    public ResponseEntity<HealthInfoResponseDTO> saveHealthInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody HealthInfoRequestDTO healthInfoRequestDTO) {
         String loginId = customUserDetails.getUsername();
-        String savedLoginId = healthInfoService.saveHealthInfo(loginId, healthInfoRequestDTO);
-        return ResponseEntity.status(CREATED).body(savedLoginId);
+        HealthInfoResponseDTO savedHealthInfo = healthInfoService.saveHealthInfo(loginId, healthInfoRequestDTO);
+        return ResponseEntity.status(CREATED).body(savedHealthInfo);
     }
 
     // HealthInfo 조회
-    @GetMapping("/health-info")
+    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<HealthInfoResponseDTO> getHealthInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         String loginId = customUserDetails.getUsername();
@@ -41,7 +44,8 @@ public class HealthInfoController {
     }
 
     // HealthInfo 수정
-    @PatchMapping("/health-info")
+    @PatchMapping
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<HealthInfoResponseDTO> updateHealthInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody HealthInfoRequestDTO healthInfoRequestDTO) {

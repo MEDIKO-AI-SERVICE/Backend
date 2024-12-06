@@ -19,7 +19,7 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate               //Entity가 생성되어 저장될 때 시간이 자동으로 저장
+    @CreatedDate               //Entity가 생성되어 저장될 때 시간이 자동으로 저장 (로컬 기준)
     @Column(updatable = false)
     private LocalDateTime created_at;
 

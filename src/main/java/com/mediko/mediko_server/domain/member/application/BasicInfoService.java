@@ -26,7 +26,7 @@ public class BasicInfoService {
 
     //BasicInfo 저장
     @Transactional
-    public String saveBasicInfo(String loginId, BasicInfoRequestDTO basicInfoRequestDTO) {
+    public BasicInfoResponseDTO saveBasicInfo(String loginId, BasicInfoRequestDTO basicInfoRequestDTO) {
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
@@ -39,13 +39,15 @@ public class BasicInfoService {
 
         basicInfoRepository.save(basicInfo);
 
-        member = member.toBuilder()
-                .basicInfo(basicInfo)
-                .build();
+        // member = member.toBuilder()
+        //        .basicInfo(basicInfo)
+        //        .build();
+        member.setBasicInfo(basicInfo); //toBuilder로 수정할 시 객체가 새로 생성돼서 데이터무결성 오류 발생(login_id  중복)
+        member.changeRole(UserStatus.ROLE_USER); //role 변경
 
-        member.changeRole(UserStatus.ROLE_USER);
+        memberRepository.save(member);
 
-        return memberRepository.save(member).getLoginId();
+        return BasicInfoResponseDTO.fromEntity(basicInfo);
     }
 
     //BasicInfo 조회

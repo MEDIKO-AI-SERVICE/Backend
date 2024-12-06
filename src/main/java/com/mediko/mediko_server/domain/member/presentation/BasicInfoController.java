@@ -25,12 +25,12 @@ public class BasicInfoController {
 
     // BasicInfo 저장
     @PostMapping
-    public ResponseEntity<String> saveBasicInfo(
+    public ResponseEntity<BasicInfoResponseDTO> saveBasicInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody BasicInfoRequestDTO basicInfoRequestDTO) {
         String loginId = customUserDetails.getUsername();
-        String savedLoginId = basicInfoService.saveBasicInfo(loginId, basicInfoRequestDTO);
-        return ResponseEntity.status(CREATED).body(savedLoginId);
+        BasicInfoResponseDTO savedBasicInfo = basicInfoService.saveBasicInfo(loginId, basicInfoRequestDTO);
+        return ResponseEntity.status(CREATED).body(savedBasicInfo);
     }
 
     // BasicInfo 조회
