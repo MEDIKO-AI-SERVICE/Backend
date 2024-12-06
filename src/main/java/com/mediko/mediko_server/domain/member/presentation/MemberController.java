@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
+
 import static org.apache.catalina.util.XMLWriter.NO_CONTENT;
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -42,31 +44,31 @@ public class MemberController {
     }
 
     // 로그아웃
-    @PostMapping("/logout")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PostMapping("/sign-out")
     public ResponseEntity<Void> logout(
             HttpServletRequest request, HttpServletResponse response) {
-        memberService.logout(request, response);
+        memberService.signOut(request, response);
         return ResponseEntity.ok().build();
     }
 
     // 회원 탈퇴
     @DeleteMapping("/delete")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Void> deleteAccount(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             HttpServletRequest request, HttpServletResponse response) {
         String loginId = customUserDetails.getUsername();
         memberService.deleteAccount(loginId, request, response);
-        return ResponseEntity.status(NO_CONTENT).build();
+        return ResponseEntity.ok().build();
+
     }
 
     // 닉네임 변경
     @PatchMapping("/nickname")
     public ResponseEntity<Void> updateUserNickName(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody Map<String, String> requestBody) {
         String loginId = customUserDetails.getUsername();
-        String nickname = customUserDetails.getNickname();
+        String nickname = requestBody.get("nickname");
         memberService.updateUserNickName(loginId, nickname);
         return ResponseEntity.ok().build();
     }

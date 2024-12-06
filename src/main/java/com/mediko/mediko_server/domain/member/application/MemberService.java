@@ -82,7 +82,7 @@ public class MemberService {
 
     //로그아웃 기능
     @Transactional
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public void signOut(HttpServletRequest request, HttpServletResponse response) {
         // Spring Security에서 세션을 무효화
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -107,6 +107,7 @@ public class MemberService {
 
 
     //닉네임 변경 기능
+    @Transactional
     public void updateUserNickName(String loginId, String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 닉네임입니다.");
