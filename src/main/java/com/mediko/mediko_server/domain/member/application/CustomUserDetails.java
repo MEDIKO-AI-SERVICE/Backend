@@ -60,6 +60,9 @@ public class CustomUserDetails implements UserDetails {
      * 추가 필요한 사용자 정보 조회 메서드
      * Security 기본 인터페이스 외에 필요한 정보들을 조회할 수 있게 함
      */
+
+    public Member getMember() { return this.member; }
+
     // 사용자 이메일 반환
     public String getEmail() {
         return member.getEmail();
