@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,32 +18,36 @@ import java.util.List;
 public class SelectedMBPController {
     private final SelectedMBPService selectedMBPService;
 
-    // 선택된 신체 부분 저장
+    // 선택된 주신체 부분 저장
     @PostMapping
-    public SelectedMBPResponseDTO selectMainBodyPart(
+    public ResponseEntity<SelectedMBPResponseDTO> selectMainBodyPart(
             @RequestBody SelectedMBPRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        return selectedMBPService.selectMainBodyPart(requestDTO, member);
+        SelectedMBPResponseDTO responseDTO = selectedMBPService.saveSelectedMBP(requestDTO, member);
+        return ResponseEntity.ok(responseDTO);
     }
 
-
-    // 선택된 신체 부분 조회
+    // 최신 주신체 부분 조회
     @GetMapping
-    public SelectedMBPResponseDTO getSelectedMBP(
+    public ResponseEntity<SelectedMBPResponseDTO> getSelectedMBP(
             @AuthenticationPrincipal CustomUserDetails userDetail) {
+
         Member member = userDetail.getMember();
-        return selectedMBPService.getSelectedMBP(member);
+        SelectedMBPResponseDTO responseDTO = selectedMBPService.getLatestSelectedSBP(member);
+        return ResponseEntity.ok(responseDTO);
     }
 
-    // 선택된 신체 부분 수정
+    // 최신 주신체 부분 수정
     @PutMapping
-    public SelectedMBPResponseDTO updateSelectedMBP(
+    public ResponseEntity<SelectedMBPResponseDTO> updateSelectedMBP(
             @RequestBody SelectedMBPRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        return selectedMBPService.updateSelectedMBP(requestDTO, member);
+        SelectedMBPResponseDTO responseDTO = selectedMBPService.updateLatestSelectedSBP(requestDTO, member);
+        return ResponseEntity.ok(responseDTO);
     }
+
 }

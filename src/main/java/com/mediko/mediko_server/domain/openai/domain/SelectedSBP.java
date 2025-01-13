@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.openai.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.dto.request.SelectedMBPRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedSBPRequestDTO;
 import com.mediko.mediko_server.global.converter.LongListConverter;
 import com.mediko.mediko_server.global.converter.StringListConvert;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "selectedMbp")
-public class SelectedMBP extends BaseEntity {
+@Table(name= "selectedSbp")
+public class SelectedSBP extends BaseEntity {
     @Convert(converter = StringListConvert.class)
     @Column(nullable = false)
     private List<String> body;
@@ -32,17 +30,19 @@ public class SelectedMBP extends BaseEntity {
     private Member member;
 
     @Convert(converter = LongListConverter.class)
-    @Column(name = "mbp_id", nullable = false)
-    private List<Long> mbpIds;
+    @Column(name = "sbp_id", nullable = false)
+    private List<Long> sbpIds;
 
-    public void updateSelectedMBP(SelectedMBPRequestDTO requestDTO, List<Long> mbpIds) {
+    @Column(name = "mbp_id", nullable = false)
+    private Long mbpId;
+
+    public void updateSelectedSBP(SelectedSBPRequestDTO requestDTO, List<Long> sbpIds) {
         if (requestDTO.getBody() == null) {
             this.body = new ArrayList<>();
-            this.mbpIds = new ArrayList<>();
+            this.sbpIds = new ArrayList<>();
         } else {
             this.body = new ArrayList<>(requestDTO.getBody());
-            this.mbpIds = new ArrayList<>(mbpIds);
+            this.sbpIds = new ArrayList<>(sbpIds);
         }
     }
-
 }
