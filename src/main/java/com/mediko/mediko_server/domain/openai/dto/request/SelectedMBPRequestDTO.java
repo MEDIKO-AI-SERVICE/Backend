@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class SelectedMBPRequestDTO {
+
     private List<String> body;
 
     public SelectedMBP toEntity() {

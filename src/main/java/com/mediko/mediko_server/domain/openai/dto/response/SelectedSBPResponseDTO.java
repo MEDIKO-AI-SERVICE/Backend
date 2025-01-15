@@ -9,9 +9,15 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class SelectedSBPResponseDTO {
+
     private List<String> body;
+
     private List<Long> sbpIds;
+
     private Long mbpId;
+
+    private Long selectedSbpId;
+
     private Long memberId;
 
     public static SelectedSBPResponseDTO fromEntity(SelectedSBP selectedSBP) {
@@ -19,6 +25,7 @@ public class SelectedSBPResponseDTO {
                 selectedSBP.getBody(),
                 selectedSBP.getSbpIds(),
                 selectedSBP.getMbpId(),
+                selectedSBP.getId(),
                 selectedSBP.getMember().getId()
         );
     }

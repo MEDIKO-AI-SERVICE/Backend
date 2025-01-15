@@ -7,8 +7,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SubBodyPartResponseDTO {
+
     private String body;
+
     private String description;
+
     private Long mainBodyPartId;
 
     public static SubBodyPartResponseDTO fromEntity(SubBodyPart subBodyPart) {
