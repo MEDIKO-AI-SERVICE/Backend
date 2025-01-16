@@ -11,6 +11,7 @@ import com.mediko.mediko_server.domain.openai.dto.response.DurationResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.IntensityResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.PainStartResponseDTO;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -64,13 +65,13 @@ public class SymptomController {
      * Intensity 관련 메서드
      */
     @PutMapping("/intensity/{symptomId}")
-    public ResponseEntity<IntensityResponseDTO> updateIntensity(
+    public ResponseEntity<IntensityResponseDTO> saveIntensity(
             @PathVariable("symptomId") Long symptomId,
-            @RequestBody IntensityRequestDTO requestDTO,
+            @Valid @RequestBody IntensityRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Member member = userDetails.getMember();
-        IntensityResponseDTO response = symptomService.updateIntensity(symptomId, requestDTO, member);
+        IntensityResponseDTO response = symptomService.saveIntensity(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
     }
 
@@ -88,13 +89,13 @@ public class SymptomController {
      * Duration 관련 메서드
      */
     @PutMapping("/duration/{symptomId}")
-    public ResponseEntity<DurationResponseDTO> updateDuration(
+    public ResponseEntity<DurationResponseDTO> saveDuration(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody DurationRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Member member = userDetails.getMember();
-        DurationResponseDTO response = symptomService.updateDuration(symptomId, requestDTO, member);
+        DurationResponseDTO response = symptomService.saveDuration(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
     }
 
@@ -113,15 +114,16 @@ public class SymptomController {
      * AdditionalInfo 관련 메서드
      */
     @PutMapping("/additional/{symptomId}")
-    public ResponseEntity<AdditionalInfoResponseDTO> updateAdditionalInfo(
+    public ResponseEntity<AdditionalInfoResponseDTO> saveAdditionalInfo(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody AdditionalInfoRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Member member = userDetails.getMember();
-        AdditionalInfoResponseDTO response = symptomService.updateAdditionalInfo(symptomId, requestDTO, member);
+        AdditionalInfoResponseDTO response = symptomService.saveAdditionalInfo(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/additional/{symptomId}")
     public ResponseEntity<AdditionalInfoResponseDTO> getAdditionalInfo(
             @PathVariable("symptomId") Long symptomId,

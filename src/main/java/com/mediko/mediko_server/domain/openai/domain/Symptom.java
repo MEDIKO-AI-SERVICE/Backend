@@ -26,7 +26,7 @@ public class Symptom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "start_u",nullable = false)
     @Builder.Default
-    private TimeUnit startUnit = TimeUnit.HOUR;
+    private TimeUnit startUnit = TimeUnit.DEFAULT;
 
     @Column(name = "duration_v", nullable = false)
     @Builder.Default
@@ -35,11 +35,11 @@ public class Symptom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "duration_u", nullable = false)
     @Builder.Default
-    private TimeUnit durationUnit = TimeUnit.HOUR;
+    private TimeUnit durationUnit = TimeUnit.DEFAULT;
 
     @Column(name = "intensity", nullable = false)
     @Builder.Default
-    private Integer intensity = 1;
+    private Integer intensity = 0;
 
     @Column(name = "additional")
     private String additional;
