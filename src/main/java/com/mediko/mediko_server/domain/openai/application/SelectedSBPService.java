@@ -29,9 +29,7 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.INVALID_PARAME
 @Transactional(readOnly = true)
 public class SelectedSBPService {
     private final SelectedSBPRepository selectedSBPRepository;
-    private final SelectedMBPRepository selectedMBPRepository;
     private final SubBodyPartRepository subBodyPartRepository;
-    private final MainBodyPartRepository mainBodyPartRepository;
 
     //selectedMBP에 포함된 selectedSBP 조회
     @Transactional
@@ -53,8 +51,8 @@ public class SelectedSBPService {
                 .collect(Collectors.toList());
         Long mbpId = validSubBodyParts.get(0).getMainBodyPart().getId();
 
-        SelectedSBP selectedSBP = SelectedSBP.builder()
-                .body(requestDTO.getBody())
+        SelectedSBP selectedSBP = requestDTO.toEntity()
+                .toBuilder()
                 .sbpIds(sbpIds)
                 .mbpId(mbpId)
                 .member(member)

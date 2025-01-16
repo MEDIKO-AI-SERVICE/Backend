@@ -54,8 +54,8 @@ public class SelectedMBPService {
             mbpIds.add(foundMainBodyPart.getId());
         }
 
-        SelectedMBP selectedMBP = SelectedMBP.builder()
-                .body(bodyList)
+        SelectedMBP selectedMBP = requestDTO.toEntity()
+                .toBuilder()
                 .member(member)
                 .mbpIds(mbpIds)
                 .build();
