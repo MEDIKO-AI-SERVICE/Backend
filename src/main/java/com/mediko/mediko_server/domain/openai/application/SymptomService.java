@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
+import com.mediko.mediko_server.domain.openai.domain.TimeUnit;
 import com.mediko.mediko_server.domain.openai.domain.repository.SymptomRepository;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalInfoRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.DurationRequestDTO;
@@ -11,11 +12,13 @@ import com.mediko.mediko_server.domain.openai.dto.response.AdditionalInfoRespons
 import com.mediko.mediko_server.domain.openai.dto.response.DurationResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.IntensityResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.PainStartResponseDTO;
-import jakarta.persistence.EntityNotFoundException;
+import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -27,174 +30,164 @@ public class SymptomService {
     /**
      * PainStart 관련 메서드
      */
+    // 증상 시작시간 저장
     @Transactional
     public PainStartResponseDTO savePainStart(PainStartRequestDTO requestDTO, Member member) {
-        // 새로운 Symptom 엔티티 생성
+        validateTimeValue(requestDTO.getStartValue(), requestDTO.getStartUnit());
+
         Symptom newSymptom = Symptom.builder()
-                .startValue(requestDTO.getStartValue())  // PainStartRequestDTO의 startValue 값 사용
-                .startUnit(requestDTO.getStartUnit())    // PainStartRequestDTO의 startUnit 값 사용
-                .member(member)  // member 설정
+                .startValue(requestDTO.getStartValue())
+                .startUnit(requestDTO.getStartUnit())
+                .member(member)
                 .build();
 
-        // Symptom 저장
         Symptom savedSymptom = symptomRepository.save(newSymptom);
 
-        // 저장된 데이터를 ResponseDTO로 반환
         return PainStartResponseDTO.fromEntity(savedSymptom);
     }
 
-
-
+    // 증상 시작시간 조회
     public PainStartResponseDTO getPainStart(Long symptomId, Member member) {
-        // 특정 사용자의 증상 정보를 조회
         Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
         return PainStartResponseDTO.fromEntity(symptom);
     }
 
+    // 증상 시작시간 수정
     @Transactional
     public PainStartResponseDTO updatePainStart(Long symptomId, PainStartRequestDTO requestDTO, Member member) {
-        // 기존 엔티티 가져오기
-        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
 
-        // 기존 엔티티 업데이트
+        validateTimeValue(requestDTO.getStartValue(), requestDTO.getStartUnit());
+
+        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
+
         existingSymptom.updatePainStart(requestDTO.getStartValue(), requestDTO.getStartUnit()); // PainStartRequestDTO 값으로 업데이트
 
-        // 저장
         Symptom savedSymptom = symptomRepository.save(existingSymptom);
 
-        // 저장된 데이터를 ResponseDTO로 반환
         return PainStartResponseDTO.fromEntity(savedSymptom);
     }
 
+    /**
+     * Intensity 관련 메서드
+     */
+    //증상 강도 저장
+    @Transactional
+    public IntensityResponseDTO saveIntensity(Long symptomId, IntensityRequestDTO requestDTO, Member member) {
+
+        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
+
+        validatePainStartExists(existingSymptom);
+
+        existingSymptom.updateIntensity(requestDTO.getIntensity());
+
+        Symptom savedSymptom = symptomRepository.save(existingSymptom);
+
+        return IntensityResponseDTO.fromEntity(savedSymptom);
+    }
+
+    //증상 강도 조회
+    public IntensityResponseDTO getIntensity(Long symptomId, Member member) {
+        Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
+        return IntensityResponseDTO.fromEntity(symptom);
+    }
 
 
     /**
      * Duration 관련 메서드
      */
+    //증상 지속기간 저장
     @Transactional
     public DurationResponseDTO saveDuration(Long symptomId, DurationRequestDTO requestDTO, Member member) {
+
         Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
 
-        Symptom updatedSymptom = existingSymptom.toBuilder()
-                .durationValue(requestDTO.getDurationValue())
-                .durationUnit(requestDTO.getDurationUnit()) // DTO 값을 반영
-                .build();
+        validateIntensityExists(existingSymptom);
 
-        Symptom savedSymptom = symptomRepository.save(updatedSymptom);
+        validateTimeValue(requestDTO.getDurationValue(), requestDTO.getDurationUnit());
+
+        existingSymptom.updateDuration(requestDTO.getDurationValue(), requestDTO.getDurationUnit()); // Duration 값 업데이트
+
+        Symptom savedSymptom = symptomRepository.save(existingSymptom);
 
         return DurationResponseDTO.fromEntity(savedSymptom);
     }
 
+    //증상 지속기간 조회
     public DurationResponseDTO getDuration(Long symptomId, Member member) {
-        // 특정 사용자의 증상 정보 조회
+
         Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
         return DurationResponseDTO.fromEntity(symptom);
     }
 
-    @Transactional
-    public DurationResponseDTO updateDuration(Long symptomId, DurationRequestDTO requestDTO, Member member) {
-        // 기존 엔티티 가져오기
-        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
-
-        // 기존 엔티티 업데이트
-        existingSymptom.updateDuration(requestDTO.getDurationValue(), requestDTO.getDurationUnit()); // Duration 값 업데이트
-
-        // 저장
-        Symptom savedSymptom = symptomRepository.save(existingSymptom);
-
-        return DurationResponseDTO.fromEntity(savedSymptom);
-    }
-
-
-    /**
-     * Intensity 관련 메서드
-     */
-    @Transactional
-    public IntensityResponseDTO saveIntensity(Long symptomId, IntensityRequestDTO requestDTO, Member member) {
-        // 기존 엔티티 가져오기
-        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
-
-        // 기존 엔티티를 복사하고 DTO 값을 업데이트
-        Symptom updatedSymptom = existingSymptom.toBuilder()
-                .intensity(requestDTO.getIntensity()) // DTO 값으로 업데이트
-                .build();
-
-        // 저장
-        Symptom savedSymptom = symptomRepository.save(updatedSymptom);
-
-        // 저장된 데이터를 ResponseDTO로 반환
-        return IntensityResponseDTO.fromEntity(savedSymptom);
-    }
-
-    public IntensityResponseDTO getIntensity(Long symptomId, Member member) {
-        // 특정 사용자의 증상 정보 조회
-        Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
-        return IntensityResponseDTO.fromEntity(symptom);
-    }
-
-    @Transactional
-    public IntensityResponseDTO updateIntensity(Long symptomId, IntensityRequestDTO requestDTO, Member member) {
-        // 기존 엔티티 가져오기
-        Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
-
-        // 기존 엔티티 업데이트
-        existingSymptom.updateIntensity(requestDTO.getIntensity()); // Intensity 값과 Member 값 업데이트
-
-        // 저장
-        Symptom savedSymptom = symptomRepository.save(existingSymptom);
-
-        // 저장된 데이터를 ResponseDTO로 반환
-        return IntensityResponseDTO.fromEntity(savedSymptom);
-    }
 
 
     /**
      * AdditionalInfo 관련 메서드
      */
+    //증상 추가정보 저장
     @Transactional
     public AdditionalInfoResponseDTO saveAdditionalInfo(Long symptomId, AdditionalInfoRequestDTO requestDTO, Member member) {
-        // symptomId와 member를 사용하여 해당 증상 조회
-        Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
 
-        // 증상의 additional 정보 업데이트
-        symptom.updateAdditionalInfo(requestDTO.getAdditional());
-
-        // 저장
-        Symptom savedSymptom = symptomRepository.save(symptom);
-
-        // 저장된 데이터를 ResponseDTO로 반환
-        return AdditionalInfoResponseDTO.fromEntity(savedSymptom);
-    }
-
-
-    public AdditionalInfoResponseDTO getAdditionalInfo(Long symptomId, Member member) {
-        // 특정 사용자의 증상 정보 조회
-        Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
-        return AdditionalInfoResponseDTO.fromEntity(symptom);
-    }
-
-    @Transactional
-    public AdditionalInfoResponseDTO updateAdditionalInfo(Long symptomId, AdditionalInfoRequestDTO requestDTO, Member member) {
-        // 기존 엔티티 가져오기
         Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found for the given ID and member"));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
 
-        // 기존 엔티티 업데이트
-        existingSymptom.updateAdditionalInfo(requestDTO.getAdditional()); // Additional 정보 업데이트
+        validateDurationExists(existingSymptom);
 
-        // 저장
+        existingSymptom.updateAdditionalInfo(requestDTO.getAdditional());
         Symptom savedSymptom = symptomRepository.save(existingSymptom);
 
         return AdditionalInfoResponseDTO.fromEntity(savedSymptom);
     }
+
+
+    //증상 추가 정보 조회
+    public AdditionalInfoResponseDTO getAdditionalInfo(Long symptomId, Member member) {
+
+        Symptom symptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
+        return AdditionalInfoResponseDTO.fromEntity(symptom);
+    }
+
+
+    /**
+     * TimeValue + TimeUnit 값 검증
+     */
+
+    private void validateTimeValue(int value, TimeUnit timeUnit) {
+        if (!timeUnit.isValidValue(value)) {
+            throw new BadRequestException(INVALID_FORMAT, value + "값 은 " + timeUnit + " 단위에 유효하지 않습니다.");
+        }
+    }
+
+
+    /**
+     * 이전 단계 데이터 존재 여부 검증
+     */
+
+    private void validatePainStartExists(Symptom symptom) {
+        if (symptom.getStartValue() == 0 || symptom.getStartUnit() == TimeUnit.DEFAULT) {
+            throw new BadRequestException(MISSING_REQUIRED_FIELD, "통증 시작시간 정보가 없습니다. 먼저 통증 시작시간 정보를 입력해주세요.");
+        }
+    }
+
+    private void validateIntensityExists(Symptom symptom) {
+        validatePainStartExists(symptom);
+        if (symptom.getIntensity() == 0) {
+            throw new BadRequestException(MISSING_REQUIRED_FIELD, "통증 강도 정보가 없습니다. 먼저 통증 강도 정보를 입력해주세요.");
+        }
+    }
+
+    private void validateDurationExists(Symptom symptom) {
+        validateIntensityExists(symptom);
+        if (symptom.getDurationValue() == 0 || symptom.getDurationUnit() == TimeUnit.DEFAULT) {
+            throw new BadRequestException(MISSING_REQUIRED_FIELD, "통증 지속기간 정보가 없습니다. 먼저 통증 지속기간 정보를 입력해주세요.");
+        }
+    }
+
 }
