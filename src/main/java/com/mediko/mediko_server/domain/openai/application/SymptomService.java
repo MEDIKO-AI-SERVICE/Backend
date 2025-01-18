@@ -1,8 +1,10 @@
 package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.openai.domain.SelectedSBP;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
 import com.mediko.mediko_server.domain.openai.domain.TimeUnit;
+import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSBPRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SymptomRepository;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalInfoRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.DurationRequestDTO;
@@ -18,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
 @Slf4j
@@ -26,13 +31,20 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 @Transactional(readOnly = true)
 public class SymptomService {
     private final SymptomRepository symptomRepository;
+    private final SelectedSBPRepository selectedSBPRepository;
 
     /**
      * PainStart 관련 메서드
      */
     // 증상 시작시간 저장
     @Transactional
-    public PainStartResponseDTO savePainStart(PainStartRequestDTO requestDTO, Member member) {
+    public PainStartResponseDTO savePainStart(PainStartRequestDTO requestDTO, List<Long> selectedSBPIds, Member member) {
+        List<SelectedSBP> selectedSBPs = selectedSBPRepository.findAllById(selectedSBPIds);
+
+        if (selectedSBPs.size() != selectedSBPIds.size()) {
+            throw new BadRequestException(INVALID_PARAMETER, "해당 세부신체를 찾을 수 없습니다.");
+        }
+
         validateTimeValue(requestDTO.getStartValue(), requestDTO.getStartUnit());
 
         Symptom newSymptom = Symptom.builder()
@@ -42,6 +54,12 @@ public class SymptomService {
                 .build();
 
         Symptom savedSymptom = symptomRepository.save(newSymptom);
+
+        selectedSBPs.forEach(sbp -> {
+            sbp.updateSymptom(savedSymptom);
+        });
+
+        selectedSBPRepository.saveAll(selectedSBPs);
 
         return PainStartResponseDTO.fromEntity(savedSymptom);
     }
@@ -62,7 +80,7 @@ public class SymptomService {
         Symptom existingSymptom = symptomRepository.findByIdAndMemberId(symptomId, member.getId())
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
 
-        existingSymptom.updatePainStart(requestDTO.getStartValue(), requestDTO.getStartUnit()); // PainStartRequestDTO 값으로 업데이트
+        existingSymptom.updatePainStart(requestDTO.getStartValue(), requestDTO.getStartUnit());
 
         Symptom savedSymptom = symptomRepository.save(existingSymptom);
 
@@ -110,7 +128,7 @@ public class SymptomService {
 
         validateTimeValue(requestDTO.getDurationValue(), requestDTO.getDurationUnit());
 
-        existingSymptom.updateDuration(requestDTO.getDurationValue(), requestDTO.getDurationUnit()); // Duration 값 업데이트
+        existingSymptom.updateDuration(requestDTO.getDurationValue(), requestDTO.getDurationUnit());
 
         Symptom savedSymptom = symptomRepository.save(existingSymptom);
 

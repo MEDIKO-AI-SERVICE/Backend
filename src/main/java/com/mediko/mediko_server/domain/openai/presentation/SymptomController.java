@@ -18,6 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -29,13 +33,19 @@ public class SymptomController {
     /**
      * PainStart 관련 메서드
      */
-    @PostMapping("/start")
+    @PostMapping("/start/{selectedSBPIds}")
     public ResponseEntity<PainStartResponseDTO> savePainStart(
+            @PathVariable("selectedSBPIds") String selectedSBPIds,
             @RequestBody PainStartRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Member member = userDetails.getMember();
-        PainStartResponseDTO response = symptomService.savePainStart(requestDTO, member);
+
+        List<Long> idList = Arrays.stream(selectedSBPIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        PainStartResponseDTO response = symptomService.savePainStart(requestDTO, idList, member);
         return ResponseEntity.ok(response);
     }
 

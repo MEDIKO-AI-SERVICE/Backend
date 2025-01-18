@@ -37,6 +37,10 @@ public class SelectedSBP extends BaseEntity {
     @JoinColumn(name = "selected_mbp_id")
     private SelectedMBP selectedMBP;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "symptom_id")
+    private Symptom symptom;
+
     public void updateSelectedSBP(SelectedSBPRequestDTO requestDTO, List<Long> sbpIds, SelectedMBP selectedMBP) {
         if (requestDTO.getBody() == null) {
             this.body = new ArrayList<>();
@@ -46,5 +50,9 @@ public class SelectedSBP extends BaseEntity {
             this.sbpIds = new ArrayList<>(sbpIds);
         }
         this.selectedMBP = selectedMBP;
+    }
+
+    public void updateSymptom(Symptom symptom) {
+        this.symptom = symptom;
     }
 }

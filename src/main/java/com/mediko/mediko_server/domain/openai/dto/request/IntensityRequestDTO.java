@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.domain.openai.dto.request;
 
-import com.mediko.mediko_server.domain.openai.domain.Symptom;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
