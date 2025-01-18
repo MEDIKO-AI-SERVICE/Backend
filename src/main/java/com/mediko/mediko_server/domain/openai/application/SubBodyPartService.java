@@ -25,4 +25,10 @@ public class SubBodyPartService {
                 .map(SubBodyPartResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    // MainBodyPart에 속하는 SubBodyPart 모두 조회
+    @Transactional
+    public List<SubBodyPart> getSubBodyPartsByMainBodyPartBodies(List<String> bodies) {
+        return subBodyPartRepository.findAllByMainBodyPartBodies(bodies);
+    }
 }
