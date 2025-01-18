@@ -33,10 +33,11 @@ public class SelectedSBP extends BaseEntity {
     @Column(name = "sbp_id", nullable = false)
     private List<Long> sbpIds;
 
-    @Column(name = "mbp_id", nullable = false)
-    private Long mbpId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selected_mbp_id")
+    private SelectedMBP selectedMBP;
 
-    public void updateSelectedSBP(SelectedSBPRequestDTO requestDTO, List<Long> sbpIds) {
+    public void updateSelectedSBP(SelectedSBPRequestDTO requestDTO, List<Long> sbpIds, SelectedMBP selectedMBP) {
         if (requestDTO.getBody() == null) {
             this.body = new ArrayList<>();
             this.sbpIds = new ArrayList<>();
@@ -44,5 +45,6 @@ public class SelectedSBP extends BaseEntity {
             this.body = new ArrayList<>(requestDTO.getBody());
             this.sbpIds = new ArrayList<>(sbpIds);
         }
+        this.selectedMBP = selectedMBP;
     }
 }

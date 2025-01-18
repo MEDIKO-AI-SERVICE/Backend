@@ -1,11 +1,9 @@
 package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.domain.MainBodyPart;
 import com.mediko.mediko_server.domain.openai.domain.SelectedMBP;
 import com.mediko.mediko_server.domain.openai.domain.SelectedSBP;
 import com.mediko.mediko_server.domain.openai.domain.SubBodyPart;
-import com.mediko.mediko_server.domain.openai.domain.repository.MainBodyPartRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SelectedMBPRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSBPRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SubBodyPartRepository;
@@ -28,67 +26,78 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.INVALID_PARAME
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SelectedSBPService {
+
     private final SelectedSBPRepository selectedSBPRepository;
     private final SubBodyPartRepository subBodyPartRepository;
+    private final SelectedMBPRepository selectedMBPRepository;
 
-    //selectedMBP에 포함된 selectedSBP 조회
-    @Transactional
-    public List<SubBodyPart> getSubBodyPartsByMainBodyPartBodies(List<String> bodies) {
-        return subBodyPartRepository.findAllByMainBodyPartBodies(bodies);
-    }
 
-    //selectedSBP 저장
     @Transactional
-    public SelectedSBPResponseDTO saveSelectedSBP(Member member, SelectedSBPRequestDTO requestDTO) {
+    public SelectedSBPResponseDTO saveSelectedSBP(Member member, SelectedSBPRequestDTO requestDTO, Long selectedMBPId) {
         List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
                 .map(body -> subBodyPartRepository.findByBody(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
-                                String.format("요청한 부위 '%s'가 유효하지 않습니다.", body))))
+                                String.format("'%s' 부분은 존재하지 않습니다.", body))))
                 .collect(Collectors.toList());
 
         List<Long> sbpIds = validSubBodyParts.stream()
                 .map(SubBodyPart::getId)
                 .collect(Collectors.toList());
-        Long mbpId = validSubBodyParts.get(0).getMainBodyPart().getId();
 
+        // 3. selectedMBPId로 선택된 SelectedMBP 찾기
+        SelectedMBP selectedMBP = selectedMBPRepository.findById(selectedMBPId)
+                .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 주신체 부분이 존재하지 않습니다."));
+
+        // 4. SelectedSBP 객체 생성
         SelectedSBP selectedSBP = requestDTO.toEntity()
                 .toBuilder()
                 .sbpIds(sbpIds)
-                .mbpId(mbpId)
+                .selectedMBP(selectedMBP)
                 .member(member)
                 .build();
 
+        // 5. SelectedSBP 저장
         selectedSBPRepository.save(selectedSBP);
 
+        // 6. Response DTO 반환
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);
     }
 
-    // 최신 SelectedSBP 조회
-    public SelectedSBPResponseDTO getLatestSelectedSBP(Member member) {
-        SelectedSBP selectedSBP = selectedSBPRepository.findLatestByMemberId(member.getId())
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "최신 세부 신체 부분을 찾을 수 없습니다."));
+
+
+    // SelectedSBP 조회
+    public SelectedSBPResponseDTO getSelectedSBP(Long selectedSBPId, Member member) {
+        SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
 
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);
     }
 
-    // 최신 SelectedSBP 수정
+    // SelectedSBP 수정
     @Transactional
-    public SelectedSBPResponseDTO updateLatestSelectedSBP(Member member, SelectedSBPRequestDTO requestDTO) {
+    public SelectedSBPResponseDTO updateSelectedSBP(Long selectedSBPId, Member member, SelectedSBPRequestDTO requestDTO) {
+        // 요청받은 body part들을 검증
         List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
                 .map(body -> subBodyPartRepository.findByBody(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
-                                String.format("요청한 부위 '%s'가 유효하지 않습니다.", body))))
+                                String.format("'%s' 부분은 존재하지 않습니다.", body))))
                 .collect(Collectors.toList());
 
         List<Long> sbpIds = validSubBodyParts.stream()
                 .map(SubBodyPart::getId)
                 .collect(Collectors.toList());
 
-        SelectedSBP selectedSBP = selectedSBPRepository.findLatestByMemberId(member.getId())
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "최신 세부 신체 부분을 찾을 수 없습니다."));
+        // 기존에 저장된 SelectedSBP를 가져옴
+        SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
 
-        selectedSBP.updateSelectedSBP(requestDTO, sbpIds);
+        // 기존 SelectedSBP에서 연결된 SelectedMBP 사용
+        SelectedMBP selectedMBP = selectedSBP.getSelectedMBP(); // 이미 연결된 SelectedMBP 사용
 
+        // SelectedSBP 수정
+        selectedSBP.updateSelectedSBP(requestDTO, sbpIds, selectedMBP);
+
+        // 변경된 SelectedSBP 저장
         selectedSBPRepository.save(selectedSBP);
 
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);

@@ -19,7 +19,7 @@ import java.util.List;
 public class MainBodyPartController {
     private final MainBodyPartService mainBodyPartService;
 
-    // 모든 MainBodyPart 조회
+    // 모든 주신체 부분 조회
     @GetMapping()
     public ResponseEntity<List<MainBodyPartResponseDTO>> findAll() {
         List<MainBodyPartResponseDTO> mainBodyParts = mainBodyPartService.findAll();

@@ -29,25 +29,29 @@ public class SelectedMBPController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    // 최신 주신체 부분 조회
-    @GetMapping
+    // 특정 selectedMBP 조회
+    @GetMapping("/{selectedMBPId}")
     public ResponseEntity<SelectedMBPResponseDTO> getSelectedMBP(
+            @PathVariable("selectedMBPId") Long selectedMBPId,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        SelectedMBPResponseDTO responseDTO = selectedMBPService.getLatestSelectedSBP(member);
+        SelectedMBPResponseDTO responseDTO = selectedMBPService.getSelectedMBP(selectedMBPId, member);
         return ResponseEntity.ok(responseDTO);
     }
 
-    // 최신 주신체 부분 수정
-    @PutMapping
+
+    // 특정 주신체 부분 수정
+    @PutMapping("/{selectedMBPId}")
     public ResponseEntity<SelectedMBPResponseDTO> updateSelectedMBP(
+            @PathVariable("selectedMBPId") Long selectedMBPId,
             @RequestBody SelectedMBPRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        SelectedMBPResponseDTO responseDTO = selectedMBPService.updateLatestSelectedSBP(requestDTO, member);
+        SelectedMBPResponseDTO responseDTO = selectedMBPService.updateSelectedMBP(selectedMBPId, requestDTO, member);
         return ResponseEntity.ok(responseDTO);
     }
+
 
 }

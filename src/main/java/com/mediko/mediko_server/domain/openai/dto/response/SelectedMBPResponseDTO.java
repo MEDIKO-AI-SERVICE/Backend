@@ -14,7 +14,7 @@ public class SelectedMBPResponseDTO {
 
     private List<Long> mbpIds;
 
-    private Long selectedMbpId;
+    private Long selectedMBPId;
 
     private Long memberId;
 

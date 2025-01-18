@@ -14,9 +14,9 @@ public class SelectedSBPResponseDTO {
 
     private List<Long> sbpIds;
 
-    private Long mbpId;
+    private Long selectedSBPId;
 
-    private Long selectedSbpId;
+    private Long selectedMBPId;
 
     private Long memberId;
 
@@ -24,8 +24,8 @@ public class SelectedSBPResponseDTO {
         return new SelectedSBPResponseDTO(
                 selectedSBP.getBody(),
                 selectedSBP.getSbpIds(),
-                selectedSBP.getMbpId(),
                 selectedSBP.getId(),
+                selectedSBP.getSelectedMBP().getId(),
                 selectedSBP.getMember().getId()
         );
     }
