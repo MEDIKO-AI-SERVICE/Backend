@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -52,9 +53,8 @@ public class Symptom extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Convert(converter = LongListConverter.class)
-    @Column(name = "s_sbp_id", nullable = false)
-    private List<Long> selectedSbpIds;
+    @OneToMany(mappedBy = "symptom", cascade = CascadeType.ALL)
+    private List<SelectedSBP> selectedSBPs = new ArrayList<>();
 
     public void updatePainStart(Integer startValue, TimeUnit painStartUnit) {
         this.startValue = startValue;
