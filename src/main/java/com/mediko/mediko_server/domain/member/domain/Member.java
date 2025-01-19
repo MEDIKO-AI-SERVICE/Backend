@@ -49,13 +49,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "role", nullable = false)
     private UserStatus role;
 
-    @OneToOne
-    @JoinColumn(name = "basic_info_id")
-    private BasicInfo basicInfo;
-
-    @OneToOne
-    @JoinColumn(name = "health_info_id")
-    private HealthInfo healthInfo;
 
     /**
      * UserDetails 인터페이스 메서드
