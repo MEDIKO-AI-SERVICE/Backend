@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.member.application;
 
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.HealthInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.HealthInfoRequestDTO;
@@ -23,45 +22,31 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.DATA_NOT_EXIST
 @Transactional(readOnly = true)
 public class HealthInfoService {
 
-    private final MemberRepository memberRepository;
     private final HealthInfoRepository healthInfoRepository;
 
     //HealthInfo 저장
     @Transactional
-    public HealthInfoResponseDTO saveHealthInfo(String loginId, HealthInfoRequestDTO healthInfoRequestDTO) {
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        if (member.getHealthInfo() != null) {
+    public HealthInfoResponseDTO saveHealthInfo(Member member, HealthInfoRequestDTO healthInfoRequestDTO) {
+        if (healthInfoRepository.existsByMember(member)) {
             throw new BadRequestException(DATA_ALREADY_EXIST, "사용자의 기본정보가 이미 저장되었습니다.");
         }
 
-        HealthInfo healthInfo = healthInfoRequestDTO.toEntity();
+        HealthInfo healthInfo = healthInfoRequestDTO.toEntity().toBuilder()
+                .member(member)
+                .build();
+
         healthInfo.validateHealthInfoFields();
 
-        healthInfoRepository.save(healthInfo);
+        HealthInfo savedHealthInfo = healthInfoRepository.save(healthInfo);
 
-        //member = member.toBuilder()
-        //        .healthInfo(healthInfo)
-        //        .build();
-
-        member.setHealthInfo(healthInfo); //toBuilder로 수정할 시 객체가 새로 생성돼서 데이터무결성 오류 발생(login_id  중복)
-
-        memberRepository.save(member);
-
-        return HealthInfoResponseDTO.fromEntity(healthInfo);
+        return HealthInfoResponseDTO.fromEntity(savedHealthInfo);
     }
 
 
     //HealthInfo 조회
-    public HealthInfoResponseDTO getHealthInfo(String loginId) {
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        HealthInfo healthInfo = member.getHealthInfo();
-        if (healthInfo == null) {
-            throw new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다.");
-        }
+    public HealthInfoResponseDTO getHealthInfo(Member member) {
+        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다."));
 
         return HealthInfoResponseDTO.fromEntity(healthInfo);
     }
@@ -69,22 +54,14 @@ public class HealthInfoService {
 
     //HealthInfo 수정
     @Transactional
-    public HealthInfoResponseDTO updateHealthInfo(String loginId, HealthInfoRequestDTO healthInfoRequestDTO) {
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
+    public HealthInfoResponseDTO updateHealthInfo(Member member, HealthInfoRequestDTO healthInfoRequestDTO) {
+        HealthInfo existingHealthInfo = healthInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다."));
 
-        if (member.getHealthInfo() == null) {
-            throw new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다.");
-        }
-
-        HealthInfo existingHealthInfo = member.getHealthInfo();
         existingHealthInfo.updateHealthInfo(healthInfoRequestDTO);
+        HealthInfo savedHealthInfo = healthInfoRepository.save(existingHealthInfo);
 
-        healthInfoRepository.save(existingHealthInfo);
-
-        memberRepository.save(member);
-
-        return HealthInfoResponseDTO.fromEntity(existingHealthInfo);
+        return HealthInfoResponseDTO.fromEntity(savedHealthInfo);
     }
 }
 

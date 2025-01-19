@@ -5,9 +5,7 @@ import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +40,10 @@ public class BasicInfo extends BaseEntity {
 
     @Column(name = "weight", nullable = false)
     private Integer weight;
+
+    @OneToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     public void validateBasicInfoFields() {
         if (this.language == null ||
