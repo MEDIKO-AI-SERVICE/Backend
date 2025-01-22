@@ -56,6 +56,28 @@ public class Symptom extends BaseEntity {
     @OneToMany(mappedBy = "symptom", cascade = CascadeType.ALL)
     private List<SelectedSBP> selectedSBPs = new ArrayList<>();
 
+
+    // SelectedSBP의 body 부분을 가져오는 메서드
+    public List<String> getSelectedSBPBodyParts() {
+        List<String> bodyParts = new ArrayList<>();
+        for (SelectedSBP selectedSBP : selectedSBPs) {
+            bodyParts.addAll(selectedSBP.getBody());  // SelectedSBP의 body를 가져옴
+        }
+        return bodyParts;
+    }
+
+    // SelectedMBP의 body 부분을 가져오는 메서드
+    public List<String> getSelectedMBPBodyParts() {
+        List<String> bodyParts = new ArrayList<>();
+        for (SelectedSBP selectedSBP : selectedSBPs) {
+            SelectedMBP selectedMBP = selectedSBP.getSelectedMBP();
+            if (selectedMBP != null) {
+                bodyParts.addAll(selectedMBP.getBody());  // SelectedMBP의 body를 가져옴
+            }
+        }
+        return bodyParts;
+    }
+
     public void updatePainStart(Integer startValue, TimeUnit painStartUnit) {
         this.startValue = startValue;
         this.startUnit = painStartUnit;
