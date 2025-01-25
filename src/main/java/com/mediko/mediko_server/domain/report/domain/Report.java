@@ -31,7 +31,7 @@ public class Report extends BaseEntity {
 
     @Convert(converter = JsonConverter.class)
     @Column(name = "conditions")
-    private List<Map<String, String>> possibleConditions = new ArrayList<>();
+   private List<Map<String, String>> possibleConditions = new ArrayList<>();
 
     @Convert(converter = JsonConverter.class)
     @Column(name = "questions")
