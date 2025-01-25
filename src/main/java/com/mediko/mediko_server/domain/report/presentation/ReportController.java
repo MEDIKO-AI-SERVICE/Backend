@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
     private final ReportService reportService;
 
-    /**
-     * 보고서 생성 요청
-     * @param reportRequestDTO 보고서 생성 요청 데이터
-     * @return 생성된 보고서 정보
-     */
     @PostMapping
     public ResponseEntity<ReportResponseDTO> generateReport(
             @RequestBody ReportRequestDTO reportRequestDTO) {

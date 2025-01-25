@@ -20,12 +20,10 @@ public class ReportResponseDTO {
     @JsonProperty("possible_conditions")
     private List<Map<String, String>> possibleConditions;
 
-    @JsonProperty("questions_for_doctor")
+    @JsonProperty("questions_to_doctor")
     private List<Map<String, String>> questionsForDoctor;
 
     @JsonProperty("symptom_checklist")
     private List<Map<String, Object>> symptomChecklist;
 
-    @JsonProperty("symptom")
-    private Symptom symptom;
 }
