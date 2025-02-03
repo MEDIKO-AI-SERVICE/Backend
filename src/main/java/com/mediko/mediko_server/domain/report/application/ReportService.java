@@ -45,7 +45,7 @@ public class ReportService {
         String requestData = buildRequestData(symptomObj, basicInfoObj);
 
         // 4. Flask 서버로 요청 보내기
-        ReportResponseDTO flaskResponse = flaskCommunicationService.getFlaskResponse(requestData);
+        ReportResponseDTO flaskResponse = flaskCommunicationService.getReportResponse(requestData);
 
         // 5. Report 객체 생성 전에 flaskResponse가 null이 아닌지 확인
         if (flaskResponse == null || flaskResponse.getRecommendedDepartment() == null) {

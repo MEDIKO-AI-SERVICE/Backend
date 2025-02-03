@@ -1,53 +1,91 @@
 package com.mediko.mediko_server.global.flask;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
+import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
+import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
 import com.mediko.mediko_server.domain.report.dto.response.ReportResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FlaskCommunicationService {
     @Value("${flask.url}")
-    private String flaskUrl;
+    private String flaskBaseUrl;
 
     private final RestTemplate restTemplate;
     private final FlaskUrls flaskUrls;
 
-    public ReportResponseDTO getFlaskResponse(String requestData) {
-        String url = UriComponentsBuilder.fromHttpUrl(flaskUrl)
-                .path(flaskUrls.getProcessSymptoms())
-                .toUriString();
+    public ReportResponseDTO getReportResponse(Object requestData) {
+        return sendRequestToFlask(requestData, flaskUrls.getProcessSymptoms(), ReportResponseDTO.class);
+    }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    public List<HospitalResponseDTO> getHospitalRecommendation(Map<String, Object> requestData) {
+        return sendRequestToFlask(requestData, flaskUrls.getRecommendHospital(),
+                new ParameterizedTypeReference<List<HospitalResponseDTO>>() {});
+    }
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestData, headers);
+    public List<PharmacyResponseDTO> getPharmacyRecommendation(Map<String, Object> requestData) {
+        return sendRequestToFlask(requestData, flaskUrls.getRecommendPharmacy(),
+                new ParameterizedTypeReference<List<PharmacyResponseDTO>>() {});
+    }
 
-        // 먼저 응답을 String으로 받아서 로그로 확인
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
+    public List<ErResponseDTO> getErRecommendation(Map<String, Object> requestData) {
+        return sendRequestToFlask(requestData, flaskUrls.getRecommendEr(),
+                new ParameterizedTypeReference<List<ErResponseDTO>>() {});
+    }
 
-        log.info("Flask Response: {}", responseEntity.getBody());
-
-        // ObjectMapper를 사용해서 수동으로 변환
-        ObjectMapper mapper = new ObjectMapper();
+    private <T> T sendRequestToFlask(Object requestData, String endpoint, Class<T> responseType) {
         try {
-            return mapper.readValue(responseEntity.getBody(), ReportResponseDTO.class);
-        } catch (JsonProcessingException e) {
-            log.error("Error parsing response: ", e);
-            throw new RuntimeException("Failed to parse Flask response", e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
+
+            ResponseEntity<T> response = restTemplate.exchange(
+                    flaskBaseUrl + endpoint,
+                    HttpMethod.POST,
+                    entity,
+                    responseType
+            );
+
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
+        }
+    }
+
+    private <T> T sendRequestToFlask(Object requestData, String endpoint,
+                                     ParameterizedTypeReference<T> responseType) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
+
+            ResponseEntity<T> response = restTemplate.exchange(
+                    flaskBaseUrl + endpoint,
+                    HttpMethod.POST,
+                    entity,
+                    responseType
+            );
+
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
         }
     }
 }
