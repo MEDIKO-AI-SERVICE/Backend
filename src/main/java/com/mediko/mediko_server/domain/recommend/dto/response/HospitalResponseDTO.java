@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.recommend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,23 +19,23 @@ public class HospitalResponseDTO {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("address")
-    private String address;
+    @JsonProperty("department")
+    private String hpDepartment;
 
     @JsonProperty("telephone")
     private String telephone;
 
-    @JsonProperty("department")
-    private String department;
+    @JsonProperty("address")
+    private String hpAddress;
 
     @JsonProperty("latitude")
-    private Double latitude;
+    private Double hpLatitude;
 
     @JsonProperty("longitude")
-    private Double longitude;
+    private Double hpLongitude;
 
-    @JsonProperty("es_distance_in_km")
-    private Double esDistanceInKm;
+    @JsonProperty("location")
+    private List<Double> latLon;
 
     @JsonProperty("sidocdnm")
     private String sidocdnm;
@@ -50,21 +49,8 @@ public class HospitalResponseDTO {
     @JsonProperty("clcdnm")
     private String clcdnm;
 
-    @JsonProperty("url")
-    private String url;
-
-    @JsonProperty("sort_score")
-    private Long sortScore;
-
-    @JsonProperty("department_match")
-    private Boolean departmentMatch;
-
-    @JsonProperty("location")
-    @Transient
-    private List<Double> latLon;
-
-    @JsonProperty("similarity")
-    private Double similarity;
+    @JsonProperty("es_distance_in_km")
+    private Double esDistanceInKm;
 
     @JsonProperty("transit_travel_distance_km")
     private Double travelKm;
@@ -78,30 +64,41 @@ public class HospitalResponseDTO {
     @JsonProperty("transit_travel_time_s")
     private Integer travelS;
 
+    @JsonProperty("sort_score")
+    private Long sortScore;
+
+    @JsonProperty("department_match")
+    private Boolean departmentMatch;
+
+    @JsonProperty("similarity")
+    private Double similarity;
+
+    @JsonProperty("url")
+    private String url;
 
     public static HospitalResponseDTO fromEntity(Hospital hospital) {
         return new HospitalResponseDTO(
                 hospital.getHpId(),
                 hospital.getName(),
-                hospital.getAddress(),
+                hospital.getHpDepartment(),
                 hospital.getTelephone(),
-                hospital.getDepartment(),
-                hospital.getLatitude(),
-                hospital.getLongitude(),
-                hospital.getEsDistanceInKm(),
+                hospital.getHpAddress(),
+                hospital.getHpLatitude(),
+                hospital.getHpLongitude(),
+                hospital.getLatLon(),
                 hospital.getSidocdnm(),
                 hospital.getSggucdnm(),
                 hospital.getEmdongnm(),
                 hospital.getClcdnm(),
-                hospital.getUrl(),
-                hospital.getSortScore(),
-                hospital.isDepartmentMatch(),
-                hospital.getLatLon(),
-                hospital.getSimilarity(),
+                hospital.getEsDistanceInKm(),
                 hospital.getTravelKm(),
                 hospital.getTravelH(),
                 hospital.getTravelM(),
-                hospital.getTravelS()
+                hospital.getTravelS(),
+                hospital.getSortScore(),
+                hospital.isDepartmentMatch(),
+                hospital.getSimilarity(),
+                hospital.getUrl()
         );
     }
 }

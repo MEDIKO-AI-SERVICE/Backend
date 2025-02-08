@@ -3,9 +3,7 @@ package com.mediko.mediko_server.domain.recommend.dto.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
-import io.micrometer.common.lang.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,32 +19,40 @@ public class HospitalRequestDTO {
 
     private Long healthInfoId;
 
-    @Nullable
-    private Long locationId;
+    @JsonProperty("lat")
+    private Double userLatitude;
+
+    @JsonProperty("lon")
+    private Double userLongitude;
 
     @JsonProperty("is_report")
     private boolean isReport;
 
     private Long reportId;
 
-    private String department;
+    @JsonProperty("department")
+    private String userDepartment;
 
+    @JsonProperty("suspected_disease")
     private List<String> suspectedDisease;
 
-    private boolean secondary_hospital;
+    @JsonProperty("secondary_hospital")
+    private boolean secondaryHospital;
 
-    private boolean tertiary_hospital;
+    @JsonProperty("tertiary_hospital")
+    private boolean tertiaryHospital;
 
-    public Hospital toEntity(BasicInfo basicInfo, HealthInfo healthInfo, String department, String suspectedDisease, Location location) {
+    public Hospital toEntity(BasicInfo basicInfo, HealthInfo healthInfo) {
         return Hospital.builder()
+                .userLatitude(this.userLatitude)
+                .userLongitude(this.userLongitude)
                 .isReport(this.isReport)
-                .department(department)
-                .suspectedDisease(List.of(suspectedDisease.split(",")))
-                .secondaryHospital(this.secondary_hospital)
-                .tertiaryHospital(this.tertiary_hospital)
+                .userDepartment(this.userDepartment)
+                .suspectedDisease(this.suspectedDisease)
+                .secondaryHospital(this.secondaryHospital)
+                .tertiaryHospital(this.tertiaryHospital)
                 .basicInfo(basicInfo)
                 .healthInfo(healthInfo)
-                .location(location)
                 .build();
     }
 }

@@ -58,9 +58,11 @@ public class Er extends BaseEntity {
     @Convert(converter = LongListConverter.class)
     private List<Long> conditions = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @Column(name = "u_latitude")
+    private Double userLatitude;
+
+    @Column(name = "u_longitude")
+    private Double userLongitude;
 
     @ManyToOne
     @JoinColumn(name = "basic_info_id", nullable = false)

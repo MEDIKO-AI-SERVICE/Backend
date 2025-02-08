@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ public class FlaskCommunicationService {
                 new ParameterizedTypeReference<List<ErResponseDTO>>() {});
     }
 
+
     private <T> T sendRequestToFlask(Object requestData, String endpoint, Class<T> responseType) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -68,6 +70,7 @@ public class FlaskCommunicationService {
         }
     }
 
+
     private <T> T sendRequestToFlask(Object requestData, String endpoint,
                                      ParameterizedTypeReference<T> responseType) {
         try {
@@ -75,12 +78,19 @@ public class FlaskCommunicationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
 
+            // 요청 데이터 로깅 추가
+            log.info("Flask 서버로 보내는 데이터: {}", requestData);
+            log.info("Flask 서버 엔드포인트: {}", flaskBaseUrl + endpoint);
+
             ResponseEntity<T> response = restTemplate.exchange(
                     flaskBaseUrl + endpoint,
                     HttpMethod.POST,
                     entity,
                     responseType
             );
+
+            // 응답 데이터 로깅 추가
+            log.info("Flask 서버 응답: {}", response.getBody());
 
             return response.getBody();
         } catch (Exception e) {
