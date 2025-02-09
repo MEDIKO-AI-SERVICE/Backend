@@ -1,11 +1,8 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.report.domain.Report;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,10 +36,10 @@ public class Pharmacy extends BaseEntity {
     @Column(name = "ph_tel")
     private String tel;
 
-    @Column(name = "latitude")
+    @Column(name = "hpLatitude")
     private Double latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "hpLongitude")
     private Double longitude;
 
     @Column(name = "travle_km")
@@ -124,10 +120,11 @@ public class Pharmacy extends BaseEntity {
     @Transient
     private String dutyetc;
 
+    @Column(name = "u_latitude")
+    private Double userLatitude;
 
-    @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @Column(name = "u_longitude")
+    private Double userLongitude;
 
     @ManyToOne
     @JoinColumn(name = "basic_info_id", nullable = false)

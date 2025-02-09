@@ -3,9 +3,7 @@ package com.mediko.mediko_server.domain.report.domain;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
-import com.mediko.mediko_server.global.converter.JsonConverter;
-import com.mediko.mediko_server.global.converter.StringListConvert;
-import com.mediko.mediko_server.global.converter.StringListMapConverter;
+import com.mediko.mediko_server.global.converter.*;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,19 +23,19 @@ import java.util.Map;
 @Entity
 @Table(name= "report")
 public class Report extends BaseEntity {
-    @Convert(converter = JsonConverter.class)
+    @Convert(converter = SingleObjectMapConverter.class)
     @Column(name = "department")
     private Map<String, Object> recommendedDepartment;
 
-    @Convert(converter = JsonConverter.class)
+    @Convert(converter = StringMapListConverter.class)
     @Column(name = "conditions")
    private List<Map<String, String>> possibleConditions = new ArrayList<>();
 
-    @Convert(converter = JsonConverter.class)
+    @Convert(converter = StringMapListConverter.class)
     @Column(name = "questions")
     private List<Map<String, String>> questionsForDoctor = new ArrayList<>();
 
-    @Convert(converter = JsonConverter.class)
+    @Convert(converter = ObjectMapListConverter.class)
     @Column(name = "checklist")
     private List<Map<String, Object>> symptomChecklist = new ArrayList<>();
 

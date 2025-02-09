@@ -1,14 +1,12 @@
 package com.mediko.mediko_server.domain.recommend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
