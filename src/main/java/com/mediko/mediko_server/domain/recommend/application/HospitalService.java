@@ -54,7 +54,7 @@ public class HospitalService {
         HealthInfo healthInfo = healthInfoRepository.findById(requestDTO.getHealthInfoId())
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강정보가 존재하지 않습니다."));
 
-        // 2. 사용자 위치 처리 (latitude, longitude)
+        // 2. 사용자 위치 처리 (phLatitude, longitude)
         if (requestDTO.getUserLatitude() == null || requestDTO.getUserLongitude() == null) {
             throw new BadRequestException(INVALID_PARAMETER, "사용자의 위도와 경도 정보는 필수입니다.");
         }

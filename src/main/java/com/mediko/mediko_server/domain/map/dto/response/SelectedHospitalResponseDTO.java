@@ -1,7 +1,9 @@
-package com.mediko.mediko_server.domain.recommend.dto.response;
+package com.mediko.mediko_server.domain.map.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mediko.mediko_server.domain.map.domain.SelectedHospital;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +13,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HospitalResponseDTO {
-
+public class SelectedHospitalResponseDTO {
     @JsonProperty("id")
     private Long hpId;
 
@@ -76,8 +77,10 @@ public class HospitalResponseDTO {
     @JsonProperty("url")
     private String url;
 
-    public static HospitalResponseDTO fromEntity(Hospital hospital) {
-        return new HospitalResponseDTO(
+
+    public static SelectedHospitalResponseDTO fromEntity(
+            Hospital hospital, SelectedHospital selectedHospital) {
+        return new SelectedHospitalResponseDTO(
                 hospital.getHpId(),
                 hospital.getName(),
                 hospital.getHpDepartment(),

@@ -1,20 +1,10 @@
 package com.mediko.mediko_server.domain.recommend.application.converter;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.HealthInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
-import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
-import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequestDTO;
-import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
-import com.mediko.mediko_server.domain.report.domain.Report;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class PharmacyConverter {
@@ -27,8 +17,8 @@ public class PharmacyConverter {
                 .name(response.getName())
                 .address(response.getAddress())
                 .tel(response.getTel())
-                .latitude(response.getLatitude())
-                .longitude(response.getLongitude())
+                .phLatitude(response.getPhLatitude())
+                .phLongitude(response.getPhLongitude())
                 .start1(response.getStart1())
                 .start2(response.getStart2())
                 .start3(response.getStart3())
