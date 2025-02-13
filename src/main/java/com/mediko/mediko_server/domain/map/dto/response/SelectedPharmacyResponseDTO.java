@@ -1,6 +1,7 @@
-package com.mediko.mediko_server.domain.recommend.dto.response;
+package com.mediko.mediko_server.domain.map.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mediko.mediko_server.domain.map.domain.SelectedPharmacy;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PharmacyResponseDTO {
+public class SelectedPharmacyResponseDTO {
     @JsonProperty("id")
     private Long phId;
 
@@ -28,11 +29,11 @@ public class PharmacyResponseDTO {
     @JsonProperty("dutytel1")
     private String tel;
 
-    @JsonProperty("latitude")
-    private Double phLatitude;
+    @JsonProperty("phLatitude")
+    private Double latitude;
 
     @JsonProperty("longitude")
-    private Double phLongitude;
+    private Double longitude;
 
     @JsonProperty("transit_travel_distance_km")
     private Double travelKm;
@@ -117,8 +118,9 @@ public class PharmacyResponseDTO {
     @JsonProperty("dutyetc")
     private String dutyetc;
 
-    public static PharmacyResponseDTO fromEntity(Pharmacy pharmacy) {
-        return new PharmacyResponseDTO(
+    public static SelectedPharmacyResponseDTO fromEntity(
+            Pharmacy pharmacy, SelectedPharmacy selectedPharmacy) {
+        return new SelectedPharmacyResponseDTO(
                 pharmacy.getPhId(),
                 pharmacy.getMaping(),
                 pharmacy.getName(),

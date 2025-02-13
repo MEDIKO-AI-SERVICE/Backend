@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -36,11 +35,11 @@ public class Pharmacy extends BaseEntity {
     @Column(name = "ph_tel")
     private String tel;
 
-    @Column(name = "hpLatitude")
-    private Double latitude;
+    @Column(name = "phLatitude")
+    private Double phLatitude;
 
-    @Column(name = "hpLongitude")
-    private Double longitude;
+    @Column(name = "phLongitude")
+    private Double phLongitude;
 
     @Column(name = "travle_km")
     private Double travelKm;
@@ -135,6 +134,6 @@ public class Pharmacy extends BaseEntity {
     private Member member;
 
     public List<Double> getLatLon() {
-        return Arrays.asList(longitude, latitude);
+        return Arrays.asList(phLatitude, phLongitude);
     }
 }
