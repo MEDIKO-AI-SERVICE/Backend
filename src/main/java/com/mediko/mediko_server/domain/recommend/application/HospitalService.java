@@ -1,9 +1,5 @@
 package com.mediko.mediko_server.domain.recommend.application;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;

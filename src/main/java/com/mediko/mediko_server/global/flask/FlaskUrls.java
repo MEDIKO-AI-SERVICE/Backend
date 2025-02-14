@@ -20,5 +20,5 @@ public class FlaskUrls {
     private String recommendHospital;
 
     @Value("${flask.urls.geocode}")
-    private String geoLocation;
+    private String geocode;
 }
