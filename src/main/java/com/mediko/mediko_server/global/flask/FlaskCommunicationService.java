@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.global.flask;
 
 import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
+import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
 import com.mediko.mediko_server.domain.report.dto.response.ReportResponseDTO;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +47,12 @@ public class FlaskCommunicationService {
     public List<ErResponseDTO> getErRecommendation(Map<String, Object> requestData) {
         return sendRequestToFlask(requestData, flaskUrls.getRecommendEr(),
                 new ParameterizedTypeReference<List<ErResponseDTO>>() {});
+    }
+
+
+    public GeocodeResponseDTO getAddressToCoords(Map<String, Object> requestData) {
+        return sendRequestToFlask(requestData, flaskUrls.getGeocode(),
+                GeocodeResponseDTO.class);
     }
 
 
