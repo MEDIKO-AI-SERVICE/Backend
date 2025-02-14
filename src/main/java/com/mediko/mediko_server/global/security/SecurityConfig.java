@@ -33,9 +33,17 @@ public class SecurityConfig {
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
+                        // Swagger 관련 경로 허용
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        // 회원가입 및 로그인 API 허용
                         .requestMatchers("/api/v1/member/sign-up").permitAll()
-                        .requestMatchers("/api/v1/member/sign-in").permitAll()  // 로그인 페이지 허용
-                        .anyRequest().authenticated()  // 그 외의 요청은 인증 필요
+                        .requestMatchers("/api/v1/member/sign-in").permitAll()
+                        // 그 외 모든 요청 인증 필요
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
 
@@ -68,8 +76,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedOrigins(List.of("http://localhost:8081"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -78,5 +85,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }
