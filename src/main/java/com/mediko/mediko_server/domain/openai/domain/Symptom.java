@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.openai.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.global.converter.LongListConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder(toBuilder = true)
@@ -54,28 +54,36 @@ public class Symptom extends BaseEntity {
     private Member member;
 
     @OneToMany(mappedBy = "symptom", cascade = CascadeType.ALL)
-    private List<SelectedSBP> selectedSBPs = new ArrayList<>();
+    private List<SelectedSign> selectedSigns = new ArrayList<>();
 
+    // selectedDetailedSign의 sign을 가져오는 메서드
+    public List<String> getSelectedSigns() {
+        return selectedSigns.stream()
+                .flatMap(selectedSign -> selectedSign.getSign().stream())
+                .distinct()
+                .collect(Collectors.toList());
+    }
 
     // SelectedSBP의 body 부분을 가져오는 메서드
     public List<String> getSelectedSBPBodyParts() {
-        List<String> bodyParts = new ArrayList<>();
-        for (SelectedSBP selectedSBP : selectedSBPs) {
-            bodyParts.addAll(selectedSBP.getBody());  // SelectedSBP의 body를 가져옴
-        }
-        return bodyParts;
+        return selectedSigns.stream()
+                .map(SelectedSign::getSelectedSBP)
+                .filter(selectedSBP -> selectedSBP != null)
+                .flatMap(selectedSBP -> selectedSBP.getBody().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     // SelectedMBP의 body 부분을 가져오는 메서드
     public List<String> getSelectedMBPBodyParts() {
-        List<String> bodyParts = new ArrayList<>();
-        for (SelectedSBP selectedSBP : selectedSBPs) {
-            SelectedMBP selectedMBP = selectedSBP.getSelectedMBP();
-            if (selectedMBP != null) {
-                bodyParts.addAll(selectedMBP.getBody());  // SelectedMBP의 body를 가져옴
-            }
-        }
-        return bodyParts;
+        return selectedSigns.stream()
+                .map(SelectedSign::getSelectedSBP)
+                .filter(selectedSBP -> selectedSBP != null)
+                .map(SelectedSBP::getSelectedMBP)
+                .filter(selectedMBP -> selectedMBP != null)
+                .flatMap(selectedMBP -> selectedMBP.getBody().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public void updatePainStart(Integer startValue, TimeUnit painStartUnit) {
