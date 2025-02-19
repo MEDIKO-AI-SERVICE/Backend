@@ -1,10 +1,10 @@
 package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.domain.SelectedSBP;
+import com.mediko.mediko_server.domain.openai.domain.SelectedSign;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
 import com.mediko.mediko_server.domain.openai.domain.TimeUnit;
-import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSBPRepository;
+import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSignRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SymptomRepository;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalInfoRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.DurationRequestDTO;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
@@ -31,17 +30,19 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 @Transactional(readOnly = true)
 public class SymptomService {
     private final SymptomRepository symptomRepository;
-    private final SelectedSBPRepository selectedSBPRepository;
+    private final SelectedSignRepository selectedSignRepository;
 
     /**
      * PainStart 관련 메서드
      */
     // 증상 시작시간 저장
     @Transactional
-    public PainStartResponseDTO savePainStart(PainStartRequestDTO requestDTO, List<Long> selectedSBPIds, Member member) {
-        List<SelectedSBP> selectedSBPs = selectedSBPRepository.findAllById(selectedSBPIds);
+    public PainStartResponseDTO savePainStart(
+            PainStartRequestDTO requestDTO, List<Long> selectedDetailedSignIds, Member member
+    ) {
+        List<SelectedSign> selectedSigns = selectedSignRepository.findAllById(selectedDetailedSignIds);
 
-        if (selectedSBPs.size() != selectedSBPIds.size()) {
+        if (selectedSigns.size() != selectedDetailedSignIds.size()) {
             throw new BadRequestException(INVALID_PARAMETER, "해당 세부신체를 찾을 수 없습니다.");
         }
 
@@ -55,11 +56,11 @@ public class SymptomService {
 
         Symptom savedSymptom = symptomRepository.save(newSymptom);
 
-        selectedSBPs.forEach(sbp -> {
+        selectedSigns.forEach(sbp -> {
             sbp.updateSymptom(savedSymptom);
         });
 
-        selectedSBPRepository.saveAll(selectedSBPs);
+        selectedSignRepository.saveAll(selectedSigns);
 
         return PainStartResponseDTO.fromEntity(savedSymptom);
     }
