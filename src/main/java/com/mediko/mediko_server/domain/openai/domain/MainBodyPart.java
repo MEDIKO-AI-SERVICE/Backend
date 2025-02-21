@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.domain.openai.domain;
 
-import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "mainBodyPart")
+@Table(name= "main_body_part")
 public class MainBodyPart extends BaseEntity {
 
     @Column(nullable = false)

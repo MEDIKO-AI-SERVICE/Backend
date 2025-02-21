@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.openai.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedMBPRequestDTO;
-import com.mediko.mediko_server.domain.openai.dto.request.SelectedSBPRequestDTO;
 import com.mediko.mediko_server.global.converter.LongListConverter;
 import com.mediko.mediko_server.global.converter.StringListConvert;
 import com.mediko.mediko_server.global.domain.BaseEntity;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "selectedMbp")
+@Table(name= "selected_mbp")
 public class SelectedMBP extends BaseEntity {
     @Convert(converter = StringListConvert.class)
     @Column(nullable = false)

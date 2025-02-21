@@ -24,7 +24,7 @@ public class DetailedSignService {
     private final DetailedSignRepository detailedSignRepository;
     private final SubBodyPartRepository subBodyPartRepository;
 
-    // 모든 DetailedSign 조회
+    // 상세 증상 전체 조회
     public List<DetailedSignResponseDTO> findAll() {
         List<DetailedSign> allDetailedSigns = detailedSignRepository.findAll();
         return allDetailedSigns.stream()
@@ -32,13 +32,11 @@ public class DetailedSignService {
                 .collect(Collectors.toList());
     }
 
-    // 주어진 SubBodyPart에 속하는 모든 DetailedSign 조회
+    // 상세 중상 부분 조회
     public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String bodyPart) {
-        // 1. 입력받은 문자열과 일치하는 SubBodyPart 찾기
         SubBodyPart subBodyPart = subBodyPartRepository.findByBody(bodyPart)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당하는 신체 부위를 찾을 수 없습니다."));
 
-        // 2. 찾은 SubBodyPart에 해당하는 DetailedSign들 조회
         List<DetailedSign> detailedSigns = detailedSignRepository.findBySubBodyPart(subBodyPart);
 
         return detailedSigns.stream()

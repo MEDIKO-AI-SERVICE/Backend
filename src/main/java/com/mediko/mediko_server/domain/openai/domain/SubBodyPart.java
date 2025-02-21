@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "subBodyPart")
+@Table(name= "sub_body_part")
 public class SubBodyPart extends BaseEntity {
     @Column(nullable = false)
     private String body;

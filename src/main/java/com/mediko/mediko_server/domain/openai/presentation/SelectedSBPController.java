@@ -5,6 +5,8 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.application.SelectedSBPService;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedSBPRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SelectedSBPResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "sub body", description = "세부 신체 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class SelectedSBPController {
     private final SelectedSBPService selectedSBPService;
 
-    //선택된 세부신체 부분 저장
+    @Operation(summary = "선택한 세부 신체 저장", description = "사용자가 선택한 세부 신체를 저장합니다.")
     @PostMapping("/{selectedMBPId}")
     public ResponseEntity<SelectedSBPResponseDTO> saveSelectedSBP(
             @PathVariable("selectedMBPId") Long selectedMBPId,
@@ -32,8 +34,7 @@ public class SelectedSBPController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-
-    // 특정 세부신체 부분 조회
+    @Operation(summary = "선택한 세부 신체 조회", description = "선택된 세부 신체를 조회합니다.")
     @GetMapping("/{selectedSBPId}")
     public ResponseEntity<SelectedSBPResponseDTO> getSelectedSBP(
             @PathVariable("selectedSBPId") Long selectedSBPId,
@@ -44,7 +45,7 @@ public class SelectedSBPController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    // 특정 세부신체 부분 수정
+    @Operation(summary = "선택한 세부 신체 수정", description = "선택된 세부 신체를 수정합니다.")
     @PutMapping("/{selectedSBPId}")
     public ResponseEntity<SelectedSBPResponseDTO> updateSelectedSBP(
             @PathVariable("selectedSBPId") Long selectedSBPId,

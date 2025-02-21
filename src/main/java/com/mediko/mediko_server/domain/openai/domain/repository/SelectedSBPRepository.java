@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SelectedSBPRepository extends JpaRepository<SelectedSBP, Long> {
+
     Optional<SelectedSBP> findByIdAndMember(Long selectedSbpId, Member member);
 
     List<SelectedSBP> findBySelectedMBPAndMember(SelectedMBP selectedMBP, Member member);

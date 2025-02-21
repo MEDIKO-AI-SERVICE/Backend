@@ -12,18 +12,12 @@ public class SelectedMBPResponseDTO {
 
     private List<String> body;
 
-    private List<Long> mbpIds;
-
     private Long selectedMBPId;
-
-    private Long memberId;
 
     public static SelectedMBPResponseDTO fromEntity(SelectedMBP selectedMBP) {
         return new SelectedMBPResponseDTO(
                 selectedMBP.getBody(),
-                selectedMBP.getMbpIds(),
-                selectedMBP.getId(),
-                selectedMBP.getMember().getId()
+                selectedMBP.getId()
         );
     }
 }

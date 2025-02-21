@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class MainBodyPartService {
     private final MainBodyPartRepository mainBodyPartRepository;
 
-    // 모든 MainBodyPart 조회
+    // 주요 신체 전체 조회
     public List<MainBodyPartResponseDTO> findAll() {
         List<MainBodyPart> allMainBodyParts = mainBodyPartRepository.findAll();
         return allMainBodyParts.stream()
