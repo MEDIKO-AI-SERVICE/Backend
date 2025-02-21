@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "selectedSbp")
+@Table(name= "selected_sbp")
 public class SelectedSBP extends BaseEntity {
     @Convert(converter = StringListConvert.class)
     @Column(nullable = false)

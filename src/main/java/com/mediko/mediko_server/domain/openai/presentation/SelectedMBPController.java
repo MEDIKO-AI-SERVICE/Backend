@@ -5,12 +5,15 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.application.SelectedMBPService;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedMBPRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SelectedMBPResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "main body", description = "주요 신체 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class SelectedMBPController {
     private final SelectedMBPService selectedMBPService;
 
-    // 선택된 주신체 부분 저장
+    @Operation(summary = "선택한 주요 신체 저장", description = "사용자가 선택한 주요 신체를 저장합니다.")
     @PostMapping
     public ResponseEntity<SelectedMBPResponseDTO> selectMainBodyPart(
             @RequestBody SelectedMBPRequestDTO requestDTO,
@@ -29,7 +32,7 @@ public class SelectedMBPController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    // 특정 selectedMBP 조회
+    @Operation(summary = "선택한 주요 신체 조회", description = "선택된 주요 신체를 조회합니다.")
     @GetMapping("/{selectedMBPId}")
     public ResponseEntity<SelectedMBPResponseDTO> getSelectedMBP(
             @PathVariable("selectedMBPId") Long selectedMBPId,
@@ -41,7 +44,7 @@ public class SelectedMBPController {
     }
 
 
-    // 특정 주신체 부분 수정
+    @Operation(summary = "선택한 주요 신체 수정", description = "선택된 주요 신체를 수정합니다.")
     @PutMapping("/{selectedMBPId}")
     public ResponseEntity<SelectedMBPResponseDTO> updateSelectedMBP(
             @PathVariable("selectedMBPId") Long selectedMBPId,
@@ -52,6 +55,4 @@ public class SelectedMBPController {
         SelectedMBPResponseDTO responseDTO = selectedMBPService.updateSelectedMBP(selectedMBPId, requestDTO, member);
         return ResponseEntity.ok(responseDTO);
     }
-
-
 }

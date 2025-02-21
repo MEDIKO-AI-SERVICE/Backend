@@ -32,7 +32,7 @@ public class SelectedMBPService {
     private final MainBodyPartRepository mainBodyPartRepository;
 
 
-    // SelectedMBP 저장
+    // 선택한 주요 신체 저장
     @Transactional
     public SelectedMBPResponseDTO saveSelectedMBP(SelectedMBPRequestDTO requestDTO, Member member) {
         List<String> mainBodyPartNames = requestDTO.getBody();
@@ -66,7 +66,7 @@ public class SelectedMBPService {
     }
 
 
-    // SelectedMBP 조회
+    //선택한 주요 신체 조회
     public SelectedMBPResponseDTO getSelectedMBP(Long selectedMbpId, Member member) {
         SelectedMBP selectedMBP = selectedMBPRepository.findByIdAndMember(selectedMbpId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "선택된 신체 부분이 없습니다."));
@@ -75,7 +75,7 @@ public class SelectedMBPService {
     }
 
 
-    // SelectedMBP 수정
+    //선택한 주요 신체 수정
     @Transactional
     public SelectedMBPResponseDTO updateSelectedMBP(Long selectedMbpId, SelectedMBPRequestDTO requestDTO, Member member) {
         SelectedMBP selectedMBP = selectedMBPRepository.findById(selectedMbpId)

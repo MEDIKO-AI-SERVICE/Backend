@@ -8,5 +8,6 @@ import java.util.Optional;
 
 
 public interface SelectedMBPRepository extends JpaRepository<SelectedMBP, Long> {
+
     Optional<SelectedMBP> findByIdAndMember(Long id, Member member);
 }

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SubBodyPartService {
     private final SubBodyPartRepository subBodyPartRepository;
 
-    // 모든 SubBodyPart 조회
+    // 세부 신체 전체 조회
     public List<SubBodyPartResponseDTO> findAll() {
         List<SubBodyPart> allSubBodyParts = subBodyPartRepository.findAll();
         return allSubBodyParts.stream()
@@ -26,8 +26,7 @@ public class SubBodyPartService {
                 .collect(Collectors.toList());
     }
 
-    // MainBodyPart에 속하는 SubBodyPart 모두 조회
-    @Transactional
+    // 세부 신체 부분 조회
     public List<SubBodyPart> getSubBodyPartsByMainBodyPartBodies(List<String> bodies) {
         return subBodyPartRepository.findAllByMainBodyPartBodies(bodies);
     }

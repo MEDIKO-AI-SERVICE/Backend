@@ -32,8 +32,11 @@ public class SelectedSBPService {
     private final SelectedMBPRepository selectedMBPRepository;
 
 
+    //선택한 세부 신체 저장
     @Transactional
-    public SelectedSBPResponseDTO saveSelectedSBP(Member member, SelectedSBPRequestDTO requestDTO, Long selectedMBPId) {
+    public SelectedSBPResponseDTO saveSelectedSBP(
+            Member member, SelectedSBPRequestDTO requestDTO, Long selectedMBPId
+    ) {
         List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
                 .map(body -> subBodyPartRepository.findByBody(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
@@ -44,11 +47,9 @@ public class SelectedSBPService {
                 .map(SubBodyPart::getId)
                 .collect(Collectors.toList());
 
-        // 3. selectedMBPId로 선택된 SelectedMBP 찾기
         SelectedMBP selectedMBP = selectedMBPRepository.findById(selectedMBPId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 주신체 부분이 존재하지 않습니다."));
 
-        // 4. SelectedSBP 객체 생성
         SelectedSBP selectedSBP = requestDTO.toEntity()
                 .toBuilder()
                 .sbpIds(sbpIds)
@@ -56,16 +57,12 @@ public class SelectedSBPService {
                 .member(member)
                 .build();
 
-        // 5. SelectedSBP 저장
         selectedSBPRepository.save(selectedSBP);
 
-        // 6. Response DTO 반환
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);
     }
 
-
-
-    // SelectedSBP 조회
+    //선택한 세부 신체 조회
     public SelectedSBPResponseDTO getSelectedSBP(Long selectedSBPId, Member member) {
         SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
@@ -73,10 +70,11 @@ public class SelectedSBPService {
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);
     }
 
-    // SelectedSBP 수정
+    //선택한 세부 신체 수정
     @Transactional
-    public SelectedSBPResponseDTO updateSelectedSBP(Long selectedSBPId, Member member, SelectedSBPRequestDTO requestDTO) {
-        // 요청받은 body part들을 검증
+    public SelectedSBPResponseDTO updateSelectedSBP(
+            Long selectedSBPId, Member member, SelectedSBPRequestDTO requestDTO
+    ) {
         List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
                 .map(body -> subBodyPartRepository.findByBody(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
@@ -87,17 +85,12 @@ public class SelectedSBPService {
                 .map(SubBodyPart::getId)
                 .collect(Collectors.toList());
 
-        // 기존에 저장된 SelectedSBP를 가져옴
         SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
 
-        // 기존 SelectedSBP에서 연결된 SelectedMBP 사용
-        SelectedMBP selectedMBP = selectedSBP.getSelectedMBP(); // 이미 연결된 SelectedMBP 사용
-
-        // SelectedSBP 수정
+        SelectedMBP selectedMBP = selectedSBP.getSelectedMBP();
         selectedSBP.updateSelectedSBP(requestDTO, sbpIds, selectedMBP);
 
-        // 변경된 SelectedSBP 저장
         selectedSBPRepository.save(selectedSBP);
 
         return SelectedSBPResponseDTO.fromEntity(selectedSBP);

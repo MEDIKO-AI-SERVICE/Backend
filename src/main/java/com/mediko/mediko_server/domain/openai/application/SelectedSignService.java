@@ -34,22 +34,19 @@ public class SelectedSignService {
     private final DetailedSignRepository detailedSignRepository;
     private final SelectedSBPRepository selectedSBPRepository;
 
+    //선택한 상세 증상 저장
     @Transactional
     public SelectedSignResponseDTO saveSelectedSign(
             Member member, SelectedSignRequestDTO requestDTO, Long selectedSBPId) {
 
-        // 1. selectedSBPId로 선택된 SelectedSBP 찾기
         SelectedSBP selectedSBP = selectedSBPRepository.findById(selectedSBPId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분이 존재하지 않습니다."));
 
-        // 2. 해당 SubBodyPart에 속한 DetailedSign들 조회
         List<DetailedSign> validDetailedSigns = detailedSignRepository.findBySubBodyPartIdIn(selectedSBP.getSbpIds());
 
-        // 3. validDetailedSigns를 Map으로 변환 (sign을 key로, DetailedSign을 value로)
         Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
                 .collect(Collectors.toMap(DetailedSign::getSign, sign -> sign));
 
-        // 4. 요청된 sign들이 유효한지 검증하고, 해당하는 signId들 수집
         List<Long> selectedSignIds = new ArrayList<>();
         for (String sign : requestDTO.getSign()) {
             DetailedSign detailedSign = signToDetailedSign.get(sign);
@@ -59,7 +56,6 @@ public class SelectedSignService {
             selectedSignIds.add(detailedSign.getId());
         }
 
-        // 5. SelectedSign 객체 생성
         SelectedSign selectedSign = requestDTO.toEntity()
                 .toBuilder()
                 .signIds(selectedSignIds)
@@ -67,14 +63,12 @@ public class SelectedSignService {
                 .member(member)
                 .build();
 
-        // 6. SelectedSign 저장
         selectedSignRepository.save(selectedSign);
 
-        // 7. Response DTO 반환
-        return SelectedSignResponseDTO.fromEntity(selectedSign, selectedSBP);
+        return SelectedSignResponseDTO.fromEntity(selectedSign);
     }
 
-
+    //선택한 상세 증상 조회
     public SelectedSignResponseDTO getSelectedSign(
             Long selectedDetailedSignId, Member member
     ) {
@@ -82,33 +76,28 @@ public class SelectedSignService {
                 .findByIdAndMember(selectedDetailedSignId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 상세 증상을 찾을 수 없습니다."));
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign, selectedSign.getSelectedSBP());
+        return SelectedSignResponseDTO.fromEntity(selectedSign);
     }
 
+    //선택한 상세 증상 수정
     @Transactional
     public SelectedSignResponseDTO updateSelectedSign(
             SelectedSignRequestDTO requestDTO, Long selectedSignId, Member member
     ) {
-        // 1. 기존 SelectedDetailedSign 조회
         SelectedSign selectedSign = selectedSignRepository
                 .findByIdAndMember(selectedSignId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 상세 증상을 찾을 수 없습니다."));
 
-        // 2. 기존에 연결된 SelectedSBP 사용
         SelectedSBP selectedSBP = selectedSign.getSelectedSBP();
 
-        // 3. sign 유효성 검증
         List<Long> newSignIds = new ArrayList<>();
         if (requestDTO.getSign() != null && !requestDTO.getSign().isEmpty()) {
-            // 3-1. 해당 SubBodyPart에 속한 DetailedSign들 조회
             List<DetailedSign> validDetailedSigns = detailedSignRepository
                     .findBySubBodyPartIdIn(selectedSBP.getSbpIds());
 
-            // 3-2. 유효한 sign들의 Map 생성
             Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
                     .collect(Collectors.toMap(DetailedSign::getSign, sign -> sign));
 
-            // 3-3. 요청된 sign들의 유효성 검증 및 signId 수집
             for (String sign : requestDTO.getSign()) {
                 DetailedSign detailedSign = signToDetailedSign.get(sign);
                 if (detailedSign == null) {
@@ -119,12 +108,9 @@ public class SelectedSignService {
             }
         }
 
-        // 3. SelectedDetailedSign 업데이트
         selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
-
-        // 4. 변경사항 저장
         selectedSignRepository.save(selectedSign);
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign, selectedSBP);
+        return SelectedSignResponseDTO.fromEntity(selectedSign);
     }
 }

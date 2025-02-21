@@ -16,14 +16,13 @@ public class SelectedSignResponseDTO {
 
     private Long signId;
 
-    private List<Long> sbpId;
+    private Long selectedSBPId;
 
-    public static SelectedSignResponseDTO fromEntity(
-            SelectedSign selectedSign, SelectedSBP selectedSBP) {
+    public static SelectedSignResponseDTO fromEntity(SelectedSign selectedSign) {
         return new SelectedSignResponseDTO(
                 selectedSign.getSign(),
                 selectedSign.getId(),
-                selectedSBP.getSbpIds()
+                selectedSign.getSelectedSBP().getId()
         );
     }
 

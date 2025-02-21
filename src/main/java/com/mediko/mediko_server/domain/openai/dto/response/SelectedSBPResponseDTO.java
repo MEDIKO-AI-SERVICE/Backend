@@ -12,21 +12,15 @@ public class SelectedSBPResponseDTO {
 
     private List<String> body;
 
-    private List<Long> sbpIds;
-
     private Long selectedSBPId;
 
     private Long selectedMBPId;
 
-    private Long memberId;
-
     public static SelectedSBPResponseDTO fromEntity(SelectedSBP selectedSBP) {
         return new SelectedSBPResponseDTO(
                 selectedSBP.getBody(),
-                selectedSBP.getSbpIds(),
                 selectedSBP.getId(),
-                selectedSBP.getSelectedMBP().getId(),
-                selectedSBP.getMember().getId()
+                selectedSBP.getSelectedMBP().getId()
         );
     }
 }
