@@ -41,9 +41,16 @@ public class BasicInfo extends BaseEntity {
     @Column(name = "weight", nullable = false)
     private Integer weight;
 
+    @Column(name = "er_password", nullable = false)
+    private String erPassword;
+
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
     public void validateBasicInfoFields() {
         if (this.language == null ||

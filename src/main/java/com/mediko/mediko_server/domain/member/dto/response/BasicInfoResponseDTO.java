@@ -18,6 +18,7 @@ public class BasicInfoResponseDTO {
     private Integer age;
     private Integer height;
     private Integer weight;
+    private String erPassword;
 
     // Entity -> DTO 변환
     public static BasicInfoResponseDTO fromEntity(BasicInfo basicInfo) {
@@ -28,7 +29,8 @@ public class BasicInfoResponseDTO {
                 basicInfo.getGender(),
                 basicInfo.getAge(),
                 basicInfo.getHeight(),
-                basicInfo.getWeight()
+                basicInfo.getWeight(),
+                basicInfo.getErPassword()
         );
     }
 }

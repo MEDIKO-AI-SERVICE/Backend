@@ -8,6 +8,7 @@ import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
+import com.mediko.mediko_server.global.flask.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class BasicInfoService {
 
     private final MemberRepository memberRepository;
     private final BasicInfoRepository basicInfoRepository;
+    private final FlaskCommunicationService flaskCommunicationService;
 
     // BasicInfo 저장
     @Transactional
@@ -32,12 +34,16 @@ public class BasicInfoService {
             throw new BadRequestException(DATA_ALREADY_EXIST, "사용자의 기본정보가 이미 저장되었습니다.");
         }
 
-        BasicInfo basicInfo = basicInfoRequestDTO.toEntity().toBuilder()
-                .member(member)
+        String erPassword = flaskCommunicationService.generate119Password();
+
+        BasicInfo basicInfo = basicInfoRequestDTO.toEntity()
+                .toBuilder()
+                .erPassword(erPassword)
                 .build();
 
-        basicInfo.validateBasicInfoFields();
+        member.setBasicInfo(basicInfo);
 
+        basicInfo.validateBasicInfoFields();
         BasicInfo savedBasicInfo = basicInfoRepository.save(basicInfo);
 
         member.changeRole(UserStatus.ROLE_USER);

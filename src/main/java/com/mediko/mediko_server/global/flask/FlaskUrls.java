@@ -21,4 +21,7 @@ public class FlaskUrls {
 
     @Value("${flask.urls.geocode}")
     private String geocode;
+
+    @Value("${flask.urls.er_password}")
+    private String erPassword;
 }
