@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
 @Getter
-@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,6 +48,11 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "role", nullable = false)
     private UserStatus role;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private BasicInfo basicInfo;
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private HealthInfo healthInfo;
 
     /**
      * UserDetails 인터페이스 메서드
@@ -117,5 +121,22 @@ public class Member extends BaseEntity implements UserDetails {
             throw new BadRequestException(INVALID_PARAMETER, "닉네임은 비어 있을 수 없습니다.");
         }
         this.nickname = nickname;
+    }
+
+    /**
+     * 연관관계 편의 메서드
+     */
+    public void setBasicInfo(BasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+        if (basicInfo != null && basicInfo.getMember() != this) {
+            basicInfo.setMember(this);
+        }
+    }
+
+    public void setHealthInfo(HealthInfo healthInfo) {
+        this.healthInfo = healthInfo;
+        if (healthInfo != null && healthInfo.getMember() != this) {
+            healthInfo.setMember(this);
+        }
     }
 }

@@ -31,12 +31,10 @@ public class HealthInfoService {
             throw new BadRequestException(DATA_ALREADY_EXIST, "사용자의 기본정보가 이미 저장되었습니다.");
         }
 
-        HealthInfo healthInfo = healthInfoRequestDTO.toEntity().toBuilder()
-                .member(member)
-                .build();
+        HealthInfo healthInfo = healthInfoRequestDTO.toEntity();
+        member.setHealthInfo(healthInfo);
 
         healthInfo.validateHealthInfoFields();
-
         HealthInfo savedHealthInfo = healthInfoRepository.save(healthInfo);
 
         return HealthInfoResponseDTO.fromEntity(savedHealthInfo);

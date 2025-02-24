@@ -36,6 +36,11 @@ public class HealthInfo extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     public void validateHealthInfoFields() {
         if (this.pastHistory == null || this.pastHistory.isBlank() ||
                 this.familyHistory == null || this.familyHistory.isBlank() ||

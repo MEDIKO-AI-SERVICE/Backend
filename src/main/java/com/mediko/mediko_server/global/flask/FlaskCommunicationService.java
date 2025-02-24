@@ -55,6 +55,18 @@ public class FlaskCommunicationService {
                 GeocodeResponseDTO.class);
     }
 
+    public String generate119Password() {
+        try {
+            return restTemplate.getForObject(
+                    flaskBaseUrl + flaskUrls.getErPassword(),
+                    String.class
+            );
+        } catch (Exception e) {
+            log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
+        }
+    }
+
 
     private <T> T sendRequestToFlask(Object requestData, String endpoint, Class<T> responseType) {
         try {
