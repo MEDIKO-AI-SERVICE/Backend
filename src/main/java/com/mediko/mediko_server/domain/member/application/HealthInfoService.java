@@ -24,7 +24,7 @@ public class HealthInfoService {
 
     private final HealthInfoRepository healthInfoRepository;
 
-    //HealthInfo 저장
+    //사용자 건강정보 저장
     @Transactional
     public HealthInfoResponseDTO saveHealthInfo(Member member, HealthInfoRequestDTO healthInfoRequestDTO) {
         if (healthInfoRepository.existsByMember(member)) {
@@ -41,7 +41,7 @@ public class HealthInfoService {
     }
 
 
-    //HealthInfo 조회
+    //사용자 건강정보 조회
     public HealthInfoResponseDTO getHealthInfo(Member member) {
         HealthInfo healthInfo = healthInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다."));
@@ -50,7 +50,7 @@ public class HealthInfoService {
     }
 
 
-    //HealthInfo 수정
+    //사용자 건강정보 수정
     @Transactional
     public HealthInfoResponseDTO updateHealthInfo(Member member, HealthInfoRequestDTO healthInfoRequestDTO) {
         HealthInfo existingHealthInfo = healthInfoRepository.findByMember(member)

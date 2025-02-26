@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.global.converter;
 
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
