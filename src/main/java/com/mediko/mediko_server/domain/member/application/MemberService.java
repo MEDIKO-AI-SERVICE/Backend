@@ -3,12 +3,8 @@ package com.mediko.mediko_server.domain.member.application;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
-import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
-import com.mediko.mediko_server.domain.member.dto.request.HealthInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.SignUpRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.TokenDTO;
-import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
-import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +32,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    //회원가입 기능
+    //회원 가입
     @Transactional
     public void signUp(SignUpRequestDTO signUpRequestDTO) {
         if (memberRepository.existsByEmail(signUpRequestDTO.getEmail())) {
@@ -52,16 +48,15 @@ public class MemberService {
             throw new BadRequestException(MISSING_REQUIRED_FIELD, "필수 입력 항목이 누락되었습니다.");
         }
 
-        //비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(signUpRequestDTO.getPassword());
 
         Member member = signUpRequestDTO.toEntity(encodedPassword);
-        member.addRole(UserStatus.ROLE_GUEST); //기본 권한 부여
+        member.addRole(UserStatus.ROLE_GUEST);
         memberRepository.save(member);
     }
 
 
-    //로그인 기능
+    //로그인
     @Transactional
     public TokenDTO signIn(String loginId, String password) {
         Member member = memberRepository.findByLoginId(loginId)
@@ -71,7 +66,6 @@ public class MemberService {
             throw new BadRequestException(INVALID_CREDENTIALS, "비밀번호가 올바르지 않습니다.");
         }
 
-        //spring security 인증 토큰 생성
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginId, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenDTO tokenDTO = jwtTokenProvider.generateToken(authentication);
@@ -80,10 +74,9 @@ public class MemberService {
     }
 
 
-    //로그아웃 기능
+    //로그아웃
     @Transactional
     public void signOut(HttpServletRequest request, HttpServletResponse response) {
-        // Spring Security에서 세션을 무효화
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);  // 세션을 로그아웃 처리
@@ -91,13 +84,13 @@ public class MemberService {
     }
 
 
-    // 회원 탈퇴 기능
+    // 회원 탈퇴
     @Transactional
     public void deleteAccount(String loginId, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        memberRepository.delete(member); //회원 정보 삭제
+        memberRepository.delete(member);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -106,7 +99,7 @@ public class MemberService {
     }
 
 
-    //닉네임 변경 기능
+    //닉네임 변경
     @Transactional
     public void updateUserNickName(String loginId, String nickname) {
         if (memberRepository.existsByNickname(nickname)) {

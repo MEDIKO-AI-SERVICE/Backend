@@ -26,7 +26,7 @@ public class BasicInfoService {
     private final BasicInfoRepository basicInfoRepository;
     private final FlaskCommunicationService flaskCommunicationService;
 
-    // BasicInfo 저장
+    // 사용자 기본정보 저장
     @Transactional
     public BasicInfoResponseDTO saveBasicInfo(Member member, BasicInfoRequestDTO basicInfoRequestDTO) {
 
@@ -52,7 +52,7 @@ public class BasicInfoService {
         return BasicInfoResponseDTO.fromEntity(savedBasicInfo);
     }
 
-    // BasicInfo 조회
+    // 사용자 기본정보 조회
     public BasicInfoResponseDTO getBasicInfo(Member member) {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
@@ -60,7 +60,7 @@ public class BasicInfoService {
         return BasicInfoResponseDTO.fromEntity(basicInfo);
     }
 
-    // BasicInfo 수정
+    // 사용자 기본정보 수정
     @Transactional
     public BasicInfoResponseDTO updateBasicInfo(Member member, BasicInfoRequestDTO basicInfoRequestDTO) {
         BasicInfo existingBasicInfo = basicInfoRepository.findByMember(member)

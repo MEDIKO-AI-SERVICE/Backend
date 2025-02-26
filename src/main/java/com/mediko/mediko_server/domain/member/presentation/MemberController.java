@@ -3,24 +3,22 @@ package com.mediko.mediko_server.domain.member.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.application.MemberService;
 import com.mediko.mediko_server.domain.member.dto.request.*;
-import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
-import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
-import static org.apache.catalina.util.XMLWriter.NO_CONTENT;
 import static org.springframework.http.HttpStatus.CREATED;
 
+@Tag(name = "member", description = "인증/인가 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -29,21 +27,25 @@ public class MemberController {
     private final MemberService memberService;
 
     // 회원가입
+    @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(
-            @RequestBody SignUpRequestDTO signUpRequestDTO) {
+            @RequestBody SignUpRequestDTO signUpRequestDTO
+    ) {
         memberService.signUp(signUpRequestDTO);
         return ResponseEntity.status(CREATED).build();
     }
 
+    @Operation(summary = "로그인", description = "등록된 회원을 로그인시킵니다.")
     @PostMapping("/sign-in")
     public ResponseEntity<TokenDTO> signIn(
-            @RequestBody SignInRequestDTO signInRequestDTO) {
+            @RequestBody SignInRequestDTO signInRequestDTO
+    ) {
         TokenDTO tokenDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
         return ResponseEntity.ok(tokenDTO);
     }
 
-    // 로그아웃
+    @Operation(summary = "로그아웃", description = "현재 로그인 된 회원을 로그아웃 시킵니다.")
     @PostMapping("/sign-out")
     public ResponseEntity<Void> logout(
             HttpServletRequest request, HttpServletResponse response) {
@@ -51,7 +53,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    // 회원 탈퇴
+    @Operation(summary = "회원 탈퇴", description = "현재 로그인 된 회원을 탈퇴시킵니다.")
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteAccount(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -62,7 +64,7 @@ public class MemberController {
 
     }
 
-    // 닉네임 변경
+    @Operation(summary = "닉네임 변경", description = "회원의 닉네임을 변경합니다.")
     @PatchMapping("/nickname")
     public ResponseEntity<Void> updateUserNickName(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,

@@ -5,6 +5,8 @@ import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+@Tag(name = "basic info", description = "사용자 기본 정보 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class BasicInfoController {
     private final BasicInfoService basicInfoService;
 
     // BasicInfo 저장
+    @Operation(summary = "사용자 기본 정보 저장", description = "회원가입 후 사용자의 기본 정보를 저장합니다.")
     @PostMapping
     public ResponseEntity<BasicInfoResponseDTO> saveBasicInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -33,6 +37,7 @@ public class BasicInfoController {
     }
 
     // BasicInfo 조회
+    @Operation(summary = "사용자 기본 정보 조회", description = "저장된 사용자의 기본 정보를 조회합니다.")
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<BasicInfoResponseDTO> getBasicInfo(
@@ -43,6 +48,7 @@ public class BasicInfoController {
     }
 
     // BasicInfo 수정
+    @Operation(summary = "사용자 기본 정보 수정", description = "저장된 사용자의 기본 정보를 수정합니다.")
     @PatchMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<BasicInfoResponseDTO> updateBasicInfo(
