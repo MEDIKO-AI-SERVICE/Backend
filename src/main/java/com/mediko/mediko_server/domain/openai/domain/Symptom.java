@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.openai.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.global.domain.BaseEntity;
+import com.mediko.mediko_server.global.s3.UuidFile;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,10 +45,6 @@ public class Symptom extends BaseEntity {
 
     @Column(name = "additional")
     private String additional;
-
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "symptom_id")
-//    private List<UuidFile> images = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
@@ -103,4 +100,5 @@ public class Symptom extends BaseEntity {
     public void updateAdditionalInfo(String additional) {
         this.additional = additional;
     }
+
 }

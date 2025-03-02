@@ -1,6 +1,8 @@
-package com.mediko.mediko_server.global.security;
+package com.mediko.mediko_server.global.security.config;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetailsService;
+import com.mediko.mediko_server.global.security.JwtAuthenticationFilter;
+import com.mediko.mediko_server.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.global.redis;
+package com.mediko.mediko_server.global.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +13,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableRedisRepositories // redis 활성화
 public class RedisConfig {
+
     @Value("${spring.data.redis.host}")
     private String host;
     @Value("${spring.data.redis.port}")

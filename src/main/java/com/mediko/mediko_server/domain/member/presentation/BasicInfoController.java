@@ -5,6 +5,7 @@ import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,6 @@ public class BasicInfoController {
 
     private final BasicInfoService basicInfoService;
 
-    // BasicInfo 저장
     @Operation(summary = "사용자 기본 정보 저장", description = "회원가입 후 사용자의 기본 정보를 저장합니다.")
     @PostMapping
     public ResponseEntity<BasicInfoResponseDTO> saveBasicInfo(
@@ -36,7 +36,6 @@ public class BasicInfoController {
         return ResponseEntity.status(CREATED).body(savedBasicInfo);
     }
 
-    // BasicInfo 조회
     @Operation(summary = "사용자 기본 정보 조회", description = "저장된 사용자의 기본 정보를 조회합니다.")
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -47,7 +46,6 @@ public class BasicInfoController {
         return ResponseEntity.ok(basicInfoResponseDTO);
     }
 
-    // BasicInfo 수정
     @Operation(summary = "사용자 기본 정보 수정", description = "저장된 사용자의 기본 정보를 수정합니다.")
     @PatchMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -57,5 +55,14 @@ public class BasicInfoController {
         Member member = userDetails.getMember();
         BasicInfoResponseDTO updatedBasicInfo = basicInfoService.updateBasicInfo(member, basicInfoRequestDTO);
         return ResponseEntity.ok(updatedBasicInfo);
+    }
+
+    @Operation(summary = "사용자 응급 비밀번호 조회", description = "저장된 사용자의 응급 비밀번호를 조회합니다.")
+    @GetMapping("/er-pw")
+    public ResponseEntity<ErPasswordResponseDTO> getErPassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        ErPasswordResponseDTO erPasswordResponseDTO = basicInfoService.getErPassword(member);
+        return ResponseEntity.ok(erPasswordResponseDTO);
     }
 }

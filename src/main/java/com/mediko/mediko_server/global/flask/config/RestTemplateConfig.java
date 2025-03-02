@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.global.flask;
+package com.mediko.mediko_server.global.flask.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonParser;
@@ -16,7 +16,7 @@ public class RestTemplateConfig {
     public RestTemplate restTemplate() {
         // Request Factory 설정
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(10000);
+        requestFactory.setConnectTimeout(3000000);
         requestFactory.setReadTimeout(300000);
 
         // RestTemplate 생성

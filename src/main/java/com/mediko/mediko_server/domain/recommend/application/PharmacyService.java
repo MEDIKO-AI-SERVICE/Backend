@@ -8,7 +8,7 @@ import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
 import com.mediko.mediko_server.domain.recommend.domain.repository.PharmacyRepository;
 import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
-import com.mediko.mediko_server.global.flask.FlaskCommunicationService;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
