@@ -14,7 +14,7 @@ import com.mediko.mediko_server.domain.report.domain.Report;
 import com.mediko.mediko_server.domain.report.domain.repository.ReportRepository;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.exception.exceptionType.ServiceUnavailableException;
-import com.mediko.mediko_server.global.flask.FlaskCommunicationService;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

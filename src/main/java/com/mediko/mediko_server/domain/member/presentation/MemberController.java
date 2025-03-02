@@ -26,7 +26,6 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class MemberController {
     private final MemberService memberService;
 
-    // 회원가입
     @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(

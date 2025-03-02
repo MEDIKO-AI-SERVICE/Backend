@@ -11,16 +11,22 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class BasicInfoResponseDTO {
-    private Language language;
-    private String number;
-    private String address;
-    private Gender gender;
-    private Integer age;
-    private Integer height;
-    private Integer weight;
-    private String erPassword;
 
-    // Entity -> DTO 변환
+    private Language language;
+
+    private String number;
+
+    private String address;
+
+    private Gender gender;
+
+    private Integer age;
+
+    private Integer height;
+
+    private Integer weight;
+
+
     public static BasicInfoResponseDTO fromEntity(BasicInfo basicInfo) {
         return new BasicInfoResponseDTO(
                 basicInfo.getLanguage(),
@@ -29,8 +35,7 @@ public class BasicInfoResponseDTO {
                 basicInfo.getGender(),
                 basicInfo.getAge(),
                 basicInfo.getHeight(),
-                basicInfo.getWeight(),
-                basicInfo.getErPassword()
+                basicInfo.getWeight()
         );
     }
 }

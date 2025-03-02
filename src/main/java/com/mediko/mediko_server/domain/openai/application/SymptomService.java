@@ -189,7 +189,7 @@ public class SymptomService {
     /**
      * 저장된 증상정보가 있는지 확인
      */
-    private Symptom findSymptomByIdAndMember(Long symptomId, Member member) {
+    public Symptom findSymptomByIdAndMember(Long symptomId, Member member) {
         return symptomRepository.findByIdAndMemberId(symptomId, member.getId())
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "저장된 증상정보를 찾을 수 없습니다."));
     }

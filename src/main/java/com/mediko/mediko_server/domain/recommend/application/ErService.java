@@ -1,23 +1,18 @@
 package com.mediko.mediko_server.domain.recommend.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
-import com.mediko.mediko_server.domain.member.domain.repository.LocationRepository;
 import com.mediko.mediko_server.domain.recommend.application.converter.ErConverter;
 import com.mediko.mediko_server.domain.recommend.application.factory.ErRequestFactory;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
 import com.mediko.mediko_server.domain.recommend.domain.repository.ErRepository;
 import com.mediko.mediko_server.domain.recommend.dto.request.ErRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
-import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
-import com.mediko.mediko_server.global.flask.FlaskCommunicationService;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

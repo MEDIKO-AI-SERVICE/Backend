@@ -5,7 +5,7 @@ import java.util.*;
 import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
-import com.mediko.mediko_server.global.s3.AwsS3;
+import com.mediko.mediko_server.global.s3.UuidFile;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,9 +44,6 @@ public class Member extends BaseEntity implements UserDetails {
 
 //    @Column(name = "is_phone_verified")
 //    private Boolean isPhoneVerified;
-
-    @Column(name = "profile_img")
-    private String profileImg;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -125,17 +122,6 @@ public class Member extends BaseEntity implements UserDetails {
             throw new BadRequestException(INVALID_PARAMETER, "닉네임은 비어 있을 수 없습니다.");
         }
         this.nickname = nickname;
-    }
-
-    public void createProfileImage(AwsS3 awsS3) {
-        if (this.profileImg != null) {
-            throw new BadRequestException(INVALID_PARAMETER, "이미 프로필 이미지가 존재합니다.");
-        }
-        this.profileImg = awsS3.getPath();
-    }
-
-    public void updateProfileImage(AwsS3 awsS3) {
-        this.profileImg = awsS3.getPath();
     }
 
     /**

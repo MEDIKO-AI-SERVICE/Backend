@@ -1,10 +1,12 @@
-package com.mediko.mediko_server.global.flask;
+package com.mediko.mediko_server.global.flask.application;
 
+import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
 import com.mediko.mediko_server.domain.report.dto.response.ReportResponseDTO;
+import com.mediko.mediko_server.global.flask.FlaskUrls;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +26,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class FlaskCommunicationService {
-    @Value("${flask.url}")
-    private String flaskBaseUrl;
-
     private final RestTemplate restTemplate;
     private final FlaskUrls flaskUrls;
 
@@ -49,7 +48,6 @@ public class FlaskCommunicationService {
                 new ParameterizedTypeReference<List<ErResponseDTO>>() {});
     }
 
-
     public GeocodeResponseDTO getAddressToCoords(Map<String, Object> requestData) {
         return sendRequestToFlask(requestData, flaskUrls.getGeocode(),
                 GeocodeResponseDTO.class);
@@ -57,16 +55,16 @@ public class FlaskCommunicationService {
 
     public String generate119Password() {
         try {
-            return restTemplate.getForObject(
-                    flaskBaseUrl + flaskUrls.getErPassword(),
-                    String.class
+            ErPasswordResponseDTO response = restTemplate.getForObject(
+                    flaskUrls.getErPassword(),
+                    ErPasswordResponseDTO.class
             );
+            return response.getPassword();
         } catch (Exception e) {
             log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
         }
     }
-
 
     private <T> T sendRequestToFlask(Object requestData, String endpoint, Class<T> responseType) {
         try {
@@ -75,7 +73,7 @@ public class FlaskCommunicationService {
             HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
 
             ResponseEntity<T> response = restTemplate.exchange(
-                    flaskBaseUrl + endpoint,
+                    endpoint,  // 전체 URL이 이미 포함되어 있음
                     HttpMethod.POST,
                     entity,
                     responseType
@@ -88,7 +86,6 @@ public class FlaskCommunicationService {
         }
     }
 
-
     private <T> T sendRequestToFlask(Object requestData, String endpoint,
                                      ParameterizedTypeReference<T> responseType) {
         try {
@@ -96,18 +93,16 @@ public class FlaskCommunicationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
 
-            // 요청 데이터 로깅 추가
             log.info("Flask 서버로 보내는 데이터: {}", requestData);
-            log.info("Flask 서버 엔드포인트: {}", flaskBaseUrl + endpoint);
+            log.info("Flask 서버 엔드포인트: {}", endpoint);
 
             ResponseEntity<T> response = restTemplate.exchange(
-                    flaskBaseUrl + endpoint,
+                    endpoint,  // 전체 URL이 이미 포함되어 있음
                     HttpMethod.POST,
                     entity,
                     responseType
             );
 
-            // 응답 데이터 로깅 추가
             log.info("Flask 서버 응답: {}", response.getBody());
 
             return response.getBody();

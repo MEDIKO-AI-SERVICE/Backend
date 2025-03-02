@@ -7,8 +7,9 @@ import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoReposit
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
-import com.mediko.mediko_server.global.flask.FlaskCommunicationService;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -70,5 +71,12 @@ public class BasicInfoService {
         basicInfoRepository.save(existingBasicInfo);
 
         return BasicInfoResponseDTO.fromEntity(existingBasicInfo);
+    }
+
+    public ErPasswordResponseDTO getErPassword(Member member) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        return ErPasswordResponseDTO.fromBasicInfo(basicInfo);
     }
 }

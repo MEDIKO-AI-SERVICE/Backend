@@ -8,12 +8,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class HealthInfoResponseDTO {
+
     private String pastHistory;
+
     private String familyHistory;
+
     private String nowMedicine;
+
     private String allergy;
 
-    // Entity -> DTO 변환
+
     public static HealthInfoResponseDTO fromEntity(HealthInfo healthInfo) {
         return new HealthInfoResponseDTO(
                 healthInfo.getPastHistory(),
