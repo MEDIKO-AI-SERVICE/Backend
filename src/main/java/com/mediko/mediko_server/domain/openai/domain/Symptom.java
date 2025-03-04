@@ -53,6 +53,9 @@ public class Symptom extends BaseEntity {
     @OneToMany(mappedBy = "symptom", cascade = CascadeType.ALL)
     private List<SelectedSign> selectedSigns = new ArrayList<>();
 
+    @OneToMany(mappedBy = "symptom", fetch = FetchType.LAZY)
+    private List<UuidFile> uuidFiles = new ArrayList<>();
+
     // selectedDetailedSign의 sign을 가져오는 메서드
     public List<String> getSelectedSigns() {
         return selectedSigns.stream()

@@ -31,7 +31,6 @@ public class SelectedMBPService {
     private final SelectedSBPRepository selectedSBPRepository;
     private final MainBodyPartRepository mainBodyPartRepository;
 
-
     // 선택한 주요 신체 저장
     @Transactional
     public SelectedMBPResponseDTO saveSelectedMBP(SelectedMBPRequestDTO requestDTO, Member member) {
@@ -62,18 +61,16 @@ public class SelectedMBPService {
 
         selectedMBP = selectedMBPRepository.save(selectedMBP);
 
-        return SelectedMBPResponseDTO.fromEntity(selectedMBP);
+        return SelectedMBPResponseDTO.fromEntity(selectedMBP, mainBodyPartRepository);
     }
-
 
     //선택한 주요 신체 조회
     public SelectedMBPResponseDTO getSelectedMBP(Long selectedMbpId, Member member) {
         SelectedMBP selectedMBP = selectedMBPRepository.findByIdAndMember(selectedMbpId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "선택된 신체 부분이 없습니다."));
 
-        return SelectedMBPResponseDTO.fromEntity(selectedMBP);
+        return SelectedMBPResponseDTO.fromEntity(selectedMBP, mainBodyPartRepository);
     }
-
 
     //선택한 주요 신체 수정
     @Transactional
@@ -91,11 +88,13 @@ public class SelectedMBPService {
             selectedSBPRepository.deleteAll(selectedSBPs);
         }
 
-        selectedMBP.updateSelectedMBP(requestDTO, mainBodyParts.stream()
+        List<Long> mbpIds = mainBodyParts.stream()
                 .map(MainBodyPart::getId)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        selectedMBP.updateSelectedMBP(requestDTO, mbpIds);
         selectedMBPRepository.save(selectedMBP);
 
-        return SelectedMBPResponseDTO.fromEntity(selectedMBP);
+        return SelectedMBPResponseDTO.fromEntity(selectedMBP, mainBodyPartRepository);
     }
 }

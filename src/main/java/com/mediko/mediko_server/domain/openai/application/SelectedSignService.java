@@ -4,7 +4,6 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.DetailedSign;
 import com.mediko.mediko_server.domain.openai.domain.SelectedSign;
 import com.mediko.mediko_server.domain.openai.domain.SelectedSBP;
-import com.mediko.mediko_server.domain.openai.domain.SubBodyPart;
 import com.mediko.mediko_server.domain.openai.domain.repository.DetailedSignRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSignRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSBPRepository;
@@ -34,7 +33,7 @@ public class SelectedSignService {
     private final DetailedSignRepository detailedSignRepository;
     private final SelectedSBPRepository selectedSBPRepository;
 
-    //선택한 상세 증상 저장
+    // 선택한 상세 증상 저장
     @Transactional
     public SelectedSignResponseDTO saveSelectedSign(
             Member member, SelectedSignRequestDTO requestDTO, Long selectedSBPId) {
@@ -42,10 +41,17 @@ public class SelectedSignService {
         SelectedSBP selectedSBP = selectedSBPRepository.findById(selectedSBPId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분이 존재하지 않습니다."));
 
-        List<DetailedSign> validDetailedSigns = detailedSignRepository.findBySubBodyPartIdIn(selectedSBP.getSbpIds());
+        List<DetailedSign> validDetailedSigns = detailedSignRepository.findBySubBodyPartIdIn(selectedSBP.getSbpIds())
+                .stream()
+                .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
+                .collect(Collectors.toList());
 
         Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
-                .collect(Collectors.toMap(DetailedSign::getSign, sign -> sign));
+                .collect(Collectors.toMap(
+                        DetailedSign::getSign,
+                        sign -> sign,
+                        (existing, replacement) -> existing
+                ));
 
         List<Long> selectedSignIds = new ArrayList<>();
         for (String sign : requestDTO.getSign()) {
@@ -65,25 +71,23 @@ public class SelectedSignService {
 
         selectedSignRepository.save(selectedSign);
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign);
+        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
     }
 
-    //선택한 상세 증상 조회
+    // 선택한 상세 증상 조회
     public SelectedSignResponseDTO getSelectedSign(
-            Long selectedDetailedSignId, Member member
-    ) {
+            Long selectedDetailedSignId, Member member) {
         SelectedSign selectedSign = selectedSignRepository
                 .findByIdAndMember(selectedDetailedSignId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 상세 증상을 찾을 수 없습니다."));
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign);
+        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
     }
 
-    //선택한 상세 증상 수정
+    // 선택한 상세 증상 수정
     @Transactional
     public SelectedSignResponseDTO updateSelectedSign(
-            SelectedSignRequestDTO requestDTO, Long selectedSignId, Member member
-    ) {
+            SelectedSignRequestDTO requestDTO, Long selectedSignId, Member member) {
         SelectedSign selectedSign = selectedSignRepository
                 .findByIdAndMember(selectedSignId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 상세 증상을 찾을 수 없습니다."));
@@ -93,10 +97,17 @@ public class SelectedSignService {
         List<Long> newSignIds = new ArrayList<>();
         if (requestDTO.getSign() != null && !requestDTO.getSign().isEmpty()) {
             List<DetailedSign> validDetailedSigns = detailedSignRepository
-                    .findBySubBodyPartIdIn(selectedSBP.getSbpIds());
+                    .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
+                    .stream()
+                    .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
+                    .collect(Collectors.toList());
 
             Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
-                    .collect(Collectors.toMap(DetailedSign::getSign, sign -> sign));
+                    .collect(Collectors.toMap(
+                            DetailedSign::getSign,
+                            sign -> sign,
+                            (existing, replacement) -> existing
+                    ));
 
             for (String sign : requestDTO.getSign()) {
                 DetailedSign detailedSign = signToDetailedSign.get(sign);
@@ -111,6 +122,6 @@ public class SelectedSignService {
         selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
         selectedSignRepository.save(selectedSign);
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign);
+        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
     }
 }

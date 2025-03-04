@@ -22,14 +22,16 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReportService {
+
     private final BasicInfoRepository basicInfoRepository;
     private final SymptomRepository symptomRepository;
     private final ReportRepository reportRepository;
     private final FlaskCommunicationService flaskCommunicationService;
+    private final ReportMapper reportMapper;
 
+    // AI 문진 생성
     @Transactional
     public ReportResponseDTO generateReport(ReportRequestDTO reportRequestDTO) {
-        // 1. BasicInfo 및 Symptom 조회
         Optional<BasicInfo> basicInfo = basicInfoRepository.findById(reportRequestDTO.getBasicInfoId());
         Optional<Symptom> symptom = symptomRepository.findById(reportRequestDTO.getSymptomId());
 
@@ -37,22 +39,17 @@ public class ReportService {
             throw new RuntimeException("BasicInfo or Symptom not found");
         }
 
-        // 2. Symptom 및 BasicInfo 객체에서 필요한 값 추출
         Symptom symptomObj = symptom.get();
         BasicInfo basicInfoObj = basicInfo.get();
 
-        // 3. 요청 데이터 생성
-        String requestData = buildRequestData(symptomObj, basicInfoObj);
+        Map<String, Object> requestData = buildRequestData(symptomObj, basicInfoObj);
 
-        // 4. Flask 서버로 요청 보내기
         ReportResponseDTO flaskResponse = flaskCommunicationService.getReportResponse(requestData);
 
-        // 5. Report 객체 생성 전에 flaskResponse가 null이 아닌지 확인
         if (flaskResponse == null || flaskResponse.getRecommendedDepartment() == null) {
             throw new RuntimeException("Flask server response is invalid");
         }
 
-        // 6. Report 객체 생성
         Report report = Report.builder()
                 .recommendedDepartment(flaskResponse.getRecommendedDepartment())
                 .possibleConditions(flaskResponse.getPossibleConditions())
@@ -63,73 +60,33 @@ public class ReportService {
                 .member(basicInfoObj.getMember())
                 .build();
 
-        // 7. Report 저장
-        reportRepository.save(report);
+        Report savedReport = reportRepository.save(report);
 
-        // 8. ReportResponseDTO 반환
-        return flaskResponse;
+        return reportMapper.toDTO(savedReport);
     }
 
-    private String buildRequestData(Symptom symptomObj, BasicInfo basicInfoObj) {
-        // Symptom 객체와 BasicInfo 객체에서 필요한 데이터 추출
-        String macroBodyParts = extractMacroBodyParts(symptomObj);
-        String microBodyParts = extractMicroBodyParts(symptomObj);
-        String intensity = String.valueOf(symptomObj.getIntensity());
-        String durationValue = String.valueOf(symptomObj.getDurationValue());
-        String durationUnit = symptomObj.getDurationUnit().name();
-        String startValue = String.valueOf(symptomObj.getStartValue());
-        String startUnit = symptomObj.getStartUnit().name();
-        String additionalInfo = symptomObj.getAdditional();
-        String language = basicInfoObj.getLanguage().toString();
 
-        // 요청 데이터 맵핑
+    // FLASK 서버로 전송할 요청 데이터 빌드
+    private Map<String, Object> buildRequestData(Symptom symptomObj, BasicInfo basicInfoObj) {
+        List<String> macroBodyParts = symptomObj.getSelectedSBPBodyParts();
+        List<String> microBodyParts = symptomObj.getSelectedMBPBodyParts();
+
         Map<String, Object> symptomDetails = new HashMap<>();
         symptomDetails.put("frequency", "intermittent");
-        symptomDetails.put("intensity", intensity);
-        symptomDetails.put("duration", durationValue + " " + durationUnit);
-        symptomDetails.put("onset_time", startValue + " " + startUnit);
+        symptomDetails.put("intensity", symptomObj.getIntensity());
+        symptomDetails.put("duration", symptomObj.getDurationValue() + " " + symptomObj.getDurationUnit().name());
+        symptomDetails.put("onset_time", symptomObj.getStartValue() + " " + symptomObj.getStartUnit().name());
 
         Map<String, Object> symptomData = new HashMap<>();
         symptomData.put("macro_body_parts", macroBodyParts);
         symptomData.put("micro_body_parts", microBodyParts);
         symptomData.put("symptom_details", symptomDetails);
-        symptomData.put("additional_info", additionalInfo);
+        symptomData.put("additional_info", symptomObj.getAdditional());
 
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("symptoms", Collections.singletonList(symptomData));
-        requestData.put("language", language);
+        requestData.put("language", basicInfoObj.getLanguage().toString());
 
-        // JSON 변환
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(requestData);
-        } catch (Exception e) {
-            throw new RuntimeException("JSON 변환 중 오류 발생", e);
-        }
-    }
-
-    private String extractMacroBodyParts(Symptom symptomObj) {
-        // Symptom 객체에서 SelectedSBP의 body parts를 추출하여 JSON 형식으로 반환
-        List<String> macroBodyPartsList = symptomObj.getSelectedSBPBodyParts(); // SelectedSBP의 body 추출
-        return formatBodyParts(macroBodyPartsList);
-    }
-
-    private String extractMicroBodyParts(Symptom symptomObj) {
-        // Symptom 객체에서 SelectedMBP의 body parts를 추출하여 JSON 형식으로 반환
-        List<String> microBodyPartsList = symptomObj.getSelectedMBPBodyParts();
-        return formatBodyParts(microBodyPartsList);
-    }
-
-    private String formatBodyParts(List<String> bodyPartsList) {
-        // bodyParts 리스트를 JSON 형식으로 변환
-        StringBuilder bodyParts = new StringBuilder("[");
-        for (int i = 0; i < bodyPartsList.size(); i++) {
-            bodyParts.append("\"").append(bodyPartsList.get(i)).append("\"");
-            if (i < bodyPartsList.size() - 1) {
-                bodyParts.append(",");
-            }
-        }
-        bodyParts.append("]");
-        return bodyParts.toString();
+        return requestData;
     }
 }
