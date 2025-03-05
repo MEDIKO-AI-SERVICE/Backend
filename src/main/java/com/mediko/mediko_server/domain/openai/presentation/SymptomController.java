@@ -41,8 +41,7 @@ public class SymptomController {
     public ResponseEntity<PainStartResponseDTO> savePainStart(
             @PathVariable("selectedSBPIds") String selectedSBPIds,
             @RequestBody PainStartRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
 
         List<Long> idList = Arrays.stream(selectedSBPIds.split(","))
@@ -57,8 +56,7 @@ public class SymptomController {
     @GetMapping("/start/{symptomId}")
     public ResponseEntity<PainStartResponseDTO> getPainStart(
             @PathVariable("symptomId") Long symptomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         PainStartResponseDTO response = symptomService.getPainStart(symptomId, member);
         return ResponseEntity.ok(response);
@@ -69,8 +67,7 @@ public class SymptomController {
     public ResponseEntity<PainStartResponseDTO> updatePainStart(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody PainStartRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         PainStartResponseDTO response = symptomService.updatePainStart(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -85,8 +82,7 @@ public class SymptomController {
     public ResponseEntity<IntensityResponseDTO> saveIntensity(
             @PathVariable("symptomId") Long symptomId,
             @Valid @RequestBody IntensityRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         IntensityResponseDTO response = symptomService.saveIntensity(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -97,8 +93,7 @@ public class SymptomController {
     @GetMapping("/intensity/{symptomId}")
     public ResponseEntity<IntensityResponseDTO> getIntensity(
             @PathVariable("symptomId") Long symptomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         IntensityResponseDTO response = symptomService.getIntensity(symptomId, member);
         return ResponseEntity.ok(response);
@@ -109,8 +104,7 @@ public class SymptomController {
     public ResponseEntity<IntensityResponseDTO> updateIntensity(
             @PathVariable("symptomId") Long symptomId,
             @Valid @RequestBody IntensityRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         IntensityResponseDTO response = symptomService.updateIntensity(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -124,8 +118,7 @@ public class SymptomController {
     public ResponseEntity<DurationResponseDTO> saveDuration(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody DurationRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         DurationResponseDTO response = symptomService.saveDuration(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -135,8 +128,7 @@ public class SymptomController {
     @GetMapping("/duration/{symptomId}")
     public ResponseEntity<DurationResponseDTO> getDuration(
             @PathVariable("symptomId") Long symptomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         DurationResponseDTO response = symptomService.getDuration(symptomId, member);
         return ResponseEntity.ok(response);
@@ -147,8 +139,7 @@ public class SymptomController {
     public ResponseEntity<DurationResponseDTO> updateDuration(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody DurationRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         DurationResponseDTO response = symptomService.updateDuration(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -163,8 +154,7 @@ public class SymptomController {
     public ResponseEntity<AdditionalInfoResponseDTO> saveAdditionalInfo(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody AdditionalInfoRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         AdditionalInfoResponseDTO response = symptomService.saveAdditionalInfo(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);
@@ -174,8 +164,7 @@ public class SymptomController {
     @GetMapping("/additional/{symptomId}")
     public ResponseEntity<AdditionalInfoResponseDTO> getAdditionalInfo(
             @PathVariable("symptomId") Long symptomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         AdditionalInfoResponseDTO response = symptomService.getAdditionalInfo(symptomId, member);
         return ResponseEntity.ok(response);
@@ -186,8 +175,7 @@ public class SymptomController {
     public ResponseEntity<AdditionalInfoResponseDTO> updateAdditionalInfo(
             @PathVariable("symptomId") Long symptomId,
             @RequestBody AdditionalInfoRequestDTO requestDTO,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         AdditionalInfoResponseDTO response = symptomService.updateAdditionalInfo(symptomId, requestDTO, member);
         return ResponseEntity.ok(response);

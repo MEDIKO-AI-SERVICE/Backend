@@ -25,8 +25,7 @@ public class SelectedSignController {
     public ResponseEntity<SelectedSignResponseDTO> saveSelectedSign(
             @AuthenticationPrincipal CustomUserDetails userDetail,
             @RequestBody SelectedSignRequestDTO requestDTO,
-            @PathVariable(name = "selectedSBPId") Long selectedSBPId)
-    {
+            @PathVariable(name = "selectedSBPId") Long selectedSBPId) {
         Member member = userDetail.getMember();
         SelectedSignResponseDTO responseDTO = selectedSignService.saveSelectedSign(
                 member, requestDTO, selectedSBPId);
@@ -38,8 +37,7 @@ public class SelectedSignController {
     @GetMapping("/{selectedSignId}")
     public ResponseEntity<SelectedSignResponseDTO> getSelectedSign(
             @AuthenticationPrincipal CustomUserDetails userDetail,
-            @PathVariable(name = "selectedSignId") Long selectedSignId)
-    {
+            @PathVariable(name = "selectedSignId") Long selectedSignId) {
         Member member = userDetail.getMember();
         SelectedSignResponseDTO responseDTO = selectedSignService.getSelectedSign(selectedSignId, member);
 
@@ -51,8 +49,7 @@ public class SelectedSignController {
     public ResponseEntity<SelectedSignResponseDTO> updateSelectedSign(
             @AuthenticationPrincipal CustomUserDetails userDetail,
             @RequestBody SelectedSignRequestDTO requestDTO,
-            @PathVariable(name = "selectedSignId") Long selectedSignId)
-    {
+            @PathVariable(name = "selectedSignId") Long selectedSignId) {
         Member member = userDetail.getMember();
         SelectedSignResponseDTO responseDTO = selectedSignService.updateSelectedSign(
                 requestDTO, selectedSignId, member);

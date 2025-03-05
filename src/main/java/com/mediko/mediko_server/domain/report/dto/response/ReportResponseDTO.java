@@ -14,6 +14,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class ReportResponseDTO {
 
+    @JsonProperty("report_id")
+    private Long reportId;
+
     @JsonProperty("department")
     private Map<String, Object> recommendedDepartment;
 
@@ -43,13 +46,11 @@ public class ReportResponseDTO {
 
 
     public static ReportResponseDTO fromEntity(
-            Report report,
-            List<Map<String, Object>> basicInfo,
-            List<Map<String, String>> healthInfo,
-            List<Map<String, Object>> bodyInfo,
-            List<Map<String, String>> symptomInfo,
-            List<Map<String, String>> imgInfo) {
+            Report report, List<Map<String, Object>> basicInfo,
+            List<Map<String, String>> healthInfo, List<Map<String, Object>> bodyInfo,
+            List<Map<String, String>> symptomInfo, List<Map<String, String>> imgInfo) {
         return new ReportResponseDTO(
+                report.getId(),
                 report.getRecommendedDepartment(),
                 report.getPossibleConditions(),
                 report.getQuestionsForDoctor(),

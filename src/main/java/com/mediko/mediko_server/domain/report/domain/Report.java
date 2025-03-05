@@ -22,6 +22,7 @@ import java.util.Map;
 @Entity
 @Table(name= "report")
 public class Report extends BaseEntity {
+
     @Convert(converter = SingleObjectMapConverter.class)
     @Column(name = "department")
     private Map<String, Object> recommendedDepartment;
@@ -41,10 +42,6 @@ public class Report extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "symptom_id", nullable = false)
     private Symptom symptoms;
-
-    @ManyToOne
-    @JoinColumn(name = "basic_info_id", nullable = false)
-    private BasicInfo basicInfo;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)

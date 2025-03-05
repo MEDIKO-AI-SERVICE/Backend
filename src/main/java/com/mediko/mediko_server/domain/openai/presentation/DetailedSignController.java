@@ -30,7 +30,7 @@ public class DetailedSignController {
     @Operation(summary = "상세 중상 부분 조회", description = "선택된 세부 신체에 포함된 모든 상세 증상을 조회합니다.")
     @GetMapping
     public List<DetailedSignResponseDTO> getDetailedSignsBySubBodyPart(
-            @RequestParam(name = "body") String body) {
+            @RequestParam("body") String body) {
         return detailedSignService.getDetailedSignsByBodyPart(body);
     }
 }
