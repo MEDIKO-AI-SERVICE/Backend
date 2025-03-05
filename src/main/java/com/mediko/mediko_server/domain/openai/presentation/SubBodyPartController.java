@@ -32,8 +32,7 @@ public class SubBodyPartController {
     @Operation(summary = "세부 신체 부분 조회", description = "선택된 주요 신체에 포함된 모든 세부 신체를 조회합니다.")
     @GetMapping
     public ResponseEntity<List<SubBodyPartResponseDTO>> getSubBodyPartsByBodies(
-            @RequestParam(name = "body") List<String> body
-    ) {
+            @RequestParam("body") List<String> body) {
         List<SubBodyPart> subBodyParts = subBodyPartService.getSubBodyPartsByMainBodyPartBodies(body);
         List<SubBodyPartResponseDTO> response = subBodyParts.stream()
                 .map(SubBodyPartResponseDTO::fromEntity)

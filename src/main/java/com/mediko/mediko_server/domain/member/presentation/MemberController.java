@@ -28,9 +28,8 @@ public class MemberController {
 
     @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
-    public ResponseEntity<Void> signUp(
-            @RequestBody SignUpRequestDTO signUpRequestDTO
-    ) {
+    public ResponseEntity<Void> signUp (
+            @RequestBody SignUpRequestDTO signUpRequestDTO) {
         memberService.signUp(signUpRequestDTO);
         return ResponseEntity.status(CREATED).build();
     }
@@ -38,8 +37,7 @@ public class MemberController {
     @Operation(summary = "로그인", description = "등록된 회원을 로그인시킵니다.")
     @PostMapping("/sign-in")
     public ResponseEntity<TokenDTO> signIn(
-            @RequestBody SignInRequestDTO signInRequestDTO
-    ) {
+            @RequestBody SignInRequestDTO signInRequestDTO) {
         TokenDTO tokenDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
         return ResponseEntity.ok(tokenDTO);
     }

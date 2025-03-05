@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.report.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
+import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
 import com.mediko.mediko_server.domain.openai.domain.repository.SymptomRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,18 +33,14 @@ public class ReportService {
 
     // AI 문진 생성
     @Transactional
-    public ReportResponseDTO generateReport(ReportRequestDTO reportRequestDTO) {
-        Optional<BasicInfo> basicInfo = basicInfoRepository.findById(reportRequestDTO.getBasicInfoId());
+    public ReportResponseDTO generateReport(ReportRequestDTO reportRequestDTO, Member member) {
+
         Optional<Symptom> symptom = symptomRepository.findById(reportRequestDTO.getSymptomId());
 
-        if (basicInfo.isEmpty() || symptom.isEmpty()) {
-            throw new RuntimeException("BasicInfo or Symptom not found");
-        }
+        if (symptom.isEmpty()) { throw new RuntimeException("Symptom not found"); }
 
         Symptom symptomObj = symptom.get();
-        BasicInfo basicInfoObj = basicInfo.get();
-
-        Map<String, Object> requestData = buildRequestData(symptomObj, basicInfoObj);
+        Map<String, Object> requestData = buildRequestData(symptomObj, member);
 
         ReportResponseDTO flaskResponse = flaskCommunicationService.getReportResponse(requestData);
 
@@ -56,8 +54,7 @@ public class ReportService {
                 .questionsForDoctor(flaskResponse.getQuestionsForDoctor())
                 .symptomChecklist(flaskResponse.getSymptomChecklist())
                 .symptoms(symptomObj)
-                .basicInfo(basicInfoObj)
-                .member(basicInfoObj.getMember())
+                .member(member)
                 .build();
 
         Report savedReport = reportRepository.save(report);
@@ -66,8 +63,28 @@ public class ReportService {
     }
 
 
+    // 단일 리포트 조회
+    public ReportResponseDTO getReport(Long reportId, Member member) {
+        Report report = reportRepository.findByIdAndMember(reportId, member)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        return reportMapper.toDTO(report);
+    }
+
+    // 회원별 전체 리포트 조회
+    public List<ReportResponseDTO> getAllReportsByMember(Member member) {
+        List<Report> reports = reportRepository.findAllByMemberOrderByCreatedAtDesc(member);
+        return reports.stream()
+                .map(reportMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
     // FLASK 서버로 전송할 요청 데이터 빌드
-    private Map<String, Object> buildRequestData(Symptom symptomObj, BasicInfo basicInfoObj) {
+    private Map<String, Object> buildRequestData(Symptom symptomObj, Member member) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new RuntimeException("BasicInfo not found for member"));
+
         List<String> macroBodyParts = symptomObj.getSelectedSBPBodyParts();
         List<String> microBodyParts = symptomObj.getSelectedMBPBodyParts();
 
@@ -85,7 +102,7 @@ public class ReportService {
 
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("symptoms", Collections.singletonList(symptomData));
-        requestData.put("language", basicInfoObj.getLanguage().toString());
+        requestData.put("language", basicInfo.getLanguage().toString());
 
         return requestData;
     }

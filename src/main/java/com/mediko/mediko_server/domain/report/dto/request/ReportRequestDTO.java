@@ -7,7 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReportRequestDTO {
 
-    private Long basicInfoId;
-
     private Long symptomId;
 }
