@@ -33,10 +33,10 @@ public class Pharmacy extends BaseEntity {
     @Column(name = "ph_tel")
     private String tel;
 
-    @Column(name = "phLatitude")
+    @Column(name = "ph_latitude")
     private Double phLatitude;
 
-    @Column(name = "phLongitude")
+    @Column(name = "ph_longitude")
     private Double phLongitude;
 
     @Column(name = "travle_km")

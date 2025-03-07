@@ -1,17 +1,11 @@
 package com.mediko.mediko_server.domain.recommend.application.converter;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
-import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.domain.recommend.dto.request.ErRequestDTO;
-import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
-import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
-import com.mediko.mediko_server.domain.report.domain.Report;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 
 @Component
 public class ErConverter {
@@ -24,6 +18,8 @@ public class ErConverter {
                 .isTrauma(response.getIsTrauma())
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
+                .erLatitude(response.getErLatitude())
+                .erLongitude(response.getErLongitude())
                 .isCondition(requestDTO.getIsCondition())
                 .conditions(requestDTO.getConditions())
                 .travelKm(response.getTravelKm())

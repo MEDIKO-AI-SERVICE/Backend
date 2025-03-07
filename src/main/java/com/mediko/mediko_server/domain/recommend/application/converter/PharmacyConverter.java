@@ -13,7 +13,6 @@ public class PharmacyConverter {
         return Pharmacy.builder()
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
-                .phId(response.getPhId())
                 .name(response.getName())
                 .address(response.getAddress())
                 .tel(response.getTel())
