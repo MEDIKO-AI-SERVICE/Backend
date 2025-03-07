@@ -1,19 +1,20 @@
 package com.mediko.mediko_server.domain.recommend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mediko.mediko_server.domain.recommend.domain.Conditions;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErResponseDTO {
+
+    @JsonProperty("id")
+    private Long id;
 
     @JsonProperty("dutyName")
     private String name;
@@ -42,9 +43,15 @@ public class ErResponseDTO {
     @JsonProperty("transit_travel_time_s")
     private Integer travelS;
 
+    @JsonProperty("er_latitude")
+    private Double erLatitude;
+
+    @JsonProperty("er_longitude")
+    private Double erLongitude;
 
     public static ErResponseDTO fromEntity(Er er) {
         return new ErResponseDTO(
+                er.getId(),
                 er.getName(),
                 er.getAddress(),
                 er.getTel(),
@@ -53,7 +60,9 @@ public class ErResponseDTO {
                 er.getTravelKm(),
                 er.getTravelH(),
                 er.getTravelM(),
-                er.getTravelS()
+                er.getTravelS(),
+                er.getErLatitude(),
+                er.getErLongitude()
         );
     }
 }

@@ -15,10 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class HospitalRequestDTO {
 
-    private Long basicInfoId;
-
-    private Long healthInfoId;
-
     @JsonProperty("lat")
     private Double userLatitude;
 

@@ -64,6 +64,12 @@ public class Er extends BaseEntity {
     @Column(name = "u_longitude")
     private Double userLongitude;
 
+    @Column(name = "hp_latitude")
+    private Double erLatitude;
+
+    @Column(name = "hp_longitude")
+    private Double erLongitude;
+
     @ManyToOne
     @JoinColumn(name = "basic_info_id", nullable = false)
     private BasicInfo basicInfo;

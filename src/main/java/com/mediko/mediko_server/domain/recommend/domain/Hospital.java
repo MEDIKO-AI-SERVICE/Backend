@@ -45,9 +45,6 @@ public class Hospital extends BaseEntity {
     @Column(name = "u_longitude")
     private Double userLongitude;
 
-    @Column(name = "hp_id", nullable = false)
-    private Long hpId;
-
     @Column(name = "hp_name", nullable = false)
     private String name;
 

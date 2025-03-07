@@ -14,7 +14,7 @@ import java.util.List;
 public class HospitalResponseDTO {
 
     @JsonProperty("id")
-    private Long hpId;
+    private Long id;
 
     @JsonProperty("name")
     private String name;
@@ -28,7 +28,7 @@ public class HospitalResponseDTO {
     @JsonProperty("address")
     private String hpAddress;
 
-    @JsonProperty("phLatitude")
+    @JsonProperty("latitude")
     private Double hpLatitude;
 
     @JsonProperty("longitude")
@@ -78,7 +78,7 @@ public class HospitalResponseDTO {
 
     public static HospitalResponseDTO fromEntity(Hospital hospital) {
         return new HospitalResponseDTO(
-                hospital.getHpId(),
+                hospital.getId(),
                 hospital.getName(),
                 hospital.getHpDepartment(),
                 hospital.getTelephone(),
