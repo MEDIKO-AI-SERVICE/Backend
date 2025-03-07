@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.recommend.application;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
+import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.HealthInfoRepository;
 import com.mediko.mediko_server.domain.recommend.application.factory.HospitalRequestFactory;
@@ -42,12 +43,12 @@ public class HospitalService {
 
 
     @Transactional
-    public List<HospitalResponseDTO> recommendHospital(HospitalRequestDTO requestDTO) {
+    public List<HospitalResponseDTO> recommendHospital(HospitalRequestDTO requestDTO, Member member) {
         // 1. BasicInfo 및 HealthInfo 조회
-        BasicInfo basicInfo = basicInfoRepository.findById(requestDTO.getBasicInfoId())
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
-        HealthInfo healthInfo = healthInfoRepository.findById(requestDTO.getHealthInfoId())
+        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강정보가 존재하지 않습니다."));
 
         // 2. 사용자 위치 처리 (phLatitude, longitude)

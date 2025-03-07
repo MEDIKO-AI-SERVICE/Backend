@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PharmacyRequestDTO {
 
-    private Long basicInfoId;
-
     @JsonProperty("lat")
     private Double userLatitude;
 

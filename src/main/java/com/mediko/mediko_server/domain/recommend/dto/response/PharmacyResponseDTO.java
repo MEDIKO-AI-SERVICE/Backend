@@ -13,8 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PharmacyResponseDTO {
+
     @JsonProperty("id")
-    private Long phId;
+    private Long id;
 
     @JsonProperty("dutymapimg")
     private String maping;
@@ -119,7 +120,7 @@ public class PharmacyResponseDTO {
 
     public static PharmacyResponseDTO fromEntity(Pharmacy pharmacy) {
         return new PharmacyResponseDTO(
-                pharmacy.getPhId(),
+                pharmacy.getId(),
                 pharmacy.getMaping(),
                 pharmacy.getName(),
                 pharmacy.getAddress(),
