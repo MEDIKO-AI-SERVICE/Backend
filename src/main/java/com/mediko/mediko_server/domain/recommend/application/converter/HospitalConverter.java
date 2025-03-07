@@ -24,7 +24,6 @@ public class HospitalConverter {
                 .tertiaryHospital(requestDTO.isTertiaryHospital())
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
-                .hpId(response.getHpId())
                 .name(response.getName())
                 .telephone(response.getTelephone())
                 .hpDepartment(response.getHpDepartment())
