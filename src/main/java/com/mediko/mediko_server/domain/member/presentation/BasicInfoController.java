@@ -31,11 +31,10 @@ public class BasicInfoController {
     @Operation(summary = "사용자 언어 설정", description = "사용자의 언어를 설정합니다.")
     @PostMapping("/language")
     public ResponseEntity<LanguageResponseDTO> setLanguage(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("memberId") Long memberId,
             @RequestBody LanguageRequestDTO languageRequestDTO) {
 
-        Member member = userDetails.getMember();
-        LanguageResponseDTO responseDTO = basicInfoService.setLanguage(member, languageRequestDTO);
+        LanguageResponseDTO responseDTO = basicInfoService.setLanguage(memberId, languageRequestDTO);
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -43,12 +42,11 @@ public class BasicInfoController {
     @Operation(summary = "사용자 기본 정보 생성", description = "사용자의 기본 정보를 최초 생성합니다.")
     @PostMapping
     public ResponseEntity<BasicInfoResponseDTO> saveBasicInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("memberId") Long memberId,
             @RequestBody BasicInfoRequestDTO requestDTO) {
-        Member member = userDetails.getMember();
         return ResponseEntity
                 .status(CREATED)
-                .body(basicInfoService.saveBasicInfo(member, requestDTO));
+                .body(basicInfoService.saveBasicInfo(memberId, requestDTO));
     }
 
     @Operation(summary = "사용자 기본 정보 수정", description = "저장된 사용자의 기본 정보를 부분 수정합니다.")

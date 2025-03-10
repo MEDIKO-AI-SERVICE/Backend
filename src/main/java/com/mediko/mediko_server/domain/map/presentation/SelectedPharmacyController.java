@@ -20,7 +20,7 @@ public class SelectedPharmacyController {
     @Operation(summary = "약국 선택 및 map url", description = "사용자가 선택한 약국을 저장하고 map url을 반환합니다.")
     @GetMapping("/{pharmacyId}")
     public ResponseEntity<PharmacyWithMapUrlDTO> getPharmacyWithMapUrls(
-            @PathVariable Long pharmacyId,
+            @PathVariable("pharmacyId") Long pharmacyId,
             @AuthenticationPrincipal Member member) {
         PharmacyWithMapUrlDTO response = selectedPharmacyService.getPharmacyWithMapUrls(pharmacyId, member);
         return ResponseEntity.ok(response);

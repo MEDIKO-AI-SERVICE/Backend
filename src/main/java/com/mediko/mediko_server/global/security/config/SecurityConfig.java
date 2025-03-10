@@ -6,6 +6,7 @@ import com.mediko.mediko_server.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,16 +36,16 @@ public class SecurityConfig {
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
-                        // Swagger 관련 경로 허용
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // 회원가입 및 로그인 API 허용
                         .requestMatchers("/api/v1/member/sign-up").permitAll()
                         .requestMatchers("/api/v1/member/sign-in").permitAll()
-                        // 그 외 모든 요청 인증 필요
+                        .requestMatchers("/api/v1/basicInfo/language").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/basicInfo").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/healthInfo").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);

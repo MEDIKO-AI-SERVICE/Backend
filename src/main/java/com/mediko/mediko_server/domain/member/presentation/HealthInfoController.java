@@ -28,10 +28,9 @@ public class HealthInfoController {
     @Operation(summary = "사용자 건강 정보 저장", description = "회원가입 후 사용자의 건강 정보를 저장합니다.")
     @PostMapping
     public ResponseEntity<HealthInfoResponseDTO> saveHealthInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("memberId") Long memberId,
             @RequestBody HealthInfoRequestDTO healthInfoRequestDTO) {
-        Member member = userDetails.getMember();
-        HealthInfoResponseDTO savedHealthInfo = healthInfoService.createHealthInfo(member, healthInfoRequestDTO);
+        HealthInfoResponseDTO savedHealthInfo = healthInfoService.saveHealthInfo(memberId, healthInfoRequestDTO);
         return ResponseEntity.status(CREATED).body(savedHealthInfo);
     }
 

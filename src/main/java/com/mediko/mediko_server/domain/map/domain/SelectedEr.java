@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.map.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
-import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

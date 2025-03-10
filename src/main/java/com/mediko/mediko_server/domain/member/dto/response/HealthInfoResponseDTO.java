@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.member.dto.response;
 
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
-import com.mediko.mediko_server.domain.member.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

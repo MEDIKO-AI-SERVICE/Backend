@@ -5,12 +5,15 @@ import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.SignUpRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.TokenDTO;
+import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
 @Service
@@ -34,7 +38,7 @@ public class MemberService {
 
     //회원 가입
     @Transactional
-    public void signUp(SignUpRequestDTO signUpRequestDTO) {
+    public UserInfoResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
         if (memberRepository.existsByEmail(signUpRequestDTO.getEmail())) {
             throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 이메일입니다.");
         }
@@ -52,9 +56,10 @@ public class MemberService {
 
         Member member = signUpRequestDTO.toEntity(encodedPassword);
         member.addRole(UserStatus.ROLE_GUEST);
-        memberRepository.save(member);
-    }
+        Member savedMember = memberRepository.save(member);
 
+        return UserInfoResponseDTO.fromEntity(savedMember);
+    }
 
     //로그인
     @Transactional
