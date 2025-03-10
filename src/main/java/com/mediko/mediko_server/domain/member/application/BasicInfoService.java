@@ -4,10 +4,11 @@ import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
-import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
+import com.mediko.mediko_server.domain.member.dto.request.LanguageRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
@@ -23,34 +24,60 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 @Transactional(readOnly = true)
 public class BasicInfoService {
 
-    private final MemberRepository memberRepository;
     private final BasicInfoRepository basicInfoRepository;
     private final FlaskCommunicationService flaskCommunicationService;
 
-    // 사용자 기본정보 저장
+    // 사용자 언어 설정
     @Transactional
-    public BasicInfoResponseDTO saveBasicInfo(Member member, BasicInfoRequestDTO basicInfoRequestDTO) {
+    public LanguageResponseDTO setLanguage(Member member, LanguageRequestDTO languageRequestDTO) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseGet(() -> {
+                    String erPassword = flaskCommunicationService.generate119Password();
+                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
+                            member,
+                            languageRequestDTO.getLanguage(),
+                            erPassword
+                    );
+                    return basicInfoRepository.save(newBasicInfo);
+                });
 
-        if (basicInfoRepository.existsByMember(member)) {
-            throw new BadRequestException(DATA_ALREADY_EXIST, "사용자의 기본정보가 이미 저장되었습니다.");
+        if (basicInfo.getLanguage() != languageRequestDTO.getLanguage()) {
+            basicInfo.updateLanguage(languageRequestDTO.getLanguage());
         }
 
-        String erPassword = flaskCommunicationService.generate119Password();
+        return LanguageResponseDTO.fromBasicInfo(basicInfo);
+    }
 
-        BasicInfo basicInfo = basicInfoRequestDTO.toEntity()
-                .toBuilder()
-                .erPassword(erPassword)
-                .build();
+    // 사용자 기본정보 생성
+    @Transactional
+    public BasicInfoResponseDTO saveBasicInfo(Member member, BasicInfoRequestDTO requestDTO) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "먼저 language 설정이 필요합니다."));
 
-        member.setBasicInfo(basicInfo);
+        if (basicInfo.getNumber() != null || basicInfo.getAddress() != null ||
+                basicInfo.getGender() != null || basicInfo.getAge() != null) {
+            throw new BadRequestException(DATA_ALREADY_EXIST, "이미 기본 정보가 설정되어 있습니다.");
+        }
 
-        basicInfo.validateBasicInfoFields();
-        BasicInfo savedBasicInfo = basicInfoRepository.save(basicInfo);
-
+        basicInfo.updateBasicInfo(requestDTO);
         member.changeRole(UserStatus.ROLE_USER);
-        memberRepository.save(member);
 
-        return BasicInfoResponseDTO.fromEntity(savedBasicInfo);
+        return BasicInfoResponseDTO.fromEntity(basicInfo);
+    }
+
+    // 사용자 기본정보 수정
+    @Transactional
+    public BasicInfoResponseDTO updateBasicInfo(Member member, BasicInfoRequestDTO requestDTO) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        if (basicInfo.getNumber() == null && basicInfo.getAddress() == null &&
+                basicInfo.getGender() == null && basicInfo.getAge() == null) {
+            throw new BadRequestException(DATA_NOT_EXIST, "먼저 기본 정보를 생성해주세요.");
+        }
+
+        basicInfo.updateBasicInfo(requestDTO);
+        return BasicInfoResponseDTO.fromEntity(basicInfo);
     }
 
     // 사용자 기본정보 조회
@@ -61,18 +88,7 @@ public class BasicInfoService {
         return BasicInfoResponseDTO.fromEntity(basicInfo);
     }
 
-    // 사용자 기본정보 수정
-    @Transactional
-    public BasicInfoResponseDTO updateBasicInfo(Member member, BasicInfoRequestDTO basicInfoRequestDTO) {
-        BasicInfo existingBasicInfo = basicInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
-
-        existingBasicInfo.updateBasicInfo(basicInfoRequestDTO);
-        basicInfoRepository.save(existingBasicInfo);
-
-        return BasicInfoResponseDTO.fromEntity(existingBasicInfo);
-    }
-
+    // 119 비밀번호 조회
     public ErPasswordResponseDTO getErPassword(Member member) {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));

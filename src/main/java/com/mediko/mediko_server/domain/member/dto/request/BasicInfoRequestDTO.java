@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.member.dto.request;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
-import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,10 +12,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class BasicInfoRequestDTO {
-
-    //@NotBlank
-    @NotNull(message = "사용언어는 필수 입력 값입니다.")
-    private Language language;
 
     @NotBlank(message = "전화번호는 필수 입력 값입니다.")
     @Pattern(regexp = "^\\d{10,11}$", message = "전화번호 형식이 올바르지 않습니다.")
@@ -40,7 +35,6 @@ public class BasicInfoRequestDTO {
 
     public BasicInfo toEntity() {
         return BasicInfo.builder()
-                .language(this.language)
                 .number(this.number)
                 .address(this.address)
                 .gender(this.gender)
