@@ -4,6 +4,7 @@ import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
+import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.LanguageRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
@@ -11,6 +12,7 @@ import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,12 +26,16 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 @Transactional(readOnly = true)
 public class BasicInfoService {
 
+    private final MemberRepository memberRepository;
     private final BasicInfoRepository basicInfoRepository;
     private final FlaskCommunicationService flaskCommunicationService;
 
     // 사용자 언어 설정
     @Transactional
-    public LanguageResponseDTO setLanguage(Member member, LanguageRequestDTO languageRequestDTO) {
+    public LanguageResponseDTO setLanguage(Long memberId, LanguageRequestDTO languageRequestDTO) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseGet(() -> {
                     String erPassword = flaskCommunicationService.generate119Password();
@@ -50,7 +56,10 @@ public class BasicInfoService {
 
     // 사용자 기본정보 생성
     @Transactional
-    public BasicInfoResponseDTO saveBasicInfo(Member member, BasicInfoRequestDTO requestDTO) {
+    public BasicInfoResponseDTO saveBasicInfo(Long memberId, BasicInfoRequestDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "먼저 language 설정이 필요합니다."));
 

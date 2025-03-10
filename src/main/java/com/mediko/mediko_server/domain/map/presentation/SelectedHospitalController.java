@@ -20,7 +20,7 @@ public class SelectedHospitalController {
     @Operation(summary = "병원 선택 및 map url", description = "사용자가 선택한 병원을 저장하고 map url을 반환합니다.")
     @GetMapping("/{hospitalId}")
     public ResponseEntity<HospitalWithMapUrlDTO> getHospitalWithMapUrls(
-            @PathVariable Long hospitalId,
+            @PathVariable("hospitalId") Long hospitalId,
             @AuthenticationPrincipal Member member) {
         HospitalWithMapUrlDTO response = selectedHospitalService.getHospitalWithMapUrls(hospitalId, member);
         return ResponseEntity.ok(response);

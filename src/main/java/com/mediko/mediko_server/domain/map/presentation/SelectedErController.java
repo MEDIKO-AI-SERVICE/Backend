@@ -21,7 +21,7 @@ public class SelectedErController {
     @Operation(summary = "응급실 선택 및 map url", description = "사용자가 선택한 응급실을 저장하고 map url을 반환합니다.")
     @GetMapping("/{erId}")
     public ResponseEntity<ErWithMapUrlDTO> getErWithMapUrls(
-            @PathVariable Long erId,
+            @PathVariable("erId") Long erId,
             @AuthenticationPrincipal Member member) {
         ErWithMapUrlDTO response = selectedErService.getErWithMapUrls(erId, member);
         return ResponseEntity.ok(response);

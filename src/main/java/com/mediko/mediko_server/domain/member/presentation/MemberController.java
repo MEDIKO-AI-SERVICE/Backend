@@ -3,10 +3,12 @@ package com.mediko.mediko_server.domain.member.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.application.MemberService;
 import com.mediko.mediko_server.domain.member.dto.request.*;
+import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,16 +30,14 @@ public class MemberController {
 
     @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
-    public ResponseEntity<Void> signUp (
-            @RequestBody SignUpRequestDTO signUpRequestDTO) {
-        memberService.signUp(signUpRequestDTO);
-        return ResponseEntity.status(CREATED).build();
+    public ResponseEntity<UserInfoResponseDTO> signUp(@RequestBody SignUpRequestDTO signUpRequestDTO) {
+        UserInfoResponseDTO responseDTO = memberService.signUp(signUpRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @Operation(summary = "로그인", description = "등록된 회원을 로그인시킵니다.")
     @PostMapping("/sign-in")
-    public ResponseEntity<TokenDTO> signIn(
-            @RequestBody SignInRequestDTO signInRequestDTO) {
+    public ResponseEntity<TokenDTO> signIn(@RequestBody SignInRequestDTO signInRequestDTO) {
         TokenDTO tokenDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
         return ResponseEntity.ok(tokenDTO);
     }

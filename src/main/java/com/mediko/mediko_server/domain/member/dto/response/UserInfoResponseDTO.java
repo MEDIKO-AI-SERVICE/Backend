@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserInfoResponseDTO {
+    private Long memberId;
 
     private String loginId;
 
@@ -19,6 +20,7 @@ public class UserInfoResponseDTO {
 
     public static UserInfoResponseDTO fromEntity(Member member) {
         return new UserInfoResponseDTO(
+                member.getId(),
                 member.getLoginId(),
                 member.getEmail(),
                 member.getName(),
