@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.member.dto.request;
 
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
-import com.mediko.mediko_server.domain.member.domain.Member;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

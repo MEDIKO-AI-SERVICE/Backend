@@ -37,8 +37,21 @@ public class HealthInfo extends BaseEntity {
     private Member member;
 
 
-    public void setMember(Member member) {
+    public static HealthInfo createHealthInfo(Member member) {
+        HealthInfo healthInfo = HealthInfo.builder()
+                .member(member)
+                .build();
+
+        member.setHealthInfo(healthInfo);
+
+        return healthInfo;
+    }
+
+    protected void setMember(Member member) {
         this.member = member;
+        if (member != null && member.getHealthInfo() != this) {
+            member.setHealthInfo(this);
+        }
     }
 
     public void validateHealthInfoFields() {

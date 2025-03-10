@@ -31,7 +31,7 @@ public class HealthInfoController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody HealthInfoRequestDTO healthInfoRequestDTO) {
         Member member = userDetails.getMember();
-        HealthInfoResponseDTO savedHealthInfo = healthInfoService.saveHealthInfo(member, healthInfoRequestDTO);
+        HealthInfoResponseDTO savedHealthInfo = healthInfoService.createHealthInfo(member, healthInfoRequestDTO);
         return ResponseEntity.status(CREATED).body(savedHealthInfo);
     }
 

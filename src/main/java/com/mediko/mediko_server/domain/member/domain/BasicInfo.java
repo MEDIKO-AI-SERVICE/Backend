@@ -6,50 +6,67 @@ import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.MISSING_REQUIRED_FIELD;
 
-@Getter
-@Builder(toBuilder = true)
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name= "basicInfo")
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicInfo extends BaseEntity {
     @Column(name = "language", nullable = false)
     private Language language;
 
-    @Column(name = "number", nullable = false)
+    @Column(name = "number")
     private String number;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "age", nullable = false)
+    @Column(name = "age")
     private Integer age;
 
-    @Column(name = "height", nullable = false)
+    @Column(name = "height")
     private Integer height;
 
-    @Column(name = "weight", nullable = false)
+    @Column(name = "weight")
     private Integer weight;
 
-    @Column(name = "er_password", nullable = false)
+    @Column(name = "er_password", updatable = false)
     private String erPassword;
 
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public void setMember(Member member) {
-        this.member = member;
+    public static BasicInfo createBasicInfo(Member member, Language language, String erPassword) {
+        BasicInfo basicInfo = BasicInfo.builder()
+                .member(member)
+                .language(language)
+                .erPassword(erPassword)
+                .build();
+
+        member.setBasicInfo(basicInfo);
+
+        return basicInfo;
+    }
+
+
+    public void updateBasicInfo(BasicInfoRequestDTO basicInfoRequestDTO) {
+        this.number = basicInfoRequestDTO.getNumber();
+        this.address = basicInfoRequestDTO.getAddress();
+        this.gender = basicInfoRequestDTO.getGender();
+        this.age = basicInfoRequestDTO.getAge();
+        this.height = basicInfoRequestDTO.getHeight();
+        this.weight = basicInfoRequestDTO.getWeight();
+
+        validateBasicInfoFields();
     }
 
     public void validateBasicInfoFields() {
@@ -61,15 +78,14 @@ public class BasicInfo extends BaseEntity {
         }
     }
 
-    public void updateBasicInfo(BasicInfoRequestDTO basicInfoRequestDTO) {
-        this.language = basicInfoRequestDTO.getLanguage();
-        this.number = basicInfoRequestDTO.getNumber();
-        this.address = basicInfoRequestDTO.getAddress();
-        this.gender = basicInfoRequestDTO.getGender();
-        this.age = basicInfoRequestDTO.getAge();
-        this.height = basicInfoRequestDTO.getHeight();
-        this.weight = basicInfoRequestDTO.getWeight();
+    public void updateLanguage(Language language) {
+        this.language = language;
+    }
 
-        validateBasicInfoFields();
+    protected void setMember(Member member) {
+        this.member = member;
+        if (member != null && member.getBasicInfo() != this) {
+            member.setBasicInfo(this);
+        }
     }
 }
