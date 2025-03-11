@@ -33,18 +33,16 @@ public class PharmacyService {
     private final PharmacyRequestFactory pharmacyRequestFactory;
     private final PharmacyConverter pharmacyConverter;
 
+    // 약국 추천 응답
     @Transactional
     public List<PharmacyResponseDTO> recommendPharmacy(PharmacyRequestDTO requestDTO,  Member member) {
-        // 1. BasicInfo 조회
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
-        // 2. Flask 서버에 보낼 요청 데이터 생성
         Map<String, Object> flaskRequestData = pharmacyRequestFactory.createFlaskRequest(
                 basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude()
         );
 
-        // 3. Flask 서버로 요청 보내고 응답 받기
         List<PharmacyResponseDTO> flaskResponses = flaskCommunicationService
                 .getPharmacyRecommendation(flaskRequestData);
 
@@ -52,13 +50,11 @@ public class PharmacyService {
             throw new RuntimeException("No pharmacy recommendations received");
         }
 
-        // 4. Flask 응답을 엔티티로 변환 후 저장
         List<Pharmacy> savedPharmacies = flaskResponses.stream()
                 .map(response -> pharmacyConverter.toEntity(response, requestDTO, basicInfo))
                 .map(pharmacyRepository::save)
                 .collect(Collectors.toList());
 
-        // 5. 저장된 엔티티를 DTO로 변환하여 반환
         return savedPharmacies.stream()
                 .map(PharmacyResponseDTO::fromEntity)
                 .collect(Collectors.toList());

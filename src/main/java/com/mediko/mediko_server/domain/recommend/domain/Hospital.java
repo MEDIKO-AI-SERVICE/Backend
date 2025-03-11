@@ -48,7 +48,7 @@ public class Hospital extends BaseEntity {
     @Column(name = "hp_name", nullable = false)
     private String name;
 
-    @Column(name = "hp_telephone", nullable = false)
+    @Column(name = "hp_telephone")
     private String telephone;
 
     @Column(name = "hp_department", nullable = false)

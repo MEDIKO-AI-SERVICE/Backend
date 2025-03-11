@@ -13,13 +13,12 @@ import java.util.List;
 @Component
 public class HospitalConverter {
     public Hospital toEntity(HospitalResponseDTO response, HospitalRequestDTO requestDTO,
-                             String department, String suspectedDisease,
+                             String department, List<String> suspectedDisease,
                              BasicInfo basicInfo, HealthInfo healthInfo, Report report) {
         return Hospital.builder()
-                .isReport(requestDTO.isReport())
+                .isReport(requestDTO.isReportBased())
                 .userDepartment(department)
-                .suspectedDisease(requestDTO.isReport() ?
-                        List.of(suspectedDisease.split(",")) : requestDTO.getSuspectedDisease())
+                .suspectedDisease(suspectedDisease)
                 .secondaryHospital(requestDTO.isSecondaryHospital())
                 .tertiaryHospital(requestDTO.isTertiaryHospital())
                 .userLatitude(requestDTO.getUserLatitude())
