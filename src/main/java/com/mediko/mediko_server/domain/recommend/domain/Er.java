@@ -64,10 +64,10 @@ public class Er extends BaseEntity {
     @Column(name = "u_longitude")
     private Double userLongitude;
 
-    @Column(name = "hp_latitude")
+    @Column(name = "er_latitude")
     private Double erLatitude;
 
-    @Column(name = "hp_longitude")
+    @Column(name = "er_longitude")
     private Double erLongitude;
 
     @ManyToOne

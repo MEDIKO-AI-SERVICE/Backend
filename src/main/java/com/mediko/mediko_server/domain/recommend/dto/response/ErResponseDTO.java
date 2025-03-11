@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.recommend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,10 +42,10 @@ public class ErResponseDTO {
     @JsonProperty("transit_travel_time_s")
     private Integer travelS;
 
-    @JsonProperty("er_latitude")
+    @JsonProperty("wgs84Lat")
     private Double erLatitude;
 
-    @JsonProperty("er_longitude")
+    @JsonProperty("wgs84Lon")
     private Double erLongitude;
 
     public static ErResponseDTO fromEntity(Er er) {

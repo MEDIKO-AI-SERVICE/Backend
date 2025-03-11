@@ -29,7 +29,7 @@ public class Report extends BaseEntity {
 
     @Convert(converter = StringMapListConverter.class)
     @Column(name = "conditions")
-   private List<Map<String, String>> possibleConditions = new ArrayList<>();
+    private List<Map<String, String>> possibleConditions = new ArrayList<>();
 
     @Convert(converter = StringMapListConverter.class)
     @Column(name = "questions")

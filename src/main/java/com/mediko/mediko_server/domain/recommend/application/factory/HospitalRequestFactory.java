@@ -4,7 +4,6 @@ import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,7 @@ public class HospitalRequestFactory {
     public Map<String, Object> createFlaskRequest(
             BasicInfo basicInfo, HealthInfo healthInfo,
             Double userLatitude, Double userLongitude,
-            String department, String suspectedDisease,
+            String department, List<String> suspectedDisease,
             boolean secondaryHospital, boolean tertiaryHospital
     ) {
         Map<String, Object> request = new HashMap<>();
@@ -42,7 +41,7 @@ public class HospitalRequestFactory {
         request.put("basic_info", basicInfoMap);
         request.put("health_info", healthInfoMap);
         request.put("department", department);
-        request.put("suspected_disease", Arrays.asList(suspectedDisease.split(",")));  // 문자열을 리스트로 변환
+        request.put("suspected_disease", suspectedDisease);
         request.put("secondary_hospital", secondaryHospital);
         request.put("tertiary_hospital", tertiaryHospital);
 

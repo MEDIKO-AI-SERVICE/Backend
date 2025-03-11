@@ -2,9 +2,7 @@ package com.mediko.mediko_server.domain.recommend.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
-import io.micrometer.common.lang.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

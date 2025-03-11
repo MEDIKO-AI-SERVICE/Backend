@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HospitalRequestDTO {
-
     @JsonProperty("lat")
     private Double userLatitude;
 
@@ -22,8 +21,9 @@ public class HospitalRequestDTO {
     private Double userLongitude;
 
     @JsonProperty("is_report")
-    private boolean isReport;
+    private boolean reportBased;
 
+    @JsonProperty("report_id")
     private Long reportId;
 
     @JsonProperty("department")
@@ -38,11 +38,12 @@ public class HospitalRequestDTO {
     @JsonProperty("tertiary_hospital")
     private boolean tertiaryHospital;
 
+
     public Hospital toEntity(BasicInfo basicInfo, HealthInfo healthInfo) {
         return Hospital.builder()
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
-                .isReport(this.isReport)
+                .isReport(this.reportBased)
                 .userDepartment(this.userDepartment)
                 .suspectedDisease(this.suspectedDisease)
                 .secondaryHospital(this.secondaryHospital)

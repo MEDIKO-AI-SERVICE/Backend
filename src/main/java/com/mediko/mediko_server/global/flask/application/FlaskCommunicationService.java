@@ -73,7 +73,7 @@ public class FlaskCommunicationService {
             HttpEntity<Object> entity = new HttpEntity<>(requestData, headers);
 
             ResponseEntity<T> response = restTemplate.exchange(
-                    endpoint,  // 전체 URL이 이미 포함되어 있음
+                    endpoint,
                     HttpMethod.POST,
                     entity,
                     responseType
@@ -97,7 +97,7 @@ public class FlaskCommunicationService {
             log.info("Flask 서버 엔드포인트: {}", endpoint);
 
             ResponseEntity<T> response = restTemplate.exchange(
-                    endpoint,  // 전체 URL이 이미 포함되어 있음
+                    endpoint,
                     HttpMethod.POST,
                     entity,
                     responseType
