@@ -47,7 +47,7 @@ public class PharmacyService {
                 .getPharmacyRecommendation(flaskRequestData);
 
         if (flaskResponses == null || flaskResponses.isEmpty()) {
-            throw new RuntimeException("No pharmacy recommendations received");
+            throw new BadRequestException(DATA_NOT_EXIST, "약국 추천 정보를 받지 못했습니다.");
         }
 
         List<Pharmacy> savedPharmacies = flaskResponses.stream()

@@ -45,14 +45,13 @@ public class HospitalService {
     // 병원 추천 응답
     @Transactional
     public List<HospitalResponseDTO> recommendHospital(HospitalRequestDTO requestDTO, Member member) {
+        validateReportConditions(requestDTO.isReportBased(), requestDTO.getReportId());
+        validateInputs(requestDTO);
+
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
         HealthInfo healthInfo = healthInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강정보가 존재하지 않습니다."));
-
-        if (requestDTO.getUserLatitude() == null || requestDTO.getUserLongitude() == null) {
-            throw new BadRequestException(INVALID_PARAMETER, "사용자의 위치 정보는 필수입니다.");
-        }
 
         final String department;
         final List<String> diseases;
@@ -94,7 +93,7 @@ public class HospitalService {
 
         List<HospitalResponseDTO> recommendations = flaskCommunicationService.getHospitalRecommendation(flaskRequestData);
         if (recommendations == null || recommendations.isEmpty()) {
-            throw new ServiceUnavailableException(DATA_UNAVAILABLE, "병원 추천 정보를 받지 못했습니다.");
+            throw new BadRequestException(DATA_NOT_EXIST, "병원 추천 정보를 받지 못했습니다.");
         }
 
         return recommendations.stream()
@@ -104,6 +103,34 @@ public class HospitalService {
                 .map(hospitalRepository::save)
                 .map(HospitalResponseDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    private void validateReportConditions(Boolean isReport, Long reportId) {
+        if (Boolean.TRUE.equals(isReport) && reportId == null) {
+            throw new BadRequestException(INVALID_PARAMETER,
+                    "리포트 기반 추천 시에는 reportId를 입력해야 합니다");
+        }
+
+        if (Boolean.FALSE.equals(isReport) && reportId != null) {
+            throw new BadRequestException(INVALID_PARAMETER,
+                    "리포트 기반 추천이 아닌 경우 reportId를 입력할 수 없습니다");
+        }
+    }
+
+    private void validateInputs(HospitalRequestDTO requestDTO) {
+        if (requestDTO.isReportBased()) {
+            if (requestDTO.getUserDepartment() != null || requestDTO.getSuspectedDisease() != null) {
+                throw new BadRequestException(INVALID_PARAMETER,
+                        "리포트 기반 추천 시에는 진료과와 예상 질병을 직접 입력할 수 없습니다.");
+            }
+        } else {
+            if (requestDTO.getUserDepartment() == null) {
+                throw new BadRequestException(INVALID_PARAMETER, "진료과 선택은 필수입니다.");
+            }
+            if (requestDTO.getSuspectedDisease() == null || requestDTO.getSuspectedDisease().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "예상 질병은 필수입니다.");
+            }
+        }
     }
 }
 
