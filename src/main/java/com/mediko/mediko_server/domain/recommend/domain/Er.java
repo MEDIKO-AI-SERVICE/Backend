@@ -4,6 +4,7 @@ import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.global.converter.LongListConverter;
+import com.mediko.mediko_server.global.converter.StringListConvert;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -55,8 +56,8 @@ public class Er extends BaseEntity {
     @Column(name = "is_condition")
     private Boolean isCondition;
 
-    @Convert(converter = LongListConverter.class)
-    private List<Long> conditions = new ArrayList<>();
+    @Convert(converter = StringListConvert.class)
+    private List<String> conditions = new ArrayList<>();
 
     @Column(name = "u_latitude")
     private Double userLatitude;

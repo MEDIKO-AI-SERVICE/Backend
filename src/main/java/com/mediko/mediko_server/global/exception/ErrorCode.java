@@ -34,7 +34,7 @@ public enum ErrorCode {
     SERVICE_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "5031_SERVICE_TIMEOUT", "서비스 응답 시간이 초과되었습니다."),
     DATA_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "5032_DATA_UNAVAILABLE", "데이터를 불러올 수 없습니다.");
 
-    private final HttpStatus status; // HTTP 상태 코드
-    private final String code; // 에러 코드
-    private final String msg; // 사용자에게 반환될 메시지
+    private final HttpStatus status;
+    private final String code;
+    private final String msg;
 }

@@ -22,7 +22,7 @@ public class ErRequestDTO {
 
     private Boolean isCondition;
 
-    private List<Long> conditions;
+    private List<String> conditions;
 
 
     public Er toEntity(BasicInfo basicInfo) {

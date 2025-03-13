@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "department", description = "진료과 API")
+@Tag(name = "department", description = "병원 진료과 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/department")
