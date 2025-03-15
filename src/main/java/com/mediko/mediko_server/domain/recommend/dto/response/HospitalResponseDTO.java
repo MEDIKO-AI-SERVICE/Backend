@@ -67,9 +67,6 @@ public class HospitalResponseDTO {
     @JsonProperty("sort_score")
     private Long sortScore;
 
-    @JsonProperty("department_match")
-    private Boolean departmentMatch;
-
     @JsonProperty("similarity")
     private Double similarity;
 
@@ -96,7 +93,6 @@ public class HospitalResponseDTO {
                 hospital.getTravelM(),
                 hospital.getTravelS(),
                 hospital.getSortScore(),
-                hospital.isDepartmentMatch(),
                 hospital.getSimilarity(),
                 hospital.getUrl()
         );
