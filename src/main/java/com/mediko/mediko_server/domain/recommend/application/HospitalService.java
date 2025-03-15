@@ -77,9 +77,6 @@ public class HospitalService {
             if (requestDTO.getUserDepartment() == null) {
                 throw new BadRequestException(INVALID_PARAMETER, "진료과 선택은 필수입니다.");
             }
-            if (requestDTO.getSuspectedDisease() == null || requestDTO.getSuspectedDisease().isEmpty()) {
-                throw new BadRequestException(INVALID_PARAMETER, "예상 질병은 필수입니다.");
-            }
 
             department = DepartmentTitle.from(requestDTO.getUserDepartment()).getValue();
             diseases = requestDTO.getSuspectedDisease();
@@ -126,9 +123,6 @@ public class HospitalService {
         } else {
             if (requestDTO.getUserDepartment() == null) {
                 throw new BadRequestException(INVALID_PARAMETER, "진료과 선택은 필수입니다.");
-            }
-            if (requestDTO.getSuspectedDisease() == null || requestDTO.getSuspectedDisease().isEmpty()) {
-                throw new BadRequestException(INVALID_PARAMETER, "예상 질병은 필수입니다.");
             }
         }
     }

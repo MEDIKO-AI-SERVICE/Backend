@@ -96,15 +96,11 @@ public class Hospital extends BaseEntity {
     @Column(name = "sort_score")
     private Long sortScore;
 
-    @Column(name = "department_match")
-    private boolean departmentMatch;
-
     @Column(name = "similarity")
     private Double similarity;
 
     @Column(name = "hp_url")
     private String url;
-
 
     @ManyToOne
     @JoinColumn(name = "basic_info_id", nullable = false)

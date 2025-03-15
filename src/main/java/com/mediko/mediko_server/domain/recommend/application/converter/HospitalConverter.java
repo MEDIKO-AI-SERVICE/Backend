@@ -39,7 +39,6 @@ public class HospitalConverter {
                 .travelM(response.getTravelM())
                 .travelS(response.getTravelS())
                 .sortScore(response.getSortScore())
-                .departmentMatch(response.getDepartmentMatch())
                 .similarity(response.getSimilarity())
                 .url(response.getUrl())
                 .basicInfo(basicInfo)
