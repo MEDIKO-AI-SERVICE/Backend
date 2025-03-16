@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "selected_pharmacy")
+@Table(name = "selected_ph")
 public class SelectedPharmacy extends BaseEntity {
 
     @Column(name = "naver_map", nullable = false)

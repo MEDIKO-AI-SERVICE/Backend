@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.map.presentation;
 
 import com.mediko.mediko_server.domain.map.application.SelectedHospitalService;
 import com.mediko.mediko_server.domain.map.dto.response.HospitalWithMapUrlDTO;
+import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,9 @@ public class SelectedHospitalController {
     @GetMapping("/{hospitalId}")
     public ResponseEntity<HospitalWithMapUrlDTO> getHospitalWithMapUrls(
             @PathVariable("hospitalId") Long hospitalId,
-            @AuthenticationPrincipal Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetail) {
+
+        Member member = userDetail.getMember();
         HospitalWithMapUrlDTO response = selectedHospitalService.getHospitalWithMapUrls(hospitalId, member);
         return ResponseEntity.ok(response);
     }

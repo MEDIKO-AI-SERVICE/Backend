@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.map.presentation;
 
 import com.mediko.mediko_server.domain.map.application.SelectedErService;
 import com.mediko.mediko_server.domain.map.dto.response.ErWithMapUrlDTO;
+import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +23,9 @@ public class SelectedErController {
     @GetMapping("/{erId}")
     public ResponseEntity<ErWithMapUrlDTO> getErWithMapUrls(
             @PathVariable("erId") Long erId,
-            @AuthenticationPrincipal Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetail) {
+
+        Member member = userDetail.getMember();
         ErWithMapUrlDTO response = selectedErService.getErWithMapUrls(erId, member);
         return ResponseEntity.ok(response);
     }
