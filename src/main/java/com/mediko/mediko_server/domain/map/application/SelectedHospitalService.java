@@ -7,66 +7,92 @@ import com.mediko.mediko_server.domain.map.dto.response.MapUrlResponseDTO;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.domain.recommend.domain.repository.HospitalRepository;
+import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SelectedHospitalService {
 
     private final SelectedHospitalRepository selectedHospitalRepository;
     private final HospitalRepository hospitalRepository;
+    private final FlaskCommunicationService flaskCommunicationService;
 
     @Value("${app.name}")
     private String appName;
 
+    @Transactional
     public HospitalWithMapUrlDTO getHospitalWithMapUrls(Long hospitalId, Member member) {
-        Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 병원을 찾을 수 없습니다."));
+        Hospital hospital = findHospitalById(hospitalId);
+        double userLat;
+        double userLon;
 
-        MapUrlResponseDTO mapUrls = generateMapUrls(hospital);
-        HospitalResponseDTO hospitalInfo = HospitalResponseDTO.fromEntity(hospital);
+        Double userLatitude = hospital.getUserLatitude();
+        Double userLongitude = hospital.getUserLongitude();
 
-        if (member != null) {
-            saveSelectedHospital(hospital, member, mapUrls);
+        if (userLatitude != null && userLatitude != 0.0 &&
+                userLongitude != null && userLongitude != 0.0) {
+            userLat = userLatitude;
+            userLon = userLongitude;
+        }
+        else {
+            if (member != null && member.getBasicInfo() != null &&
+                    member.getBasicInfo().getAddress() != null) {
+                GeocodeResponseDTO coordinates = getCoordinatesFromAddress(
+                        member.getBasicInfo().getAddress());
+                userLat = coordinates.getLatitude();
+                userLon = coordinates.getLongitude();
+            } else {
+                throw new IllegalArgumentException("사용자의 주소 정보가 없습니다.");
+            }
         }
 
-        return new HospitalWithMapUrlDTO(hospitalInfo, mapUrls);
+        var result = HospitalWithMapUrlDTO.fromEntity(
+                HospitalResponseDTO.fromEntity(hospital),
+                hospital,
+                userLat,
+                userLon,
+                appName
+        );
+
+        saveSelectedHospitalIfNeeded(hospital, member, result.getMapUrls());
+        return result;
     }
 
-    private void saveSelectedHospital(Hospital hospital, Member member, MapUrlResponseDTO mapUrls) {
-        selectedHospitalRepository.save(
-                SelectedHospital.builder()
-                        .hospital(hospital)
-                        .member(member)
-                        .naverMap(mapUrls.getNaverMap())
-                        .kakaoMap(mapUrls.getKakaoMap())
-                        .googleMap(mapUrls.getGoogleMap())
-                        .build()
-        );
+    private GeocodeResponseDTO getCoordinatesFromAddress(String address) {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("address", address);
+        return flaskCommunicationService.getAddressToCoords(requestData);
     }
 
-    private MapUrlResponseDTO generateMapUrls(Hospital hospital) {
-        double userLatitude = hospital.getUserLatitude();
-        double userLongitude = hospital.getUserLongitude();
-        double hospitalLatitude = hospital.getHpLatitude();
-        double hospitalLongitude = hospital.getHpLongitude();
-        String hospitalName = hospital.getName();
+    private Hospital findHospitalById(Long hospitalId) {
+        return hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 병원을 찾을 수 없습니다."));
+    }
 
-        String naverMapUrl = MapUrlGenerator.generateNaverMapUrl(
-                userLatitude, userLongitude, hospitalLatitude, hospitalLongitude, hospitalName, appName
-        );
-        String kakaoMapUrl = MapUrlGenerator.generateKakaoMapUrl(
-                userLatitude, userLongitude, hospitalLatitude, hospitalLongitude
-        );
-        String googleMapUrl = MapUrlGenerator.generateGoogleMapUrl(
-                userLatitude, userLongitude, hospitalLatitude, hospitalLongitude
-        );
+    private void saveSelectedHospitalIfNeeded(Hospital hospital, Member member, MapUrlResponseDTO mapUrls) {
+        if (member == null) {
+            return;
+        }
 
-        return new MapUrlResponseDTO(naverMapUrl, kakaoMapUrl, googleMapUrl);
+        SelectedHospital selectedHospital = SelectedHospital.builder()
+                .hospital(hospital)
+                .member(member)
+                .naverMap(mapUrls.getNaverMap())
+                .kakaoMap(mapUrls.getKakaoMap())
+                .googleMap(mapUrls.getGoogleMap())
+                .build();
+
+        selectedHospitalRepository.save(selectedHospital);
     }
 }
-
-

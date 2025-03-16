@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.map.presentation;
 
 import com.mediko.mediko_server.domain.map.application.SelectedPharmacyService;
 import com.mediko.mediko_server.domain.map.dto.response.PharmacyWithMapUrlDTO;
+import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,9 @@ public class SelectedPharmacyController {
     @GetMapping("/{pharmacyId}")
     public ResponseEntity<PharmacyWithMapUrlDTO> getPharmacyWithMapUrls(
             @PathVariable("pharmacyId") Long pharmacyId,
-            @AuthenticationPrincipal Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetail) {
+
+        Member member = userDetail.getMember();
         PharmacyWithMapUrlDTO response = selectedPharmacyService.getPharmacyWithMapUrls(pharmacyId, member);
         return ResponseEntity.ok(response);
     }
