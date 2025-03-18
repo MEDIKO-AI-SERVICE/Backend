@@ -5,6 +5,7 @@ import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.SignUpRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.TokenDTO;
+import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.security.JwtTokenProvider;
@@ -12,8 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -116,6 +115,11 @@ public class MemberService {
 
         member.changeNickname(nickname);
         memberRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public FormInputResponseDTO getFormInputResponse(Member member) {
+        return FormInputResponseDTO.from(member);
     }
 
 }
