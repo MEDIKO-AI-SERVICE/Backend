@@ -10,11 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 public class SelectedSBPRequestDTO {
 
-    private List<String> body;
+    private List<String> description;
 
     public SelectedSBP toEntity() {
         return SelectedSBP.builder()
-                .body(this.body)
+                .body(this.description)
                 .build();
     }
 }

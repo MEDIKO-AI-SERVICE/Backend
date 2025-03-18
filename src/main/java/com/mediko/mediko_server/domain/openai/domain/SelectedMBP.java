@@ -34,11 +34,11 @@ public class SelectedMBP extends BaseEntity {
     private List<Long> mbpIds;
 
     public void updateSelectedMBP(SelectedMBPRequestDTO requestDTO, List<Long> mbpIds) {
-        if (requestDTO.getBody() == null) {
+        if (requestDTO.getDescription() == null) {
             this.body = new ArrayList<>();
             this.mbpIds = new ArrayList<>();
         } else {
-            this.body = new ArrayList<>(requestDTO.getBody());
+            this.body = new ArrayList<>(requestDTO.getDescription());
             this.mbpIds = new ArrayList<>(mbpIds);
         }
     }

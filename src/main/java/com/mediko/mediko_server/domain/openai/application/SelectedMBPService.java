@@ -34,7 +34,7 @@ public class SelectedMBPService {
     // 선택한 주요 신체 저장
     @Transactional
     public SelectedMBPResponseDTO saveSelectedMBP(SelectedMBPRequestDTO requestDTO, Member member) {
-        List<String> mainBodyPartNames = requestDTO.getBody();
+        List<String> mainBodyPartNames = requestDTO.getDescription();
 
         if (mainBodyPartNames == null || mainBodyPartNames.isEmpty()) {
             throw new BadRequestException(INVALID_PARAMETER, "통증이 있는 부위를 선택해야 합니다.");
@@ -43,10 +43,10 @@ public class SelectedMBPService {
             throw new BadRequestException(INVALID_PARAMETER, "통증이 있는 부위를 2개 이내로 선택하세요.");
         }
 
-        List<MainBodyPart> foundMainBodyParts = mainBodyPartRepository.findByBodyIn(mainBodyPartNames);
+        List<MainBodyPart> foundMainBodyParts = mainBodyPartRepository.findByDescriptionIn(mainBodyPartNames);
 
         if (foundMainBodyParts.size() != mainBodyPartNames.size()) {
-            throw new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 주 신체 부분이 포함되어 있습니다.");
+            throw new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 주신체 부분이 포함되어 있습니다.");
         }
 
         List<Long> mbpIds = foundMainBodyParts.stream()
@@ -76,11 +76,11 @@ public class SelectedMBPService {
     @Transactional
     public SelectedMBPResponseDTO updateSelectedMBP(Long selectedMbpId, SelectedMBPRequestDTO requestDTO, Member member) {
         SelectedMBP selectedMBP = selectedMBPRepository.findById(selectedMbpId)
-                .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택된 Main Body Part가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택된 주신체 부분이 존재하지 않습니다."));
 
-        List<MainBodyPart> mainBodyParts = mainBodyPartRepository.findByBodyIn(requestDTO.getBody());
-        if (mainBodyParts.size() != requestDTO.getBody().size()) {
-            throw new BadRequestException(INVALID_PARAMETER, "존재하지 않는 Body 값이 포함되어 있습니다.");
+        List<MainBodyPart> mainBodyParts = mainBodyPartRepository.findByDescriptionIn(requestDTO.getDescription());
+        if (mainBodyParts.size() != requestDTO.getDescription().size()) {
+            throw new BadRequestException(INVALID_PARAMETER, "존재하지 않는 신체부분이 포함되어 있습니다.");
         }
 
         List<SelectedSBP> selectedSBPs = selectedSBPRepository.findBySelectedMBPAndMember(selectedMBP, member);
