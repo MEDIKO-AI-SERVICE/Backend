@@ -2,7 +2,9 @@ package com.mediko.mediko_server.domain.member.presentation;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.application.MemberService;
+import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.dto.request.*;
+import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-
-import static org.springframework.http.HttpStatus.CREATED;
 
 @Tag(name = "member", description = "인증/인가 API")
 @Slf4j
@@ -70,5 +70,16 @@ public class MemberController {
         String nickname = requestBody.get("nickname");
         memberService.updateUserNickName(loginId, nickname);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "폼 입력정보 조회", description = "회원의 119폼 입력정보를 조회합니다.")
+    @GetMapping("/form")
+    public ResponseEntity<FormInputResponseDTO> getFormInputResponse(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Member member = userDetails.getMember();
+        FormInputResponseDTO responseDTO = memberService.getFormInputResponse(member);
+
+        return ResponseEntity.ok(responseDTO);
     }
 }
