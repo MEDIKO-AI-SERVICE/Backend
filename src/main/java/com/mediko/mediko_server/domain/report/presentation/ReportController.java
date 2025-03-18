@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "report", description = "AI 문진 API")
 @Slf4j
@@ -26,14 +27,39 @@ public class ReportController {
 
     @Operation(summary = "문진 생성", description = "AI로 응답받은 문진을 저장합니다.")
     @PostMapping
-    public ResponseEntity<ReportResponseDTO> generateReport(
+    public ResponseEntity<Map<String, Object>> generateReport(
             @RequestBody ReportRequestDTO reportRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        ReportResponseDTO response = reportService.generateReport(reportRequestDTO, member);
+        Map<String, Object> response = reportService.generateReport(reportRequestDTO, member);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+    @Operation(summary = "문진 조회 (환자용)", description = "특정 문진을 환자용으로 조회합니다.")
+    @GetMapping("/patient/{reportId}")
+    public ResponseEntity<ReportResponseDTO> getPatientReport(
+            @PathVariable("reportId") Long reportId,
+            @AuthenticationPrincipal CustomUserDetails userDetail) {
+
+        Member member = userDetail.getMember();
+        ReportResponseDTO response = reportService.getPatientReport(reportId, member);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "문진 조회 (의사용)", description = "특정 문진을 의사용으로 조회합니다.")
+    @GetMapping("/doctor/{reportId}")
+    public ResponseEntity<ReportResponseDTO> getDoctorReport(
+            @PathVariable("reportId") Long reportId,
+            @AuthenticationPrincipal CustomUserDetails userDetail) {
+
+        Member member = userDetail.getMember();
+        ReportResponseDTO response = reportService.getDoctorReport(reportId, member);
+
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "문진 조회", description = "특정 문진을 조회합니다.")
@@ -43,7 +69,7 @@ public class ReportController {
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        ReportResponseDTO response = reportService.getReport(reportId, member);
+        ReportResponseDTO response = reportService.getReportForPatientAndDoctor(reportId, member);
 
         return ResponseEntity.ok(response);
     }
