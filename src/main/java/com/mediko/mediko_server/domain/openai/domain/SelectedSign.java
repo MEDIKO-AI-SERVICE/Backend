@@ -45,11 +45,11 @@ public class SelectedSign extends BaseEntity {
     public void updateSelectedSign(
             SelectedSignRequestDTO requestDTO, SelectedSBP selectedSBP, List<Long> newSignIds
     ) {
-        if (requestDTO.getSign() == null) {
+        if (requestDTO.getDescription() == null) {
             this.sign = new ArrayList<>();
             this.signIds = new ArrayList<>();
         } else {
-            this.sign = new ArrayList<>(requestDTO.getSign());
+            this.sign = new ArrayList<>(requestDTO.getDescription());
             this.signIds = new ArrayList<>(newSignIds);
         }
         this.selectedSBP = selectedSBP;

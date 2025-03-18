@@ -27,7 +27,7 @@ public class SubBodyPartService {
     }
 
     // 세부 신체 부분 조회
-    public List<SubBodyPart> getSubBodyPartsByMainBodyPartBodies(List<String> bodies) {
-        return subBodyPartRepository.findAllByMainBodyPartBodies(bodies);
+    public List<SubBodyPart> getSubBodyPartsByMainBodyPartBodies(List<String> descriptions) {
+        return subBodyPartRepository.findAllByMainBodyPartDescriptions(descriptions);
     }
 }

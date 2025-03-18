@@ -9,11 +9,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class SelectedSignRequestDTO {
-    private List<String> sign;
+    private List<String> description;
 
     public SelectedSign toEntity() {
         return SelectedSign.builder()
-                .sign(this.sign)
+                .sign(this.description)
                 .build();
     }
 }

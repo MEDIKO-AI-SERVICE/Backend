@@ -1,7 +1,6 @@
 package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.openai.domain.DetailedSign;
-import com.mediko.mediko_server.domain.openai.domain.SubBodyPart;
 import com.mediko.mediko_server.domain.openai.domain.repository.DetailedSignRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SubBodyPartRepository;
 import com.mediko.mediko_server.domain.openai.dto.response.DetailedSignResponseDTO;
@@ -33,11 +32,11 @@ public class DetailedSignService {
     }
 
     // 상세 중상 부분 조회
-    public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String bodyPart) {
-        SubBodyPart subBodyPart = subBodyPartRepository.findByBody(bodyPart)
+    public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String description) {
+        subBodyPartRepository.findByDescription(description)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당하는 신체 부위를 찾을 수 없습니다."));
 
-        List<DetailedSign> detailedSigns = detailedSignRepository.findBySubBodyPart(subBodyPart);
+        List<DetailedSign> detailedSigns = detailedSignRepository.findBySubBodyPartDescription(description);
 
         return detailedSigns.stream()
                 .map(DetailedSignResponseDTO::fromEntity)

@@ -36,8 +36,8 @@ public class SelectedSBPService {
     public SelectedSBPResponseDTO saveSelectedSBP(
             Member member, SelectedSBPRequestDTO requestDTO, Long selectedMBPId
     ) {
-        List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
-                .map(body -> subBodyPartRepository.findByBody(body)
+        List<SubBodyPart> validSubBodyParts = requestDTO.getDescription().stream()
+                .map(body -> subBodyPartRepository.findByDescription(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
                                 String.format("'%s' 부분은 존재하지 않습니다.", body))))
                 .collect(Collectors.toList());
@@ -64,7 +64,7 @@ public class SelectedSBPService {
     // 선택한 세부 신체 조회
     public SelectedSBPResponseDTO getSelectedSBP(Long selectedSBPId, Member member) {
         SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부신체 부분을 찾을 수 없습니다."));
 
         return SelectedSBPResponseDTO.fromEntity(selectedSBP, subBodyPartRepository);
     }
@@ -74,8 +74,8 @@ public class SelectedSBPService {
     public SelectedSBPResponseDTO updateSelectedSBP(
             Long selectedSBPId, Member member, SelectedSBPRequestDTO requestDTO
     ) {
-        List<SubBodyPart> validSubBodyParts = requestDTO.getBody().stream()
-                .map(body -> subBodyPartRepository.findByBody(body)
+        List<SubBodyPart> validSubBodyParts = requestDTO.getDescription().stream()
+                .map(body -> subBodyPartRepository.findByDescription(body)
                         .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
                                 String.format("'%s' 부분은 존재하지 않습니다.", body))))
                 .collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class SelectedSBPService {
                 .collect(Collectors.toList());
 
         SelectedSBP selectedSBP = selectedSBPRepository.findByIdAndMember(selectedSBPId, member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부 신체 부분을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 세부신체 부분을 찾을 수 없습니다."));
 
         SelectedMBP selectedMBP = selectedSBP.getSelectedMBP();
         selectedSBP.updateSelectedSBP(requestDTO, sbpIds, selectedMBP);

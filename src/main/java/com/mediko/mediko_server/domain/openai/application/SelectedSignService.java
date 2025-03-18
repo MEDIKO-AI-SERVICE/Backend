@@ -46,16 +46,16 @@ public class SelectedSignService {
                 .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
                 .collect(Collectors.toList());
 
-        Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
+        Map<String, DetailedSign> descriptionToDetailedSign = validDetailedSigns.stream()
                 .collect(Collectors.toMap(
-                        DetailedSign::getSign,
+                        DetailedSign::getDescription,
                         sign -> sign,
                         (existing, replacement) -> existing
                 ));
 
         List<Long> selectedSignIds = new ArrayList<>();
-        for (String sign : requestDTO.getSign()) {
-            DetailedSign detailedSign = signToDetailedSign.get(sign);
+        for (String description : requestDTO.getDescription()) {
+            DetailedSign detailedSign = descriptionToDetailedSign.get(description);
             if (detailedSign == null) {
                 throw new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다.");
             }
@@ -73,6 +73,7 @@ public class SelectedSignService {
 
         return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
     }
+
 
     // 선택한 상세 증상 조회
     public SelectedSignResponseDTO getSelectedSign(
@@ -95,7 +96,7 @@ public class SelectedSignService {
         SelectedSBP selectedSBP = selectedSign.getSelectedSBP();
 
         List<Long> newSignIds = new ArrayList<>();
-        if (requestDTO.getSign() != null && !requestDTO.getSign().isEmpty()) {
+        if (requestDTO.getDescription() != null && !requestDTO.getDescription().isEmpty()) {
             List<DetailedSign> validDetailedSigns = detailedSignRepository
                     .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
                     .stream()
@@ -109,7 +110,7 @@ public class SelectedSignService {
                             (existing, replacement) -> existing
                     ));
 
-            for (String sign : requestDTO.getSign()) {
+            for (String sign : requestDTO.getDescription()) {
                 DetailedSign detailedSign = signToDetailedSign.get(sign);
                 if (detailedSign == null) {
                     throw new BadRequestException(INVALID_PARAMETER,

@@ -39,11 +39,11 @@ public class SelectedSBP extends BaseEntity {
 
 
     public void updateSelectedSBP(SelectedSBPRequestDTO requestDTO, List<Long> sbpIds, SelectedMBP selectedMBP) {
-        if (requestDTO.getBody() == null) {
+        if (requestDTO.getDescription() == null) {
             this.body = new ArrayList<>();
             this.sbpIds = new ArrayList<>();
         } else {
-            this.body = new ArrayList<>(requestDTO.getBody());
+            this.body = new ArrayList<>(requestDTO.getDescription());
             this.sbpIds = new ArrayList<>(sbpIds);
         }
         this.selectedMBP = selectedMBP;

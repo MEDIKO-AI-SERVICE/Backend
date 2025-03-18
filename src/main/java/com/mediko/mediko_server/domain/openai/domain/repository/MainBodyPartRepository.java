@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface MainBodyPartRepository extends JpaRepository<MainBodyPart, Long> {
 
-    List<MainBodyPart> findByBodyIn(List<String> bodies);
+    List<MainBodyPart> findByDescriptionIn(List<String> descriptions);
+
 }
