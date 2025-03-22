@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.domain.report.domain;
 
-import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
 import com.mediko.mediko_server.global.converter.*;

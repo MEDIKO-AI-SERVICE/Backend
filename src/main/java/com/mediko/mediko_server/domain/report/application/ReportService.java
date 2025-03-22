@@ -15,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,77 +28,93 @@ public class ReportService {
     private final ReportMapper reportMapper;
     private final SymptomRepository symptomRepository;
     private final FlaskCommunicationService flaskCommunicationService;
-    private final BasicInfoRepository basicInfoRepository;  // 필드 추가
+    private final BasicInfoRepository basicInfoRepository;
 
     // AI 문진 생성
     @Transactional
     public Map<String, Object> generateReport(ReportRequestDTO reportRequestDTO, Member member) {
-        Symptom symptom = symptomRepository.findById(reportRequestDTO.getSymptomId())
-                .orElseThrow(() -> new RuntimeException("Symptom not found"));
+        try {
+            Symptom symptom = symptomRepository.findById(reportRequestDTO.getSymptomId())
+                    .orElseThrow(() -> new RuntimeException("Symptom not found"));
 
-        Map<String, Object> requestData = buildRequestData(symptom, member);
-        ReportResponseDTO flaskResponse = flaskCommunicationService.getReportResponse(requestData);
+            BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                    .orElseThrow(() -> new RuntimeException("BasicInfo not found"));
+            String userLanguage = basicInfo.getLanguage().toString();
 
-        if (flaskResponse == null || flaskResponse.getRecommendedDepartment() == null) {
-            log.error("Flask server response is invalid: {}", flaskResponse);
-            throw new RuntimeException("Flask server response is invalid");
+            Map<String, Object> requestData = buildRequestData(symptom, member);
+            ReportResponseDTO flaskResponse = flaskCommunicationService.getReportResponse(requestData);
+
+            if (flaskResponse == null || flaskResponse.getRecommendedDepartment() == null) {
+                log.error("Flask server response is invalid: {}", flaskResponse);
+                throw new RuntimeException("Flask server response is invalid");
+            }
+
+            Report report = Report.builder()
+                    .recommendedDepartment(flaskResponse.getRecommendedDepartment())
+                    .possibleConditions(flaskResponse.getPossibleConditions())
+                    .questionsForDoctor(flaskResponse.getQuestionsForDoctor())
+                    .symptomChecklist(flaskResponse.getSymptomChecklist())
+                    .symptoms(symptom)
+                    .member(member)
+                    .build();
+
+            // 트랜잭션 내에서 저장 시도
+            Report savedReport;
+            try {
+                savedReport = reportRepository.saveAndFlush(report);
+            } catch (Exception e) {
+                log.error("Error saving report: ", e);
+                throw new RuntimeException("Failed to save report", e);
+            }
+
+            ReportResponseDTO baseDTO = reportMapper.toDTO(savedReport);
+            ReportResponseDTO patientResponse = baseDTO.convertToPatientResponse(userLanguage);
+            ReportResponseDTO doctorResponse = baseDTO.convertToDoctorResponse();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("patient", patientResponse);
+            response.put("doctor", doctorResponse);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Error in generateReport: ", e);
+            throw new RuntimeException("Failed to generate report", e);
         }
+    }
 
-        Report report = Report.builder()
-                .recommendedDepartment(flaskResponse.getRecommendedDepartment())
-                .possibleConditions(flaskResponse.getPossibleConditions())
-                .questionsForDoctor(flaskResponse.getQuestionsForDoctor())
-                .symptomChecklist(flaskResponse.getSymptomChecklist())
-                .symptoms(symptom)
-                .member(member)
-                .build();
+    // 단일 문진 조회 (환자용만)
+    public ReportResponseDTO getPatientReport(Long reportId, Member member) {
+        Report report = findReport(reportId, member);
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new RuntimeException("BasicInfo not found"));
+        String userLanguage = basicInfo.getLanguage().toString();
 
-        Report savedReport = reportRepository.save(report);
+        return reportMapper.toDTO(report).convertToPatientResponse(userLanguage);
+    }
 
-        ReportResponseDTO patientResponse = reportMapper.toDTO(savedReport).convertToPatientResponse();
-        ReportResponseDTO doctorResponse = reportMapper.toDTO(savedReport).convertToDoctorResponse();
+    // 단일 문진 조회 (의사용만)
+    public ReportResponseDTO getDoctorReport(Long reportId, Member member) {
+        Report report = findReport(reportId, member);
+        return reportMapper.toDTO(report).convertToDoctorResponse();
+    }
+
+    // 단일 문진 조회
+    public Map<String, Object> getReportForPatientAndDoctor(Long reportId, Member member) {
+        Report report = findReport(reportId, member);
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new RuntimeException("BasicInfo not found"));
+        String userLanguage = basicInfo.getLanguage().toString();
+
+        ReportResponseDTO baseDTO = reportMapper.toDTO(report);
+
+        ReportResponseDTO patientResponse = baseDTO.convertToPatientResponse(userLanguage);
+        ReportResponseDTO doctorResponse = baseDTO.convertToDoctorResponse();
 
         Map<String, Object> response = new HashMap<>();
         response.put("patient", patientResponse);
         response.put("doctor", doctorResponse);
 
         return response;
-    }
-
-
-    // 단일 문진 조회 (환자용만)
-    public ReportResponseDTO getPatientReport(Long reportId, Member member) {
-        Report report = findReport(reportId, member);
-
-        return reportMapper.toDTO(report).convertToPatientResponse();
-    }
-
-    // 단일 문진 조회 (의사용만)
-    public ReportResponseDTO getDoctorReport(Long reportId, Member member) {
-        Report report = findReport(reportId, member);
-
-        return reportMapper.toDTO(report).convertToDoctorResponse();
-    }
-
-    // 단일 문진 조회
-    public ReportResponseDTO getReportForPatientAndDoctor(Long reportId, Member member) {
-        Report report = findReport(reportId, member);
-
-        ReportResponseDTO patientResponse = reportMapper.toDTO(report).convertToPatientResponse();
-        ReportResponseDTO doctorResponse = reportMapper.toDTO(report).convertToDoctorResponse();
-
-        return new ReportResponseDTO(
-                patientResponse.getReportId(),
-                patientResponse.getRecommendedDepartment(),
-                patientResponse.getPossibleConditions(),
-                patientResponse.getQuestionsForDoctor(),
-                patientResponse.getSymptomChecklist(),
-                doctorResponse.getBasicInfo(),
-                doctorResponse.getHealthInfo(),
-                doctorResponse.getBodyInfo(),
-                doctorResponse.getSymptomInfo(),
-                doctorResponse.getFileInfo()
-        );
     }
 
     // 단일 문진 조회 공통 메서드
@@ -111,10 +124,23 @@ public class ReportService {
     }
 
     // 회원별 문진 리스트 조회
-    public List<ReportResponseDTO> getAllReportsByMember(Member member) {
+    public List<Map<String, Object>> getAllReportsByMember(Member member) {
         List<Report> reports = reportRepository.findAllByMemberOrderByCreatedAtDesc(member);
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new RuntimeException("BasicInfo not found"));
+        String userLanguage = basicInfo.getLanguage().toString();
+
         return reports.stream()
-                .map(reportMapper::toDTO)
+                .map(report -> {
+                    ReportResponseDTO baseDTO = reportMapper.toDTO(report);
+                    ReportResponseDTO patientResponse = baseDTO.convertToPatientResponse(userLanguage);
+                    ReportResponseDTO doctorResponse = baseDTO.convertToDoctorResponse();
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("patient", patientResponse);
+                    response.put("doctor", doctorResponse);
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -145,5 +171,3 @@ public class ReportService {
         return requestData;
     }
 }
-
-
