@@ -27,7 +27,12 @@ public class DetailedSign extends BaseEntity  {
     @JoinColumn(name = "sbp_id")
     private SubBodyPart subBodyPart;
 
-    public String getTranslatedDescription(Language language, TranslationService translationService) {
-        return translationService.translate(description, TranslationType.DETAILED_SIGN, language);
+    public String getTranslatedDescription(
+            Language language, TranslationService translationService) {
+        return translationService.translate(
+                this.description,
+                TranslationType.DETAILED_SIGN,
+                language
+        );
     }
 }

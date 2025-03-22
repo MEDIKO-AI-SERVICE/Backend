@@ -40,7 +40,6 @@ public class DetailedSignService {
     public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String description, Member member) {
         Language language = member.getBasicInfo().getLanguage();
 
-        // 번역된 body값을 한국어로 변환
         String koreanDescription = translationService.getTextKo(description, TranslationType.SUB_BODY_PART, language);
 
         subBodyPartRepository.findByDescription(koreanDescription)

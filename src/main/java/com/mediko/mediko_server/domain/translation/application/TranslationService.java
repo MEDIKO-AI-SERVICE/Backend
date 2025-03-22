@@ -23,7 +23,14 @@ public class TranslationService {
     public String translate(String textKo, TranslationType type, Language language) {
         if (textKo == null) return null;
 
-        return translationRepository.findByTextKoAndType(textKo, type)
+        List<Translation> translations = translationRepository.findByTextKoAndType(textKo, type);
+        if (translations.isEmpty()) {
+            return textKo;
+        }
+
+        return translations.stream()
+                .filter(translation -> translation.getTextKo().equals(textKo))
+                .findFirst()
                 .map(translation -> translation.getTranslatedText(language))
                 .orElse(textKo);
     }
@@ -36,7 +43,8 @@ public class TranslationService {
                 .stream()
                 .collect(Collectors.toMap(
                         Translation::getTextKo,
-                        translation -> translation
+                        translation -> translation,
+                        (existing, replacement) -> existing // 중복 시 첫 번째 값 유지
                 ));
 
         return textKos.stream()
