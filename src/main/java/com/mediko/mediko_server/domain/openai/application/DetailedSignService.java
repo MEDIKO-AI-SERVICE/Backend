@@ -1,9 +1,13 @@
 package com.mediko.mediko_server.domain.openai.application;
 
+import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.openai.domain.DetailedSign;
 import com.mediko.mediko_server.domain.openai.domain.repository.DetailedSignRepository;
 import com.mediko.mediko_server.domain.openai.domain.repository.SubBodyPartRepository;
 import com.mediko.mediko_server.domain.openai.dto.response.DetailedSignResponseDTO;
+import com.mediko.mediko_server.domain.translation.application.TranslationService;
+import com.mediko.mediko_server.domain.translation.domain.repository.TranslationType;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,24 +26,30 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.DATA_NOT_EXIST
 public class DetailedSignService {
     private final DetailedSignRepository detailedSignRepository;
     private final SubBodyPartRepository subBodyPartRepository;
+    private final TranslationService translationService;
 
-    // 상세 증상 전체 조회
-    public List<DetailedSignResponseDTO> findAll() {
+    public List<DetailedSignResponseDTO> findAll(Member member) {
+        Language language = member.getBasicInfo().getLanguage();
         List<DetailedSign> allDetailedSigns = detailedSignRepository.findAll();
+
         return allDetailedSigns.stream()
-                .map(DetailedSignResponseDTO::fromEntity)
+                .map(detailedSign -> DetailedSignResponseDTO.fromEntity(detailedSign, language, translationService))
                 .collect(Collectors.toList());
     }
 
-    // 상세 중상 부분 조회
-    public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String description) {
-        subBodyPartRepository.findByDescription(description)
+    public List<DetailedSignResponseDTO> getDetailedSignsByBodyPart(String description, Member member) {
+        Language language = member.getBasicInfo().getLanguage();
+
+        // 번역된 body값을 한국어로 변환
+        String koreanDescription = translationService.getTextKo(description, TranslationType.SUB_BODY_PART, language);
+
+        subBodyPartRepository.findByDescription(koreanDescription)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당하는 신체 부위를 찾을 수 없습니다."));
 
-        List<DetailedSign> detailedSigns = detailedSignRepository.findBySubBodyPartDescription(description);
+        List<DetailedSign> detailedSigns = detailedSignRepository.findBySubBodyPartDescription(koreanDescription);
 
         return detailedSigns.stream()
-                .map(DetailedSignResponseDTO::fromEntity)
+                .map(detailedSign -> DetailedSignResponseDTO.fromEntity(detailedSign, language, translationService))
                 .collect(Collectors.toList());
     }
 }
