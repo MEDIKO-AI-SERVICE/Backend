@@ -21,15 +21,9 @@ public class SelectedSignResponseDTO {
     private Long selectedSBPId;
 
     public static SelectedSignResponseDTO fromEntity(
-            SelectedSign selectedSign, DetailedSignRepository detailedSignRepository) {
-        List<DetailedSign> detailedSign = detailedSignRepository.findAllById(selectedSign.getSignIds());
-
-        List<String> description = detailedSign.stream()
-                .map(DetailedSign::getDescription)
-                .collect(Collectors.toList());
-
+            SelectedSign selectedSign, List<String> translatedDescriptions) {
         return new SelectedSignResponseDTO(
-                description,
+                translatedDescriptions,
                 selectedSign.getId(),
                 selectedSign.getSelectedSBP().getId()
         );

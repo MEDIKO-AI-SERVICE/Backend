@@ -9,6 +9,8 @@ import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSignRepo
 import com.mediko.mediko_server.domain.openai.domain.repository.SelectedSBPRepository;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SelectedSignResponseDTO;
+import com.mediko.mediko_server.domain.translation.application.TranslationService;
+import com.mediko.mediko_server.domain.translation.domain.repository.TranslationType;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +34,8 @@ public class SelectedSignService {
     private final SelectedSignRepository selectedSignRepository;
     private final DetailedSignRepository detailedSignRepository;
     private final SelectedSBPRepository selectedSBPRepository;
+    private final TranslationService translationService;
 
-    // 선택한 상세 증상 저장
     @Transactional
     public SelectedSignResponseDTO saveSelectedSign(
             Member member, SelectedSignRequestDTO requestDTO, Long selectedSBPId) {
@@ -46,46 +48,62 @@ public class SelectedSignService {
                 .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
                 .collect(Collectors.toList());
 
-        Map<String, DetailedSign> descriptionToDetailedSign = validDetailedSigns.stream()
+        Map<String, String> translationMap = validDetailedSigns.stream()
                 .collect(Collectors.toMap(
-                        DetailedSign::getDescription,
-                        sign -> sign,
-                        (existing, replacement) -> existing
+                        sign -> translationService.translate(sign.getDescription(),
+                                TranslationType.DETAILED_SIGN,
+                                member.getBasicInfo().getLanguage()),
+                        DetailedSign::getDescription
                 ));
 
+        List<String> koreanSigns = requestDTO.getDescription().stream()
+                .map(desc -> translationMap.getOrDefault(desc, desc))  // 번역된 텍스트가 없으면 원본 사용 (한국어인 경우)
+                .collect(Collectors.toList());
+
         List<Long> selectedSignIds = new ArrayList<>();
-        for (String description : requestDTO.getDescription()) {
-            DetailedSign detailedSign = descriptionToDetailedSign.get(description);
-            if (detailedSign == null) {
-                throw new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다.");
-            }
+        for (String description : koreanSigns) {
+            DetailedSign detailedSign = validDetailedSigns.stream()
+                    .filter(sign -> sign.getDescription().equals(description))
+                    .findFirst()
+                    .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
+                            "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다."));
             selectedSignIds.add(detailedSign.getId());
         }
 
         SelectedSign selectedSign = requestDTO.toEntity()
                 .toBuilder()
                 .signIds(selectedSignIds)
+                .sign(koreanSigns)
                 .selectedSBP(selectedSBP)
                 .member(member)
                 .build();
 
         selectedSignRepository.save(selectedSign);
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
+        List<String> translatedSigns = translationService.translateList(
+                koreanSigns,
+                TranslationType.DETAILED_SIGN,
+                member.getBasicInfo().getLanguage()
+        );
+
+        return SelectedSignResponseDTO.fromEntity(selectedSign, translatedSigns);
     }
 
-
-    // 선택한 상세 증상 조회
     public SelectedSignResponseDTO getSelectedSign(
             Long selectedDetailedSignId, Member member) {
         SelectedSign selectedSign = selectedSignRepository
                 .findByIdAndMember(selectedDetailedSignId, member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "해당 상세 증상을 찾을 수 없습니다."));
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
+        List<String> translatedSigns = translationService.translateList(
+                selectedSign.getSign(),
+                TranslationType.DETAILED_SIGN,
+                member.getBasicInfo().getLanguage()
+        );
+
+        return SelectedSignResponseDTO.fromEntity(selectedSign, translatedSigns);
     }
 
-    // 선택한 상세 증상 수정
     @Transactional
     public SelectedSignResponseDTO updateSelectedSign(
             SelectedSignRequestDTO requestDTO, Long selectedSignId, Member member) {
@@ -96,6 +114,8 @@ public class SelectedSignService {
         SelectedSBP selectedSBP = selectedSign.getSelectedSBP();
 
         List<Long> newSignIds = new ArrayList<>();
+        List<String> koreanSigns = new ArrayList<>();
+
         if (requestDTO.getDescription() != null && !requestDTO.getDescription().isEmpty()) {
             List<DetailedSign> validDetailedSigns = detailedSignRepository
                     .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
@@ -103,26 +123,35 @@ public class SelectedSignService {
                     .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
                     .collect(Collectors.toList());
 
-            Map<String, DetailedSign> signToDetailedSign = validDetailedSigns.stream()
+            Map<String, String> translationMap = validDetailedSigns.stream()
                     .collect(Collectors.toMap(
-                            DetailedSign::getSign,
-                            sign -> sign,
-                            (existing, replacement) -> existing
+                            sign -> translationService.translate(sign.getDescription(),
+                                    TranslationType.DETAILED_SIGN,
+                                    member.getBasicInfo().getLanguage()),
+                            DetailedSign::getDescription
                     ));
 
-            for (String sign : requestDTO.getDescription()) {
-                DetailedSign detailedSign = signToDetailedSign.get(sign);
-                if (detailedSign == null) {
-                    throw new BadRequestException(INVALID_PARAMETER,
-                            "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다: " + sign);
-                }
+            for (String description : requestDTO.getDescription()) {
+                String koreanDescription = translationMap.getOrDefault(description, description);
+                DetailedSign detailedSign = validDetailedSigns.stream()
+                        .filter(sign -> sign.getDescription().equals(koreanDescription))
+                        .findFirst()
+                        .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
+                                "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다."));
                 newSignIds.add(detailedSign.getId());
+                koreanSigns.add(koreanDescription);
             }
         }
 
         selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
         selectedSignRepository.save(selectedSign);
 
-        return SelectedSignResponseDTO.fromEntity(selectedSign, detailedSignRepository);
+        List<String> translatedSigns = translationService.translateList(
+                selectedSign.getSign(),
+                TranslationType.DETAILED_SIGN,
+                member.getBasicInfo().getLanguage()
+        );
+
+        return SelectedSignResponseDTO.fromEntity(selectedSign, translatedSigns);
     }
 }

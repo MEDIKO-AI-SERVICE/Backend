@@ -20,15 +20,10 @@ public class SelectedSBPResponseDTO {
     private Long selectedMBPId;
 
     public static SelectedSBPResponseDTO fromEntity(
-            SelectedSBP selectedSBP, SubBodyPartRepository subBodyPartRepository) {
-        List<SubBodyPart> subBodyParts = subBodyPartRepository.findAllById(selectedSBP.getSbpIds());
-
-        List<String> description = subBodyParts.stream()
-                .map(SubBodyPart::getDescription)
-                .collect(Collectors.toList());
-
+            SelectedSBP selectedSBP,
+            List<String> translatedDescriptions) {
         return new SelectedSBPResponseDTO(
-                description,
+                translatedDescriptions,
                 selectedSBP.getId(),
                 selectedSBP.getSelectedMBP().getId()
         );
