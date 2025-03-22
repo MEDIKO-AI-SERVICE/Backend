@@ -39,6 +39,19 @@ public class BasicInfoController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "사용자 언어 변경", description = "사용자의 언어를 변경합니다.")
+    @PatchMapping("/language")
+    public ResponseEntity<LanguageResponseDTO> updateLanguage(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody LanguageRequestDTO languageRequestDTO) {
+
+        Member member = customUserDetails.getMember();
+        LanguageResponseDTO responseDTO = basicInfoService.updateLanguage(member, languageRequestDTO);
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+
     @Operation(summary = "사용자 기본 정보 생성", description = "사용자의 기본 정보를 최초 생성합니다.")
     @PostMapping
     public ResponseEntity<BasicInfoResponseDTO> saveBasicInfo(
