@@ -37,7 +37,6 @@ public class ReportController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     @Operation(summary = "문진 조회 (환자용)", description = "특정 문진을 환자용으로 조회합니다.")
     @GetMapping("/patient/{reportId}")
     public ResponseEntity<ReportResponseDTO> getPatientReport(
@@ -64,23 +63,23 @@ public class ReportController {
 
     @Operation(summary = "문진 조회", description = "특정 문진을 조회합니다.")
     @GetMapping("/{reportId}")
-    public ResponseEntity<ReportResponseDTO> getReport(
+    public ResponseEntity<Map<String, Object>> getReport(
             @PathVariable("reportId") Long reportId,
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        ReportResponseDTO response = reportService.getReportForPatientAndDoctor(reportId, member);
+        Map<String, Object> response = reportService.getReportForPatientAndDoctor(reportId, member);
 
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "문진 리스트 조회", description = "회원의 모든 문진들을 조회합니다.")
     @GetMapping("/all")
-    public ResponseEntity<List<ReportResponseDTO>> getAllReports(
+    public ResponseEntity<List<Map<String, Object>>> getAllReports(
             @AuthenticationPrincipal CustomUserDetails userDetail) {
 
         Member member = userDetail.getMember();
-        List<ReportResponseDTO> response = reportService.getAllReportsByMember(member);
+        List<Map<String, Object>> response = reportService.getAllReportsByMember(member);
 
         return ResponseEntity.ok(response);
     }
