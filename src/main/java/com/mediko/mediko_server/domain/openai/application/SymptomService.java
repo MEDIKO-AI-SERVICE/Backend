@@ -197,9 +197,12 @@ public class SymptomService {
      * TimeValue + TimeUnit 값 검증
      */
     private void validateTimeValue(int value, TimeUnit timeUnit) {
-        if (!timeUnit.isValidValue(value)) {
+        if (!timeUnit.getValidValues().contains(value)) {
             throw new BadRequestException(INVALID_FORMAT,
-                    value + "값 은 " + timeUnit + " 단위에 유효하지 않습니다.");
+                    String.format("%d값은 %s 단위에서 사용할 수 없습니다. 가능한 값: %s",
+                            value,
+                            timeUnit,
+                            timeUnit.getValidValues()));
         }
     }
 
