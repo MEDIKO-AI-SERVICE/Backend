@@ -38,8 +38,7 @@ public class SymptomService {
     // 증상 시작시간 저장
     @Transactional
     public PainStartResponseDTO savePainStart(
-            PainStartRequestDTO requestDTO, List<Long> selectedDetailedSignIds, Member member
-    ) {
+            PainStartRequestDTO requestDTO, List<Long> selectedDetailedSignIds, Member member) {
         List<SelectedSign> selectedSigns = selectedSignRepository.findAllById(selectedDetailedSignIds);
 
         if (selectedSigns.size() != selectedDetailedSignIds.size()) {

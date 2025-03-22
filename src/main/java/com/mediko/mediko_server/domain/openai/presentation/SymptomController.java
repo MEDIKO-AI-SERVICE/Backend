@@ -37,14 +37,14 @@ public class SymptomController {
      * PainStart 관련 메서드
      */
     @Operation(summary = "증상 시작시간 저장", description = "증상이 시작된 시간을 저장합니다.")
-    @PostMapping("/start/{selectedSBPIds}")
+    @PostMapping("/start/{selectedSignIds}")
     public ResponseEntity<PainStartResponseDTO> savePainStart(
-            @PathVariable("selectedSBPIds") String selectedSBPIds,
+            @PathVariable("selectedSignIds") String selectedSignIds,
             @RequestBody PainStartRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
 
-        List<Long> idList = Arrays.stream(selectedSBPIds.split(","))
+        List<Long> idList = Arrays.stream(selectedSignIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
