@@ -61,6 +61,16 @@ public class MemberController {
 
     }
 
+    @Operation(summary = "닉네임 조회", description = "회원의 닉네임을 조회합니다.")
+    @GetMapping("/nickname")
+    public ResponseEntity<Map<String, String>> getUserNickname(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        String loginId = customUserDetails.getUsername();
+        String nickname = memberService.getUserNickname(loginId);
+        return ResponseEntity.ok(Map.of("nickname", nickname));
+    }
+
+
     @Operation(summary = "닉네임 변경", description = "회원의 닉네임을 변경합니다.")
     @PatchMapping("/nickname")
     public ResponseEntity<Void> updateUserNickName(

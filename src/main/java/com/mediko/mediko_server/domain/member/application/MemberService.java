@@ -102,8 +102,16 @@ public class MemberService {
         }
     }
 
+    // 닉네임 조회
+    @Transactional(readOnly = true)
+    public String getUserNickname(String loginId) {
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
+        return member.getNickname();
+    }
 
-    //닉네임 변경
+
+    // 닉네임 변경
     @Transactional
     public void updateUserNickName(String loginId, String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
@@ -117,6 +125,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+
+    // 119 폼 입력정보 조회
     @Transactional(readOnly = true)
     public FormInputResponseDTO getFormInputResponse(Member member) {
         return FormInputResponseDTO.from(member);

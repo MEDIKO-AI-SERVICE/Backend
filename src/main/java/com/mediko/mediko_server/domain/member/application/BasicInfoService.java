@@ -54,6 +54,16 @@ public class BasicInfoService {
         return LanguageResponseDTO.fromBasicInfo(basicInfo);
     }
 
+    @Transactional
+    public LanguageResponseDTO updateLanguage(Member member, LanguageRequestDTO languageRequestDTO) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        basicInfo.updateLanguage(languageRequestDTO.getLanguage());
+
+        return LanguageResponseDTO.fromBasicInfo(basicInfo);
+    }
+
     // 사용자 기본정보 생성
     @Transactional
     public BasicInfoResponseDTO saveBasicInfo(Long memberId, BasicInfoRequestDTO requestDTO) {
