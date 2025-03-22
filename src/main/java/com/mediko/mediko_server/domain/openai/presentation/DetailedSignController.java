@@ -24,6 +24,7 @@ import java.util.List;
 public class DetailedSignController {
     private final DetailedSignService detailedSignService;
 
+    @Operation(summary = "상세 증상 전체 조회", description = "모든 상세 증상을 조회합니다.")
     @GetMapping("/all")
     public List<DetailedSignResponseDTO> getAllDetailedSigns(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -31,6 +32,7 @@ public class DetailedSignController {
         return detailedSignService.findAll(member);
     }
 
+    @Operation(summary = "상세 증상 부분 조회", description = "선택된 상세 증상에 포함된 모든 상세 증상을 조회합니다.")
     @GetMapping
     public List<DetailedSignResponseDTO> getDetailedSignsBySubBodyPart(
             @RequestParam("body") String body,
