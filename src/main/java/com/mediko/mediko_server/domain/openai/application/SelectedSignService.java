@@ -46,6 +46,7 @@ public class SelectedSignService {
         List<DetailedSign> validDetailedSigns = detailedSignRepository.findBySubBodyPartIdIn(selectedSBP.getSbpIds())
                 .stream()
                 .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
+                .filter(sign -> requestDTO.getDescription().contains(sign.getDescription()))  // 수정된 부분
                 .collect(Collectors.toList());
 
         Map<String, String> translationMap = validDetailedSigns.stream()
@@ -57,7 +58,7 @@ public class SelectedSignService {
                 ));
 
         List<String> koreanSigns = requestDTO.getDescription().stream()
-                .map(desc -> translationMap.getOrDefault(desc, desc))  // 번역된 텍스트가 없으면 원본 사용 (한국어인 경우)
+                .map(desc -> translationMap.getOrDefault(desc, desc))
                 .collect(Collectors.toList());
 
         List<Long> selectedSignIds = new ArrayList<>();
@@ -121,6 +122,7 @@ public class SelectedSignService {
                     .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
                     .stream()
                     .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
+                    .filter(sign -> requestDTO.getDescription().contains(sign.getDescription()))  // 수정된 부분
                     .collect(Collectors.toList());
 
             Map<String, String> translationMap = validDetailedSigns.stream()

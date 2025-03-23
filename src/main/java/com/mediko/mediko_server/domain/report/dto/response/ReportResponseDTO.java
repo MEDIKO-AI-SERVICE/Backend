@@ -51,7 +51,6 @@ public class ReportResponseDTO {
     private List<Map<String, String>> fileInfo;
 
 
-    // value와 unit을 합쳐서 출력
     public static List<Map<String, String>> mergeSymptomInfo(
             List<Map<String, String>> symptomInfo) {
 
@@ -72,8 +71,6 @@ public class ReportResponseDTO {
             return mergedInfo;
         }).collect(Collectors.toList());
     }
-
-
 
 
     private Map<String, Object> filterByLanguage(Map<String, Object> data, String language) {
@@ -162,7 +159,13 @@ public class ReportResponseDTO {
 
     // 의사용 응답 변환
     public ReportResponseDTO convertToDoctorResponse() {
-        List<Map<String, String>> filteredConditions = filterConditionsByLanguage(this.possibleConditions, "KO");
+        List<Map<String, String>> filteredConditions = new ArrayList<>();
+
+        // KO로 먼저 시도하고, 결과가 비어있으면 KR로 시도
+        filteredConditions = filterConditionsByLanguage(this.possibleConditions, "KO");
+        if (filteredConditions.isEmpty()) {
+            filteredConditions = filterConditionsByLanguage(this.possibleConditions, "KR");
+        }
 
         return ReportResponseDTO.builder()
                 .reportId(this.reportId)
