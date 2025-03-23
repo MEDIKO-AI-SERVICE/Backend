@@ -3,6 +3,7 @@ package com.mediko.mediko_server.domain.member.domain;
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
+import com.mediko.mediko_server.global.converter.LanguageConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.*;
@@ -17,6 +18,8 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.MISSING_REQUIR
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicInfo extends BaseEntity {
+
+    @Convert(converter = LanguageConverter.class)
     @Column(name = "language", nullable = false)
     private Language language;
 
