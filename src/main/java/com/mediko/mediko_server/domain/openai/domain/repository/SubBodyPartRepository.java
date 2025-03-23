@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface SubBodyPartRepository extends JpaRepository<SubBodyPart, Long> {
 
-    @Query("SELECT sbp FROM SubBodyPart sbp JOIN sbp.mainBodyPart mbp WHERE mbp.description IN :descriptions")
-    List<SubBodyPart> findAllByMainBodyPartDescriptions(@Param("descriptions") List<String> descriptions); // description 기준
-
     Optional<SubBodyPart> findByDescription(String description);
+
+    @Query("SELECT s FROM SubBodyPart s JOIN FETCH s.mainBodyPart WHERE s.mainBodyPart.id = :mainBodyPartId")
+    List<SubBodyPart> findByMainBodyPartId(@Param("mainBodyPartId") Long mainBodyPartId);
 }
