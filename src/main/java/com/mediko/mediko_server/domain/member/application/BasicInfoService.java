@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.member.application;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
@@ -12,7 +13,6 @@ import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -113,5 +113,20 @@ public class BasicInfoService {
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
 
         return ErPasswordResponseDTO.fromBasicInfo(basicInfo);
+    }
+
+    // 번역된 사용자 기본정보 조회
+    public BasicInfoResponseDTO getTranslatedBasicInfo(Member member) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        BasicInfoResponseDTO response = BasicInfoResponseDTO.fromEntity(basicInfo);
+
+        Language language = basicInfo.getLanguage();
+        if (language != null && language != Language.KO) {
+            response = flaskCommunicationService.translateBasicInfo(response, language.name().toLowerCase());
+        }
+
+        return response;
     }
 }

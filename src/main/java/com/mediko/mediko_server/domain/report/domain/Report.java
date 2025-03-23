@@ -38,7 +38,7 @@ public class Report extends BaseEntity {
     @Column(name = "checklist")
     private List<Map<String, Object>> symptomChecklist = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "symptom_id", nullable = false)
     private Symptom symptoms;
 

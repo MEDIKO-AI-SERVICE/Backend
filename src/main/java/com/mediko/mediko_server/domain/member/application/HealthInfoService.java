@@ -1,12 +1,16 @@
 package com.mediko.mediko_server.domain.member.application;
 
+import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
+import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.HealthInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.HealthInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,8 @@ public class HealthInfoService {
 
     private final MemberRepository memberRepository;
     private final HealthInfoRepository healthInfoRepository;
+    private final BasicInfoRepository basicInfoRepository;
+    private final FlaskCommunicationService flaskCommunicationService;
 
     //사용자 건강정보 저장
     @Transactional
@@ -57,6 +63,24 @@ public class HealthInfoService {
         healthInfo.updateHealthInfo(healthInfoRequestDTO);
 
         return HealthInfoResponseDTO.fromEntity(healthInfo);
+    }
+
+    // 번역된 사용자 건강정보 조회
+    public HealthInfoResponseDTO getTranslatedHealthInfo(Member member) {
+        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다."));
+
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        HealthInfoResponseDTO response = HealthInfoResponseDTO.fromEntity(healthInfo);
+
+        Language language = basicInfo.getLanguage();
+        if (language != null && language != Language.KO) {
+            response = flaskCommunicationService.translateHealthInfo(response, language.name().toLowerCase());
+        }
+
+        return response;
     }
 }
 

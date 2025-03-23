@@ -24,4 +24,11 @@ public class FlaskUrls {
 
     @Value("${flask.urls.er_password}")
     private String erPassword;
+
+    @Value("${flask.urls.translate_basic_info}")
+    private String translateBasicInfo;
+
+    @Value("${flask.urls.translate_health_info}")
+    private String translateHealthInfo;
+
 }
