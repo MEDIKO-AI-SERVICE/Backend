@@ -1,6 +1,8 @@
 package com.mediko.mediko_server.global.flask.application;
 
+import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +67,22 @@ public class FlaskCommunicationService {
             log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
         }
+    }
+
+    public BasicInfoResponseDTO translateBasicInfo(BasicInfoResponseDTO basicInfo, String language) {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("language", language);
+        requestData.put("basic_info", basicInfo);
+
+        return sendRequestToFlask(requestData, flaskUrls.getTranslateBasicInfo(), BasicInfoResponseDTO.class);
+    }
+
+    public HealthInfoResponseDTO translateHealthInfo(HealthInfoResponseDTO healthInfo, String language) {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("language", language);
+        requestData.put("health_info", healthInfo);
+
+        return sendRequestToFlask(requestData, flaskUrls.getTranslateHealthInfo(), HealthInfoResponseDTO.class);
     }
 
     private <T> T sendRequestToFlask(Object requestData, String endpoint, Class<T> responseType) {

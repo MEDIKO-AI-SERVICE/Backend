@@ -91,4 +91,12 @@ public class BasicInfoController {
         Member member = userDetails.getMember();
         return ResponseEntity.ok(basicInfoService.getErPassword(member));
     }
+
+    @Operation(summary = "번역된 사용자 기본 정보 조회", description = "사용자의 기본 정보를 번역하여 조회합니다.")
+    @GetMapping("/translated")
+    public ResponseEntity<BasicInfoResponseDTO> getTranslatedBasicInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        return ResponseEntity.ok(basicInfoService.getTranslatedBasicInfo(member));
+    }
 }

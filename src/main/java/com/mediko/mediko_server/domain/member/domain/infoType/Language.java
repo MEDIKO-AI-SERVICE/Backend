@@ -9,13 +9,13 @@ public enum Language {
     ZH_CN(4),          // 중국어 간체
     ZH_TW(5);          // 중국어 번체
 
-    private final int value;  // 값을 저장할 필드
+    private final int value;
 
-    Language(int value) {     // 생성자
+    Language(int value) {
         this.value = value;
     }
 
-    public int getValue() {   // 값을 가져오는 메서드
+    public int getValue() {
         return value;
     }
 
