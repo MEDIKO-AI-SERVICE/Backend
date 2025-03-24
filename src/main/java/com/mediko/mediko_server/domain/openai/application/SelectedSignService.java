@@ -34,13 +34,60 @@ public class SelectedSignService {
     private final SelectedSBPRepository selectedSBPRepository;
     private final TranslationService translationService;
 
-    private List<DetailedSign> getValidDetailedSigns(SelectedSBP selectedSBP, List<String> descriptions) {
-        Set<String> requestDescriptions = new HashSet<>(descriptions);
-        return detailedSignRepository
-                .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
-                .stream()
-                .filter(sign -> requestDescriptions.contains(sign.getDescription()))
-                .collect(Collectors.toList());
+
+    private List<DetailedSign> getValidDetailedSigns(SelectedSBP selectedSBP, List<String> descriptions, Member member) {
+        // selectedSBP의 sbpIds가 비어있는지 체크
+        if (selectedSBP.getSbpIds() == null || selectedSBP.getSbpIds().isEmpty()) {
+            throw new BadRequestException(INVALID_PARAMETER, "선택된 신체 부위가 없습니다.");
+        }
+
+        if (descriptions == null || descriptions.isEmpty()) {
+            throw new BadRequestException(INVALID_PARAMETER, "선택된 증상이 없습니다.");
+        }
+
+        List<DetailedSign> selectedDetailedSigns = detailedSignRepository
+                .findBySubBodyPartIdIn(selectedSBP.getSbpIds());
+
+        if (selectedDetailedSigns.isEmpty()) {
+            throw new BadRequestException(INVALID_PARAMETER,
+                    "선택한 신체 부위에 등록된 증상이 없습니다.");
+        }
+
+        try {
+            Map<String, String> translationMap = selectedDetailedSigns.stream()
+                    .collect(Collectors.toMap(
+                            sign -> translationService.translate(sign.getDescription(),
+                                    TranslationType.DETAILED_SIGN,
+                                    member.getBasicInfo().getLanguage()),
+                            DetailedSign::getDescription
+                    ));
+
+            List<String> koreanDescriptions = descriptions.stream()
+                    .map(desc -> translationMap.getOrDefault(desc, desc))
+                    .collect(Collectors.toList());
+
+            log.info("Original descriptions: {}", descriptions);
+            log.info("Korean descriptions: {}", koreanDescriptions);
+
+            List<DetailedSign> validSigns = selectedDetailedSigns.stream()
+                    .filter(sign -> koreanDescriptions.contains(sign.getDescription()))
+                    .collect(Collectors.toList());
+
+            if (validSigns.isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER,
+                        "선택한 세부 신체 부분에 해당하는 증상을 찾을 수 없습니다.");
+            }
+
+            return validSigns;
+
+        } catch (Exception e) {
+            if (!(e instanceof BadRequestException)) {
+                log.error("증상 처리 중 오류 발생: {}", e.getMessage());
+                throw new BadRequestException(INVALID_PARAMETER,
+                        "증상 처리 중 오류가 발생했습니다.");
+            }
+            throw e;
+        }
     }
 
     @Transactional
@@ -50,30 +97,15 @@ public class SelectedSignService {
         SelectedSBP selectedSBP = selectedSBPRepository.findById(selectedSBPId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분이 존재하지 않습니다."));
 
-        List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription());
+        List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription(), member);
 
-        Map<String, String> translationMap = validDetailedSigns.stream()
-                .collect(Collectors.toMap(
-                        sign -> translationService.translate(sign.getDescription(),
-                                TranslationType.DETAILED_SIGN,
-                                member.getBasicInfo().getLanguage()),
-                        DetailedSign::getDescription,
-                        (existing, replacement) -> existing
-                ));
-
-        List<String> koreanSigns = requestDTO.getDescription().stream()
-                .map(desc -> translationMap.getOrDefault(desc, desc))
+        List<String> koreanSigns = validDetailedSigns.stream()
+                .map(DetailedSign::getDescription)
                 .collect(Collectors.toList());
 
-        List<Long> selectedSignIds = new ArrayList<>();
-        for (String description : koreanSigns) {
-            DetailedSign detailedSign = validDetailedSigns.stream()
-                    .filter(sign -> sign.getDescription().equals(description))
-                    .findFirst()
-                    .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
-                            "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다."));
-            selectedSignIds.add(detailedSign.getId());
-        }
+        List<Long> selectedSignIds = validDetailedSigns.stream()
+                .map(DetailedSign::getId)
+                .collect(Collectors.toList());
 
         SelectedSign selectedSign = requestDTO.toEntity()
                 .toBuilder()
@@ -122,27 +154,15 @@ public class SelectedSignService {
         List<String> koreanSigns = new ArrayList<>();
 
         if (requestDTO.getDescription() != null && !requestDTO.getDescription().isEmpty()) {
-            List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription());
+            List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription(), member);
 
-            Map<String, String> translationMap = validDetailedSigns.stream()
-                    .collect(Collectors.toMap(
-                            sign -> translationService.translate(sign.getDescription(),
-                                    TranslationType.DETAILED_SIGN,
-                                    member.getBasicInfo().getLanguage()),
-                            DetailedSign::getDescription,
-                            (existing, replacement) -> existing
-                    ));
+            koreanSigns = validDetailedSigns.stream()
+                    .map(DetailedSign::getDescription)
+                    .collect(Collectors.toList());
 
-            for (String description : requestDTO.getDescription()) {
-                String koreanDescription = translationMap.getOrDefault(description, description);
-                DetailedSign detailedSign = validDetailedSigns.stream()
-                        .filter(sign -> sign.getDescription().equals(koreanDescription))
-                        .findFirst()
-                        .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER,
-                                "선택한 세부 신체 부분에 해당하지 않는 증상이 포함되어 있습니다."));
-                newSignIds.add(detailedSign.getId());
-                koreanSigns.add(koreanDescription);
-            }
+            newSignIds = validDetailedSigns.stream()
+                    .map(DetailedSign::getId)
+                    .collect(Collectors.toList());
         }
 
         selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
