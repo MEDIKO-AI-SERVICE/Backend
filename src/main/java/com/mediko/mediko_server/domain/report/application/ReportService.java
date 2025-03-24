@@ -58,7 +58,6 @@ public class ReportService {
                     .member(member)
                     .build();
 
-            // 트랜잭션 내에서 저장 시도
             Report savedReport;
             try {
                 savedReport = reportRepository.saveAndFlush(report);
@@ -74,6 +73,8 @@ public class ReportService {
             Map<String, Object> response = new HashMap<>();
             response.put("patient", patientResponse);
             response.put("doctor", doctorResponse);
+
+            log.info("📋 Final Response to Client: {}", response);
 
             return response;
         } catch (Exception e) {
