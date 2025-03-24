@@ -34,9 +34,7 @@ public class SelectedSignService {
     private final SelectedSBPRepository selectedSBPRepository;
     private final TranslationService translationService;
 
-
     private List<DetailedSign> getValidDetailedSigns(SelectedSBP selectedSBP, List<String> descriptions, Member member) {
-        // selectedSBP의 sbpIds가 비어있는지 체크
         if (selectedSBP.getSbpIds() == null || selectedSBP.getSbpIds().isEmpty()) {
             throw new BadRequestException(INVALID_PARAMETER, "선택된 신체 부위가 없습니다.");
         }
@@ -54,24 +52,25 @@ public class SelectedSignService {
         }
 
         try {
-            Map<String, String> translationMap = selectedDetailedSigns.stream()
-                    .collect(Collectors.toMap(
-                            sign -> translationService.translate(sign.getDescription(),
-                                    TranslationType.DETAILED_SIGN,
-                                    member.getBasicInfo().getLanguage()),
-                            DetailedSign::getDescription
-                    ));
-
-            List<String> koreanDescriptions = descriptions.stream()
-                    .map(desc -> translationMap.getOrDefault(desc, desc))
-                    .collect(Collectors.toList());
-
-            log.info("Original descriptions: {}", descriptions);
-            log.info("Korean descriptions: {}", koreanDescriptions);
-
-            List<DetailedSign> validSigns = selectedDetailedSigns.stream()
-                    .filter(sign -> koreanDescriptions.contains(sign.getDescription()))
-                    .collect(Collectors.toList());
+            List<DetailedSign> validSigns = new ArrayList<>();
+            for (String userInputDesc : descriptions) {
+                boolean found = false;
+                for (DetailedSign sign : selectedDetailedSigns) {
+                    String translatedSign = translationService.translate(
+                            sign.getDescription(),
+                            TranslationType.DETAILED_SIGN,
+                            member.getBasicInfo().getLanguage()
+                    );
+                    if (userInputDesc.equals(translatedSign)) {
+                        validSigns.add(sign);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    log.warn("매칭되지 않은 증상: {}", userInputDesc);
+                }
+            }
 
             if (validSigns.isEmpty()) {
                 throw new BadRequestException(INVALID_PARAMETER,
@@ -150,23 +149,16 @@ public class SelectedSignService {
 
         SelectedSBP selectedSBP = selectedSign.getSelectedSBP();
 
-        List<Long> newSignIds = new ArrayList<>();
-        List<String> koreanSigns = new ArrayList<>();
-
         if (requestDTO.getDescription() != null && !requestDTO.getDescription().isEmpty()) {
             List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription(), member);
 
-            koreanSigns = validDetailedSigns.stream()
-                    .map(DetailedSign::getDescription)
-                    .collect(Collectors.toList());
-
-            newSignIds = validDetailedSigns.stream()
+            List<Long> newSignIds = validDetailedSigns.stream()
                     .map(DetailedSign::getId)
                     .collect(Collectors.toList());
-        }
 
-        selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
-        selectedSignRepository.save(selectedSign);
+            selectedSign.updateSelectedSign(requestDTO, selectedSBP, newSignIds);
+            selectedSignRepository.save(selectedSign);
+        }
 
         List<String> translatedSigns = translationService.translateList(
                 selectedSign.getSign(),
