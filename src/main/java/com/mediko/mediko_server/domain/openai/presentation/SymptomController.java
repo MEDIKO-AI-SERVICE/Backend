@@ -20,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,12 +45,20 @@ public class SymptomController {
             @PathVariable("selectedSignIds") String selectedSignIds,
             @RequestBody PainStartRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        String decodedSignIds = URLDecoder.decode(selectedSignIds, StandardCharsets.UTF_8);
+
+        // 콤마가 없는 경우도 처리
+        List<Long> idList;
+        if (decodedSignIds.contains(",")) {
+            idList = Arrays.stream(decodedSignIds.split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+        } else {
+            idList = Collections.singletonList(Long.parseLong(decodedSignIds));
+        }
+
         Member member = userDetails.getMember();
-
-        List<Long> idList = Arrays.stream(selectedSignIds.split(","))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-
         PainStartResponseDTO response = symptomService.savePainStart(requestDTO, idList, member);
         return ResponseEntity.ok(response);
     }
