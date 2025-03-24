@@ -62,6 +62,9 @@ dependencies {
 	// 번역
 	implementation 'dev.akkinoc.util:yaml-resource-bundle:2.0.2'
 
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
