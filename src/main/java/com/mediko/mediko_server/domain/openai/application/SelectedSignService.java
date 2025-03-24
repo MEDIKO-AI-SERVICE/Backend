@@ -17,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.DATA_NOT_EXIST;
@@ -36,6 +34,15 @@ public class SelectedSignService {
     private final SelectedSBPRepository selectedSBPRepository;
     private final TranslationService translationService;
 
+    private List<DetailedSign> getValidDetailedSigns(SelectedSBP selectedSBP, List<String> descriptions) {
+        Set<String> requestDescriptions = new HashSet<>(descriptions);
+        return detailedSignRepository
+                .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
+                .stream()
+                .filter(sign -> requestDescriptions.contains(sign.getDescription()))
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public SelectedSignResponseDTO saveSelectedSign(
             Member member, SelectedSignRequestDTO requestDTO, Long selectedSBPId) {
@@ -43,18 +50,15 @@ public class SelectedSignService {
         SelectedSBP selectedSBP = selectedSBPRepository.findById(selectedSBPId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "선택한 세부 신체 부분이 존재하지 않습니다."));
 
-        List<DetailedSign> validDetailedSigns = detailedSignRepository.findBySubBodyPartIdIn(selectedSBP.getSbpIds())
-                .stream()
-                .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
-                .filter(sign -> requestDTO.getDescription().contains(sign.getDescription()))  // 수정된 부분
-                .collect(Collectors.toList());
+        List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription());
 
         Map<String, String> translationMap = validDetailedSigns.stream()
                 .collect(Collectors.toMap(
                         sign -> translationService.translate(sign.getDescription(),
                                 TranslationType.DETAILED_SIGN,
                                 member.getBasicInfo().getLanguage()),
-                        DetailedSign::getDescription
+                        DetailedSign::getDescription,
+                        (existing, replacement) -> existing
                 ));
 
         List<String> koreanSigns = requestDTO.getDescription().stream()
@@ -118,19 +122,15 @@ public class SelectedSignService {
         List<String> koreanSigns = new ArrayList<>();
 
         if (requestDTO.getDescription() != null && !requestDTO.getDescription().isEmpty()) {
-            List<DetailedSign> validDetailedSigns = detailedSignRepository
-                    .findBySubBodyPartIdIn(selectedSBP.getSbpIds())
-                    .stream()
-                    .filter(sign -> selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId()))
-                    .filter(sign -> requestDTO.getDescription().contains(sign.getDescription()))  // 수정된 부분
-                    .collect(Collectors.toList());
+            List<DetailedSign> validDetailedSigns = getValidDetailedSigns(selectedSBP, requestDTO.getDescription());
 
             Map<String, String> translationMap = validDetailedSigns.stream()
                     .collect(Collectors.toMap(
                             sign -> translationService.translate(sign.getDescription(),
                                     TranslationType.DETAILED_SIGN,
                                     member.getBasicInfo().getLanguage()),
-                            DetailedSign::getDescription
+                            DetailedSign::getDescription,
+                            (existing, replacement) -> existing
                     ));
 
             for (String description : requestDTO.getDescription()) {
