@@ -2,7 +2,10 @@ package com.mediko.mediko_server.domain.report.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mediko.mediko_server.domain.report.domain.Report;
+import com.mediko.mediko_server.global.converter.PossibleConditionsDeserializer;
+import com.mediko.mediko_server.global.converter.SymptomChecklistDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,12 +30,14 @@ public class ReportResponseDTO {
     private Map<String, Object> recommendedDepartment;
 
     @JsonProperty("possible_conditions")
+    @JsonDeserialize(using = PossibleConditionsDeserializer.class)
     private List<Map<String, String>> possibleConditions;
 
     @JsonProperty("questions_to_doctor")
     private List<Map<String, String>> questionsForDoctor;
 
     @JsonProperty("symptom_checklist")
+    @JsonDeserialize(using = SymptomChecklistDeserializer.class)
     private List<Map<String, Object>> symptomChecklist;
 
     @JsonProperty("basic_info")
