@@ -33,6 +33,7 @@ public class FlaskCommunicationService {
     private final FlaskUrls flaskUrls;
 
     public ReportResponseDTO getReportResponse(Object requestData) {
+        log.info("Flask 서버로 보내는 요청 데이터: {}", requestData);
         return sendRequestToFlask(requestData, flaskUrls.getProcessSymptoms(), ReportResponseDTO.class);
     }
 

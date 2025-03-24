@@ -146,17 +146,23 @@ public class ReportService {
 
     // FLASK 서버로 전송할 요청 데이터 빌드
     private Map<String, Object> buildRequestData(Symptom symptomObj, Member member) {
+        log.info("📝 Building request data for Flask - Symptom ID: {}", symptomObj.getId());
+
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new RuntimeException("BasicInfo not found for member"));
 
         List<String> macroBodyParts = symptomObj.getSelectedSBPBodyParts();
         List<String> microBodyParts = symptomObj.getSelectedMBPBodyParts();
 
+        log.info("🔍 Selected body parts - Macro: {}, Micro: {}", macroBodyParts, microBodyParts);
+
         Map<String, Object> symptomDetails = new HashMap<>();
         symptomDetails.put("frequency", "intermittent");
         symptomDetails.put("intensity", symptomObj.getIntensity());
         symptomDetails.put("duration", symptomObj.getDurationValue() + " " + symptomObj.getDurationUnit().name());
         symptomDetails.put("onset_time", symptomObj.getStartValue() + " " + symptomObj.getStartUnit().name());
+
+        log.info("📊 Symptom details: {}", symptomDetails);
 
         Map<String, Object> symptomData = new HashMap<>();
         symptomData.put("macro_body_parts", macroBodyParts);
@@ -167,6 +173,8 @@ public class ReportService {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("symptoms", Collections.singletonList(symptomData));
         requestData.put("language", basicInfo.getLanguage().toString());
+
+        log.info("📤 Final request data to Flask: {}", requestData);
 
         return requestData;
     }
