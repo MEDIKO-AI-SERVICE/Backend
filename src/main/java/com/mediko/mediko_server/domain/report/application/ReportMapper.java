@@ -29,6 +29,11 @@ public class ReportMapper {
             info.put("start_unit", report.getSymptoms().getStartUnit().toString());
             info.put("additional", report.getSymptoms().getAdditional() != null ?
                     report.getSymptoms().getAdditional() : "");
+            String additional = report.getSymptoms().getAdditional();
+            if (additional != null && !additional.trim().isEmpty()) {
+                info.put("additional", additional);
+            }
+
             symptomInfo.add(info);
         }
 
