@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mediko.mediko_server.domain.report.domain.Report;
 import com.mediko.mediko_server.global.converter.PossibleConditionsDeserializer;
 import com.mediko.mediko_server.global.converter.SymptomChecklistDeserializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@ToString
 @Slf4j
 @Builder
 @Getter
