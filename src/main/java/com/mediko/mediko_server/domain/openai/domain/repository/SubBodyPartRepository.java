@@ -13,6 +13,5 @@ public interface SubBodyPartRepository extends JpaRepository<SubBodyPart, Long> 
 
     Optional<SubBodyPart> findByDescription(String description);
 
-    @Query("SELECT s FROM SubBodyPart s JOIN FETCH s.mainBodyPart WHERE s.mainBodyPart.id = :mainBodyPartId")
-    List<SubBodyPart> findByMainBodyPartId(@Param("mainBodyPartId") Long mainBodyPartId);
+    List<SubBodyPart> findByMainBodyPartId(Long mainBodyPartId);
 }
