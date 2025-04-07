@@ -54,21 +54,21 @@ public class SelectedSignService {
         try {
             List<DetailedSign> validSigns = new ArrayList<>();
             for (String userInputDesc : descriptions) {
-                boolean found = false;
                 for (DetailedSign sign : selectedDetailedSigns) {
+                    if (!selectedSBP.getSbpIds().contains(sign.getSubBodyPart().getId())) {
+                        continue;
+                    }
+
                     String translatedSign = translationService.translate(
                             sign.getDescription(),
                             TranslationType.DETAILED_SIGN,
                             member.getBasicInfo().getLanguage()
                     );
+
                     if (userInputDesc.equals(translatedSign)) {
                         validSigns.add(sign);
-                        found = true;
                         break;
                     }
-                }
-                if (!found) {
-                    log.warn("매칭되지 않은 증상: {}", userInputDesc);
                 }
             }
 
@@ -81,7 +81,6 @@ public class SelectedSignService {
 
         } catch (Exception e) {
             if (!(e instanceof BadRequestException)) {
-                log.error("증상 처리 중 오류 발생: {}", e.getMessage());
                 throw new BadRequestException(INVALID_PARAMETER,
                         "증상 처리 중 오류가 발생했습니다.");
             }
