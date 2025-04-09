@@ -12,8 +12,6 @@ public class AdditionalInfoResponseDTO {
 
     private Long symptomId;
 
-    //private List<String> imageUrls;
-
     public static AdditionalInfoResponseDTO fromEntity(Symptom symptom) {
         return new AdditionalInfoResponseDTO(
                 symptom.getAdditional(),
