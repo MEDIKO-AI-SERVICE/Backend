@@ -9,21 +9,32 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JasyptConfig {
-    @Value("${jasypt.encryptor.password}")
-    private String encryptKey;
 
-    @Bean("jasyptStringEncryptor")
+    @Value("${jasypt.encryptor.password}")
+    private String key;
+
+    @Value("${jasypt.encryptor.algorithm}")
+    private String algorithm;
+
+    @Value("${jasypt.encryptor.pool-size}")
+    private String poolSize;
+
+    @Value("${jasypt.encryptor.string-output-type}")
+    private String outputType;
+
+    @Value("${jasypt.encryptor.key-obtention-iterations}")
+    private String hashing;
+
+    @Bean(name = "jasyptStringEncryptor")
     public StringEncryptor stringEncryptor() {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(encryptKey);
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPoolSize("1");
-        config.setProviderName("SunJCE");
+        config.setPassword(key);
+        config.setAlgorithm(algorithm);
+        config.setKeyObtentionIterations(hashing);
+        config.setPoolSize(poolSize);
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setIvGeneratorClassName("org.jasypt.iv.NoIvGenerator");
-        config.setStringOutputType("base64");
+        config.setStringOutputType(outputType);
         encryptor.setConfig(config);
         return encryptor;
     }
