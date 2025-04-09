@@ -48,7 +48,6 @@ public class SymptomController {
 
         String decodedSignIds = URLDecoder.decode(selectedSignIds, StandardCharsets.UTF_8);
 
-        // 콤마가 없는 경우도 처리
         List<Long> idList;
         if (decodedSignIds.contains(",")) {
             idList = Arrays.stream(decodedSignIds.split(","))
