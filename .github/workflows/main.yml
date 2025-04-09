@@ -53,4 +53,8 @@ jobs:
           docker stop mediko-backend-container || true
           docker rm mediko-backend-container || true
           docker load < mediko-backend-image.tar
-          docker run -d -p 8081:8081 --name mediko-backend-container mediko-backend-image
+          docker run -d \
+            -p 8081:8081 \
+            -e "JASYPT_ENCRYPT_KEY=${{ secrets.JASYPT_ENCRYPT_KEY }}" \
+            --name mediko-backend-container \
+            mediko-backend-image
