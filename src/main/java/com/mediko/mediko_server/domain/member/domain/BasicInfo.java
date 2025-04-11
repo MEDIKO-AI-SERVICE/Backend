@@ -4,6 +4,7 @@ import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.global.converter.LanguageConverter;
+import com.mediko.mediko_server.global.converter.StringEncryptConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.*;
@@ -23,9 +24,11 @@ public class BasicInfo extends BaseEntity {
     @Column(name = "language", nullable = false)
     private Language language;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "number")
     private String number;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "address")
     private String address;
 
@@ -41,6 +44,7 @@ public class BasicInfo extends BaseEntity {
     @Column(name = "weight")
     private Integer weight;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "er_password", updatable = false)
     private String erPassword;
 

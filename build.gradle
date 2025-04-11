@@ -63,7 +63,7 @@ dependencies {
 	implementation 'dev.akkinoc.util:yaml-resource-bundle:2.0.2'
 
 	// jasypt
-	implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
+	implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5"
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations'

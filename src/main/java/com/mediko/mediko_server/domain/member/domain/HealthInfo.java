@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.domain.member.domain;
 
-import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.HealthInfoRequestDTO;
+import com.mediko.mediko_server.global.converter.StringEncryptConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.*;
@@ -20,15 +20,19 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.MISSING_REQUIR
 @Table(name= "healthInfo")
 public class HealthInfo extends BaseEntity {
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "past_history")
     private String pastHistory;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "family_history")
     private String familyHistory;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "now_medicine")
     private String nowMedicine;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "allergy")
     private String allergy;
 
