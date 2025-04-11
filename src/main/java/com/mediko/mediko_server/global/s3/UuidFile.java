@@ -2,6 +2,7 @@ package com.mediko.mediko_server.global.s3;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.Symptom;
+import com.mediko.mediko_server.global.converter.StringEncryptConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,6 +21,7 @@ public class UuidFile extends BaseEntity {
     @Column(name = "file_path")
     private FilePath filePath;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "file_url")
     private String fileUrl;
 

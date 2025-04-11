@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.domain.openai.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.global.converter.StringEncryptConverter;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.s3.UuidFile;
 import jakarta.persistence.*;
@@ -43,6 +44,7 @@ public class Symptom extends BaseEntity {
     @Builder.Default
     private Integer intensity = 0;
 
+    @Convert(converter = StringEncryptConverter.class)
     @Column(name = "additional")
     private String additional;
 
@@ -55,6 +57,7 @@ public class Symptom extends BaseEntity {
 
     @OneToMany(mappedBy = "symptom", fetch = FetchType.LAZY)
     private List<UuidFile> uuidFiles = new ArrayList<>();
+
 
     // selectedDetailedSign의 sign을 가져오는 메서드
     public List<String> getSelectedSigns() {

@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.global.converter;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -12,6 +11,7 @@ import java.util.*;
 
 @JsonDeserialize(using = PossibleConditionsDeserializer.class)
 public class PossibleConditionsDeserializer extends JsonDeserializer<List<Map<String, String>>> {
+
     @Override
     public List<Map<String, String>> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         List<Map<String, String>> result = new ArrayList<>();
