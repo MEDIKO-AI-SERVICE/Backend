@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.member.dto.request;
+package com.mediko.mediko_server.domain.member.dto.response;
 
 
 import lombok.*;
@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDTO {
+public class TokenResponseDTO {
     private String grantType;
     private String accessToken;
     private String refreshToken;

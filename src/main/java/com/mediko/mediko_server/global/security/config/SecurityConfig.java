@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.global.security.config;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetailsService;
+import com.mediko.mediko_server.global.redis.RedisUtil;
 import com.mediko.mediko_server.global.security.JwtAuthenticationFilter;
 import com.mediko.mediko_server.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisUtil redisUtil;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/healthInfo").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService, redisUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
