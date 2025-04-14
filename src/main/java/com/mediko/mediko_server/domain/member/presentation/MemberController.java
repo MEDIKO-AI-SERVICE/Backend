@@ -5,6 +5,7 @@ import com.mediko.mediko_server.domain.member.application.MemberService;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.dto.request.*;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,19 +36,29 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+
     @Operation(summary = "로그인", description = "등록된 회원을 로그인시킵니다.")
     @PostMapping("/sign-in")
-    public ResponseEntity<TokenDTO> signIn(@RequestBody SignInRequestDTO signInRequestDTO) {
-        TokenDTO tokenDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
-        return ResponseEntity.ok(tokenDTO);
+    public ResponseEntity<TokenResponseDTO> signIn(@RequestBody SignInRequestDTO signInRequestDTO) {
+        TokenResponseDTO tokenResponseDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
+        return ResponseEntity.ok(tokenResponseDTO);
     }
+
 
     @Operation(summary = "로그아웃", description = "현재 로그인 된 회원을 로그아웃 시킵니다.")
     @PostMapping("/sign-out")
-    public ResponseEntity<Void> logout(
-            HttpServletRequest request, HttpServletResponse response) {
-        memberService.signOut(request, response);
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        memberService.signOut(request);
         return ResponseEntity.ok().build();
+    }
+
+
+    @Operation(summary = "토큰 재발급", description = "RefreshToken으로 AccessToken을 재발급합니다.")
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponseDTO> reissueToken(
+            @RequestBody TokenRequestDTO tokenRequestDTO) {
+        TokenResponseDTO newToken = memberService.reissueToken(tokenRequestDTO);
+        return ResponseEntity.ok(newToken);
     }
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인 된 회원을 탈퇴시킵니다.")
@@ -60,6 +71,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
 
     }
+
 
     @Operation(summary = "닉네임 조회", description = "회원의 닉네임을 조회합니다.")
     @GetMapping("/nickname")
@@ -81,6 +93,7 @@ public class MemberController {
         memberService.updateUserNickName(loginId, nickname);
         return ResponseEntity.ok().build();
     }
+
 
     @Operation(summary = "폼 입력정보 조회", description = "회원의 119폼 입력정보를 조회합니다.")
     @GetMapping("/form")
