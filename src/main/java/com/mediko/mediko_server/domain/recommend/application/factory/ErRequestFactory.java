@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.application.factory;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
+import com.mediko.mediko_server.domain.member.domain.Member;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -10,8 +10,7 @@ import java.util.Map;
 @Component
 public class ErRequestFactory {
     public Map<String, Object> createFlaskRequest(
-            BasicInfo basicInfo, Double userLatitude, Double userLongitude
-    ) {
+            BasicInfo basicInfo, Double userLatitude, Double userLongitude, Member member) {
         Map<String, Object> basicInfoMap = new HashMap<>();
         basicInfoMap.put("language", basicInfo.getLanguage().toString());
         basicInfoMap.put("number", basicInfo.getNumber());
@@ -25,6 +24,7 @@ public class ErRequestFactory {
         requestMap.put("basic_info", basicInfoMap);
         requestMap.put("lat", userLatitude);
         requestMap.put("lon", userLongitude);
+        requestMap.put("member_id", member.getId());
 
         return requestMap;
     }

@@ -48,7 +48,7 @@ public class ErService {
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
         Map<String, Object> flaskRequestData = erRequestFactory.createFlaskRequest(
-                basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude()
+                basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude(), member
         );
 
         List<ErResponseDTO> flaskResponses = flaskCommunicationService

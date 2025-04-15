@@ -20,7 +20,6 @@ import java.util.List;
 @Table(name= "pharmacy")
 public class Pharmacy extends BaseEntity {
 
-
     @Column(name = "ph_maping")
     private String maping;
 
