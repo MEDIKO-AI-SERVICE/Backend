@@ -14,7 +14,6 @@ import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDT
 import com.mediko.mediko_server.domain.report.domain.Report;
 import com.mediko.mediko_server.domain.report.domain.repository.ReportRepository;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
-import com.mediko.mediko_server.global.exception.exceptionType.ServiceUnavailableException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +84,7 @@ public class HospitalService {
 
         Map<String, Object> flaskRequestData = hospitalRequestFactory.createFlaskRequest(
                 basicInfo, healthInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude(),
-                department, diseases, requestDTO.isSecondaryHospital(), requestDTO.isTertiaryHospital()
+                department, diseases, requestDTO.isSecondaryHospital(), requestDTO.isTertiaryHospital(), member
         );
 
         List<HospitalResponseDTO> recommendations = flaskCommunicationService.getHospitalRecommendation(flaskRequestData);

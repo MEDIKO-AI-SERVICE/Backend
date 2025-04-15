@@ -35,12 +35,12 @@ public class PharmacyService {
 
     // 약국 추천 응답
     @Transactional
-    public List<PharmacyResponseDTO> recommendPharmacy(PharmacyRequestDTO requestDTO,  Member member) {
+    public List<PharmacyResponseDTO> recommendPharmacy(PharmacyRequestDTO requestDTO, Member member) {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
         Map<String, Object> flaskRequestData = pharmacyRequestFactory.createFlaskRequest(
-                basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude()
+                basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude(), member
         );
 
         List<PharmacyResponseDTO> flaskResponses = flaskCommunicationService
