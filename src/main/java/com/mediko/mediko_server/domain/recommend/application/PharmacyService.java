@@ -51,7 +51,7 @@ public class PharmacyService {
         }
 
         List<Pharmacy> savedPharmacies = flaskResponses.stream()
-                .map(response -> pharmacyConverter.toEntity(response, requestDTO, basicInfo))
+                .map(response -> pharmacyConverter.toEntity(response, requestDTO, member))
                 .map(pharmacyRepository::save)
                 .collect(Collectors.toList());
 

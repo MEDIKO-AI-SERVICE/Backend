@@ -86,7 +86,6 @@ public class SelectedErService {
 
         SelectedEr selectedEr = SelectedEr.builder()
                 .er(er)
-                .member(member)
                 .naverMap(mapUrls.getNaverMap())
                 .kakaoMap(mapUrls.getKakaoMap())
                 .googleMap(mapUrls.getGoogleMap())

@@ -5,7 +5,9 @@ import com.mediko.mediko_server.domain.openai.domain.SubBodyPart;
 import com.mediko.mediko_server.domain.translation.application.TranslationService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @AllArgsConstructor
 public class SubBodyPartResponseDTO {

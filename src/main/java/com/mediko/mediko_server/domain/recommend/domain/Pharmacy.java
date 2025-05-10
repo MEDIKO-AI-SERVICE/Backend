@@ -123,10 +123,6 @@ public class Pharmacy extends BaseEntity {
     private Double userLongitude;
 
     @ManyToOne
-    @JoinColumn(name = "basic_info_id", nullable = false)
-    private BasicInfo basicInfo;
-
-    @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 

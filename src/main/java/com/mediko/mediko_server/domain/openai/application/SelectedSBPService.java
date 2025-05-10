@@ -68,7 +68,6 @@ public class SelectedSBPService {
                 .toBuilder()
                 .sbpIds(sbpIds)
                 .selectedMBP(selectedMBP)
-                .member(member)
                 .body(koreanBodyPartNames)  // 한국어로 저장
                 .build();
 

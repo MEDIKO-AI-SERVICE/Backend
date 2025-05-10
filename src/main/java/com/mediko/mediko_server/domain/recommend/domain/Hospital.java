@@ -1,7 +1,5 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
-import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.report.domain.Report;
 import com.mediko.mediko_server.global.converter.StringListConvert;
@@ -101,14 +99,6 @@ public class Hospital extends BaseEntity {
 
     @Column(name = "hp_url")
     private String url;
-
-    @ManyToOne
-    @JoinColumn(name = "basic_info_id", nullable = false)
-    private BasicInfo basicInfo;
-
-    @ManyToOne
-    @JoinColumn(name = "health_info_id", nullable = false)
-    private HealthInfo healthInfo;
 
     @ManyToOne
     @JoinColumn(name = "report_id")

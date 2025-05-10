@@ -25,10 +25,6 @@ public class SelectedSBP extends BaseEntity {
     @Column(nullable = false)
     private List<String> body;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
     @Convert(converter = LongListConverter.class)
     @Column(name = "sbp_id", nullable = false)
     private List<Long> sbpIds;

@@ -87,7 +87,6 @@ public class SelectedHospitalService {
 
         SelectedHospital selectedHospital = SelectedHospital.builder()
                 .hospital(hospital)
-                .member(member)
                 .naverMap(mapUrls.getNaverMap())
                 .kakaoMap(mapUrls.getKakaoMap())
                 .googleMap(mapUrls.getGoogleMap())

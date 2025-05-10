@@ -50,7 +50,6 @@ public class SymptomService {
         Symptom newSymptom = Symptom.builder()
                 .startValue(requestDTO.getStartValue())
                 .startUnit(requestDTO.getStartUnit())
-                .member(member)
                 .build();
 
         Symptom savedSymptom = symptomRepository.save(newSymptom);

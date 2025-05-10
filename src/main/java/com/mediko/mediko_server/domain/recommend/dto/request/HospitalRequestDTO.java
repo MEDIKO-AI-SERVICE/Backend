@@ -39,7 +39,7 @@ public class HospitalRequestDTO {
     private boolean tertiaryHospital;
 
 
-    public Hospital toEntity(BasicInfo basicInfo, HealthInfo healthInfo) {
+    public Hospital toEntity() {
         return Hospital.builder()
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
@@ -48,8 +48,6 @@ public class HospitalRequestDTO {
                 .suspectedDisease(this.suspectedDisease)
                 .secondaryHospital(this.secondaryHospital)
                 .tertiaryHospital(this.tertiaryHospital)
-                .basicInfo(basicInfo)
-                .healthInfo(healthInfo)
                 .build();
     }
 }

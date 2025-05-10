@@ -25,9 +25,8 @@ public class ErRequestDTO {
     private List<String> conditions;
 
 
-    public Er toEntity(BasicInfo basicInfo) {
+    public Er toEntity() {
         return Er.builder()
-                .basicInfo(basicInfo)
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
                 .isCondition(this.isCondition)

@@ -31,11 +31,11 @@ public class Report extends BaseEntity {
     private List<Map<String, String>> possibleConditions = new ArrayList<>();
 
     @Convert(converter = StringMapListConverter.class)
-    @Column(name = "questions")
+    @Column(name = "questions", length = 1000)
     private List<Map<String, String>> questionsForDoctor = new ArrayList<>();
 
     @Convert(converter = ObjectMapListConverter.class)
-    @Column(name = "checklist")
+    @Column(name = "checklist", length = 1000)
     private List<Map<String, Object>> symptomChecklist = new ArrayList<>();
 
     @ManyToOne

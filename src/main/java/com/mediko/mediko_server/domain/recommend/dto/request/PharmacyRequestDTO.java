@@ -18,9 +18,8 @@ public class PharmacyRequestDTO {
     @JsonProperty("lon")
     private Double userLongitude;
 
-    public Pharmacy toEntity(BasicInfo basicInfo) {
+    public Pharmacy toEntity() {
         return Pharmacy.builder()
-                .basicInfo(basicInfo)
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
                 .build();

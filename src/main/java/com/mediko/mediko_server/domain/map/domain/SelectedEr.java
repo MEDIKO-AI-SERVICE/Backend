@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "selected_er")
 public class SelectedEr extends BaseEntity {
-    @Column(name = "naver_map", nullable = false)
+    @Column(name = "naver_map", nullable = false, length = 1000)
     private String naverMap;
 
     @Column(name = "kakao_map", nullable = false)
@@ -28,8 +28,4 @@ public class SelectedEr extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "er_id", nullable = false)
     private Er er;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
 }

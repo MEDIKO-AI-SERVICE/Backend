@@ -59,7 +59,7 @@ public class ErService {
         }
 
         List<Er> savedErs = flaskResponses.stream()
-                .map(response -> erConverter.toEntity(response, requestDTO, basicInfo))
+                .map(response -> erConverter.toEntity(response, requestDTO, member))
                 .map(erRepository::save)
                 .collect(Collectors.toList());
 
