@@ -1,9 +1,6 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
-import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.Location;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.global.converter.LongListConverter;
 import com.mediko.mediko_server.global.converter.StringListConvert;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -13,10 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.Condition;
 
 @Getter
 @Builder(toBuilder = true)
@@ -70,10 +64,6 @@ public class Er extends BaseEntity {
 
     @Column(name = "er_longitude")
     private Double erLongitude;
-
-    @ManyToOne
-    @JoinColumn(name = "basic_info_id", nullable = false)
-    private BasicInfo basicInfo;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)

@@ -110,7 +110,6 @@ public class SelectedSignService {
                 .signIds(selectedSignIds)
                 .sign(koreanSigns)
                 .selectedSBP(selectedSBP)
-                .member(member)
                 .build();
 
         selectedSignRepository.save(selectedSign);

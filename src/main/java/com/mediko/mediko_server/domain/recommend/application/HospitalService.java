@@ -94,7 +94,7 @@ public class HospitalService {
 
         return recommendations.stream()
                 .map(response -> hospitalConverter.toEntity(
-                        response, requestDTO, department, diseases, basicInfo, healthInfo, report
+                        response, requestDTO, department, diseases, report, member
                 ))
                 .map(hospitalRepository::save)
                 .map(HospitalResponseDTO::fromEntity)

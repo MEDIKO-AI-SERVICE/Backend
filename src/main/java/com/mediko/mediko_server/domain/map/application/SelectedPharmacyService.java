@@ -86,7 +86,6 @@ public class SelectedPharmacyService {
 
         SelectedPharmacy selectedPharmacy = SelectedPharmacy.builder()
                 .pharmacy(pharmacy)
-                .member(member)
                 .naverMap(mapUrls.getNaverMap())
                 .kakaoMap(mapUrls.getKakaoMap())
                 .googleMap(mapUrls.getGoogleMap())

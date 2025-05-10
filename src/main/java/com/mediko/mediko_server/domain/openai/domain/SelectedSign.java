@@ -31,10 +31,6 @@ public class SelectedSign extends BaseEntity {
     private List<Long> signIds;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "selected_sbp_id", nullable = false)
     private SelectedSBP selectedSBP;
 

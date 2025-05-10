@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "selected_hp")
 public class SelectedHospital extends BaseEntity {
 
-    @Column(name = "naver_map", nullable = false)
+    @Column(name = "naver_map", nullable = false, length = 1000)
     private String naverMap;
 
     @Column(name = "kakao_map", nullable = false)
@@ -29,8 +29,4 @@ public class SelectedHospital extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "hospital_id", nullable = false)
     private Hospital hospital;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
 }

@@ -32,6 +32,10 @@ public class BasicInfo extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+    @Convert(converter = StringEncryptConverter.class)
+    @Column(name = "er_password", updatable = false)
+    private String erPassword;
+
     @Column(name = "gender")
     private Gender gender;
 
@@ -43,10 +47,6 @@ public class BasicInfo extends BaseEntity {
 
     @Column(name = "weight")
     private Integer weight;
-
-    @Convert(converter = StringEncryptConverter.class)
-    @Column(name = "er_password", updatable = false)
-    private String erPassword;
 
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)

@@ -48,10 +48,6 @@ public class Symptom extends BaseEntity {
     @Column(name = "additional")
     private String additional;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-
     @OneToMany(mappedBy = "symptom", cascade = CascadeType.ALL)
     private List<SelectedSign> selectedSigns = new ArrayList<>();
 

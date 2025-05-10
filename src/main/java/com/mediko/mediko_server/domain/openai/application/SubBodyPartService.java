@@ -14,8 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,8 +37,10 @@ public class SubBodyPartService {
                 .collect(Collectors.toList());
     }
 
+
     // 세부 신체 부분 조회
-    public List<SubBodyPartResponseDTO> getSubBodyPartsByMainBodyPartBodies(List<String> translatedBodies, Member member) {
+    public Map<String, List<SubBodyPartResponseDTO>> getSubBodyPartsByMainBodyPartBodies(
+            List<String> translatedBodies, Member member) {
         Language language = member.getBasicInfo().getLanguage();
 
         List<String> koreanBodies = translatedBodies.stream()
@@ -46,15 +49,30 @@ public class SubBodyPartService {
 
         List<MainBodyPart> mainBodyParts = mainBodyPartRepository.findByDescriptionIn(koreanBodies);
 
-        List<SubBodyPart> subBodyParts = new ArrayList<>();
+        Map<String, List<SubBodyPartResponseDTO>> groupedResult = new LinkedHashMap<>();
+
         for (MainBodyPart mainBodyPart : mainBodyParts) {
             List<SubBodyPart> relatedSubBodyParts = subBodyPartRepository
                     .findByMainBodyPartId(mainBodyPart.getId());
-            subBodyParts.addAll(relatedSubBodyParts);
+
+            String translatedMainBodyPart = translationService.translate(
+                    mainBodyPart.getDescription(),
+                    TranslationType.MAIN_BODY_PART,
+                    language
+            );
+
+            List<SubBodyPartResponseDTO> dtos = relatedSubBodyParts.stream()
+                    .map(subBodyPart -> SubBodyPartResponseDTO.fromEntity(subBodyPart, language, translationService))
+                    .collect(Collectors.toList());
+
+            groupedResult.put(translatedMainBodyPart, dtos);
+
+            log.info("Translated Main Body Part: {}", translatedMainBodyPart);
+            log.info("Sub Body Parts for {}: {}", translatedMainBodyPart, dtos);
         }
 
-        return subBodyParts.stream()
-                .map(subBodyPart -> SubBodyPartResponseDTO.fromEntity(subBodyPart, language, translationService))
-                .collect(Collectors.toList());
+        log.info("Grouped Result: {}", groupedResult);
+
+        return groupedResult;
     }
 }

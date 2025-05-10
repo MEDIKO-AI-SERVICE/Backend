@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.application.converter;
 
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
+import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
 import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PharmacyConverter {
     public Pharmacy toEntity(PharmacyResponseDTO response, PharmacyRequestDTO requestDTO,
-                             BasicInfo basicInfo) {
+                             Member member) {
         return Pharmacy.builder()
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
@@ -45,8 +46,7 @@ public class PharmacyConverter {
                 .postcdn1(response.getPostcdn1())
                 .postcdn2(response.getPostcdn2())
                 .dutyetc(response.getDutyetc())
-                .basicInfo(basicInfo)
-                .member(basicInfo.getMember())
+                .member(member)
                 .build();
     }
 }

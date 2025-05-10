@@ -3,8 +3,6 @@ package com.mediko.mediko_server.domain.openai.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.application.SubBodyPartService;
-import com.mediko.mediko_server.domain.openai.domain.SubBodyPart;
-import com.mediko.mediko_server.domain.openai.dto.request.SelectedSBPRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SubBodyPartResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Tag(name = "sub body", description = "세부 신체 API")
 @Slf4j
@@ -34,13 +32,13 @@ public class SubBodyPartController {
         return ResponseEntity.ok(subBodyParts);
     }
 
-    @Operation(summary = "세부 신체 부분 조회", description = "선택된 주요 신체에 포함된 모든 세부 신체를 조회합니다.")
     @GetMapping
-    public ResponseEntity<List<SubBodyPartResponseDTO>> getSubBodyPartsByBodies(
+    public ResponseEntity<Map<String, List<SubBodyPartResponseDTO>>> getSubBodyPartsByBodies(
             @RequestParam("body") List<String> body,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        List<SubBodyPartResponseDTO> response = subBodyPartService.getSubBodyPartsByMainBodyPartBodies(body, member);
+        Map<String, List<SubBodyPartResponseDTO>> response =
+                subBodyPartService.getSubBodyPartsByMainBodyPartBodies(body, member);
         return ResponseEntity.ok(response);
     }
 }
