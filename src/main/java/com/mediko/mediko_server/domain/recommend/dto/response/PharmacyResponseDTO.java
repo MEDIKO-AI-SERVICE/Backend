@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.recommend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
+import jakarta.persistence.Column;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -118,6 +119,9 @@ public class PharmacyResponseDTO {
     @JsonProperty("dutyetc")
     private String dutyetc;
 
+    @JsonProperty("similarity")
+    private Double similarity;
+
     public static PharmacyResponseDTO fromEntity(Pharmacy pharmacy) {
         return new PharmacyResponseDTO(
                 pharmacy.getId(),
@@ -152,7 +156,8 @@ public class PharmacyResponseDTO {
                 pharmacy.getLatLon(),
                 pharmacy.getPostcdn1(),
                 pharmacy.getPostcdn2(),
-                pharmacy.getDutyetc()
+                pharmacy.getDutyetc(),
+                pharmacy.getSimilarity()
         );
     }
 }
