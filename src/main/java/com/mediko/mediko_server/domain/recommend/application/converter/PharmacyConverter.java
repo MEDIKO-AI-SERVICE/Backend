@@ -46,6 +46,7 @@ public class PharmacyConverter {
                 .postcdn1(response.getPostcdn1())
                 .postcdn2(response.getPostcdn2())
                 .dutyetc(response.getDutyetc())
+                .similarity(response.getSimilarity())
                 .member(member)
                 .build();
     }

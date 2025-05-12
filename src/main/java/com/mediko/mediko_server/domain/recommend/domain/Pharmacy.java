@@ -122,6 +122,9 @@ public class Pharmacy extends BaseEntity {
     @Column(name = "u_longitude")
     private Double userLongitude;
 
+    @Column(name = "similarity")
+    private Double similarity;
+
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
