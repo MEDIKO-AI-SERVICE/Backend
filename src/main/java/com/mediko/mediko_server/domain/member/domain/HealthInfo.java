@@ -75,4 +75,20 @@ public class HealthInfo extends BaseEntity {
 
         validateHealthInfoFields();
     }
+
+    public void setAllergy(String allergy) {
+        this.allergy = allergy;
+    }
+
+    public void setFamilyHistory(String familyHistory) {
+        this.familyHistory = familyHistory;
+    }
+
+    public void setNowMedicine(String nowMedicine) {
+        this.nowMedicine = nowMedicine;
+    }
+
+    public void setPastHistory(String pastHistory) {
+        this.pastHistory = pastHistory;
+    }
 }

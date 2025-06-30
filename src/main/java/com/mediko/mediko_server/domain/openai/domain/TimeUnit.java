@@ -1,18 +1,19 @@
 package com.mediko.mediko_server.domain.openai.domain;
 
 import lombok.Getter;
-import java.util.Arrays;
+
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Getter
 public enum TimeUnit {
-    DEFAULT(0, Arrays.asList(0)),
-    MINUTE(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)),
-    HOUR(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)),
-    DAY(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)),
-    WEEK(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)),
-    MONTH(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)),
-    YEAR(5, Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55));
+    MINUTE(1, generateRange(1, 59)),
+    HOUR(1, generateRange(1, 23)),
+    DAY(1, generateRange(1, 31)),
+    WEEK(1, generateRange(1, 52)),
+    MONTH(1, generateRange(1, 12)),
+    YEAR(1, generateRange(1, 100));
 
     private final int minValue;
     private final List<Integer> validValues;
@@ -20,5 +21,9 @@ public enum TimeUnit {
     TimeUnit(int minValue, List<Integer> validValues) {
         this.minValue = minValue;
         this.validValues = validValues;
+    }
+
+    private static List<Integer> generateRange(int start, int end) {
+        return IntStream.rangeClosed(start, end).boxed().collect(Collectors.toList());
     }
 }

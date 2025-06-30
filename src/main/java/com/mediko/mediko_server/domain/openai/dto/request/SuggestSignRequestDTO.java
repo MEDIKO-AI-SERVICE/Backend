@@ -5,6 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SelectedSignRequestDTO {
-    private String selectedSign;
+public class SuggestSignRequestDTO {
+    private String bodyPart;
 }
