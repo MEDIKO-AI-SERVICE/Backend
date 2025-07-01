@@ -5,7 +5,6 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.openai.application.MedicationProcessingState;
 import com.mediko.mediko_server.domain.openai.application.MedicationTemplateService;
-import com.mediko.mediko_server.domain.openai.dto.request.MedicationTemplateRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.MedicationTemplateResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,98 +23,132 @@ public class MedicationTemplateController {
 
     private final MedicationTemplateService medicationTemplateService;
 
+    // isSelf 설정 + 세션 생성
     @PostMapping("/is-self")
-    public ResponseEntity<Void> saveIsSelf(@RequestParam boolean isSelf,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.saveIsSelf(member, isSelf);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/relation")
-    public ResponseEntity<Void> saveRelation(@RequestParam String relation,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateRelation(member, relation);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/gender")
-    public ResponseEntity<Void> saveGender(@RequestParam Gender gender,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateGender(member, gender);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/age")
-    public ResponseEntity<Void> saveAge(@RequestParam Integer age,
-                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateAge(member, age);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/allergy")
-    public ResponseEntity<Void> saveAllergy(@RequestParam String allergy,
-                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateAllergy(member, allergy);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/family-history")
-    public ResponseEntity<Void> saveFamilyHistory(@RequestParam String familyHistory,
-                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateFamilyHistory(member, familyHistory);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/medication")
-    public ResponseEntity<Void> saveMedication(@RequestParam String medication,
-                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateMedication(member, medication);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/past-history")
-    public ResponseEntity<Void> savePastHistory(@RequestParam String pastHistory,
-                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updatePastHistory(member, pastHistory);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/sign")
-    public ResponseEntity<Void> saveSign(@RequestParam String sign,
-                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.saveSign(member, sign);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/result")
-    public ResponseEntity<MedicationTemplateResponseDTO> getMedicationTemplateResult(
+    public ResponseEntity<String> saveIsSelf(
+            @RequestParam("isSelf") boolean isSelf,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        MedicationTemplateResponseDTO response = medicationTemplateService.requestMedicationTemplateToFastApi(member);
+        String sessionId = medicationTemplateService.saveIsSelf(member, isSelf);
+        return ResponseEntity.ok(sessionId);
+    }
+
+    // 관계 설정
+    @PostMapping("/relation")
+    public ResponseEntity<Void> saveRelation(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("relation") String relation,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateRelation(member, sessionId, relation);
+        return ResponseEntity.ok().build();
+    }
+
+    // 성별 설정
+    @PostMapping("/gender")
+    public ResponseEntity<Void> saveGender(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("gender") Gender gender,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateGender(member, sessionId, gender);
+        return ResponseEntity.ok().build();
+    }
+
+    // 나이 설정
+    @PostMapping("/age")
+    public ResponseEntity<Void> saveAge(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("age") Integer age,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateAge(member, sessionId, age);
+        return ResponseEntity.ok().build();
+    }
+
+    // 알레르기 설정
+    @PostMapping("/allergy")
+    public ResponseEntity<Void> saveAllergy(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("allergy") String allergy,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateAllergy(member, sessionId, allergy);
+        return ResponseEntity.ok().build();
+    }
+
+    // 가족력 설정
+    @PostMapping("/family-history")
+    public ResponseEntity<Void> saveFamilyHistory(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("familyHistory") String familyHistory,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateFamilyHistory(member, sessionId, familyHistory);
+        return ResponseEntity.ok().build();
+    }
+
+    // 복용 중인 약 설정
+    @PostMapping("/medication")
+    public ResponseEntity<Void> saveMedication(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("medication") String medication,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updateMedication(member, sessionId, medication);
+        return ResponseEntity.ok().build();
+    }
+
+    // 과거 병력 설정
+    @PostMapping("/past-history")
+    public ResponseEntity<Void> savePastHistory(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("pastHistory") String pastHistory,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.updatePastHistory(member, sessionId, pastHistory);
+        return ResponseEntity.ok().build();
+    }
+
+    // 증상 설정
+    @PostMapping("/sign")
+    public ResponseEntity<Void> saveSign(
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("sign") String sign,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        medicationTemplateService.saveSign(member, sessionId, sign);
+        return ResponseEntity.ok().build();
+    }
+
+    // 결과 요청
+    @PostMapping("/result")
+    public ResponseEntity<MedicationTemplateResponseDTO> getResult(
+            @RequestParam("sessionId") String sessionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        MedicationTemplateResponseDTO response =
+                medicationTemplateService.requestMedicationTemplate(member, sessionId);
         return ResponseEntity.ok(response);
     }
 
+    // 상태 조회
     @GetMapping("/state")
-    public ResponseEntity<MedicationProcessingState> getCurrentState(
+    public ResponseEntity<MedicationProcessingState> getState(
+            @RequestParam("sessionId") String sessionId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        MedicationProcessingState state = medicationTemplateService.getState(member);
+        MedicationProcessingState state = medicationTemplateService.getState(member, sessionId);
         return ResponseEntity.ok(state);
     }
 
+    // 상태 삭제
     @DeleteMapping("/state")
-    public ResponseEntity<Void> clearState(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Void> clearState(
+            @RequestParam("sessionId") String sessionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        medicationTemplateService.clearState(member);
+        medicationTemplateService.clearState(member, sessionId);
         return ResponseEntity.ok().build();
     }
 }

@@ -33,6 +33,8 @@ public class MedicationProcessingState {
 
     private String sign;
 
+    private String sessionId;
+
     // 필수값 입력 검증
     public boolean isComplete() {
 

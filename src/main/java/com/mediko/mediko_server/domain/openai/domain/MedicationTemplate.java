@@ -40,6 +40,9 @@ public class MedicationTemplate extends BaseEntity {
     @Column(name = "warning_message")
     private String warningMessage;
 
+
+    private String sessionId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
