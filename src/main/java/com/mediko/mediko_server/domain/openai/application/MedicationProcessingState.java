@@ -3,12 +3,14 @@ package com.mediko.mediko_server.domain.openai.application;
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Jacksonized
 public class MedicationProcessingState {
 
     private Language language;

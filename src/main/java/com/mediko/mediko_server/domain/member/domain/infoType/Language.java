@@ -1,5 +1,7 @@
 package com.mediko.mediko_server.domain.member.domain.infoType;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.Locale;
 
 public enum Language {
@@ -33,5 +35,16 @@ public enum Language {
             }
             default -> KO;
         };
+    }
+
+    @JsonCreator
+    public static Language fromString(String value) {
+        if (value == null) return null;
+        try {
+            // 대소문자 구분 없이 매칭
+            return Language.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

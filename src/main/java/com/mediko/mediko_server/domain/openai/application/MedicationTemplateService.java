@@ -144,15 +144,36 @@ public class MedicationTemplateService {
 
     // 증상 설정
     public void saveSign(Member member, String sessionId, String sign) {
+        log.info("🔥 [saveSign 시작] memberId={}, sessionId={}", member.getId(), sessionId);
+
+        // 1. Redis에서 상태 조회
         MedicationProcessingState state = getState(member, sessionId);
+        log.info("🔥 [조회된 상태] state={}", state); // NULL 여부 확인
+
+        // 2. null 체크
         if (state == null) {
+            log.error("🔥 [에러] 세션이 만료되었거나 존재하지 않음");
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "세션이 만료되었습니다");
         }
+
+        // 3. age/gender null 체크
         if (state.getAge() == null || state.getGender() == null) {
+            log.error("🔥 [에러] age={}, gender={}", state.getAge(), state.getGender());
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "나이와 성별을 먼저 설정해야 합니다");
         }
-        updateField(member, sessionId, builder -> builder.sign(sign));
+
+        // 4. sign 유효성 체크
+        if (sign == null || sign.trim().isEmpty()) {
+            log.error("🔥 [에러] sign={}", sign);
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "증상은 필수입니다");
+        }
+
+        // 5. 상태 업데이트
+        state.setSign(sign);
+        saveState(member, sessionId, state);
+        log.info("🔥 [저장 완료] sign={}", sign);
     }
+
 
     // 공통 업데이트 메서드
     private void updateField(Member member, String sessionId,
