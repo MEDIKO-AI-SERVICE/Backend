@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.domain.member.domain.infoType;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Gender {
     MALE("남성", "NAM", "男性"),
@@ -12,14 +13,10 @@ public enum Gender {
         this.values = values;
     }
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Gender fromString(String value) {
-        if (value == null) {
-            return null;
-        }
-
+        if (value == null) return null;
         String normalizedValue = value.toLowerCase().trim();
-
         for (Gender gender : Gender.values()) {
             for (String acceptedValue : gender.values) {
                 if (normalizedValue.equals(acceptedValue.toLowerCase())) {
@@ -31,5 +28,10 @@ public enum Gender {
             }
         }
         throw new IllegalArgumentException("Invalid gender value: " + value);
+    }
+
+    @JsonValue
+    public String toValue() {
+        return name();
     }
 }
