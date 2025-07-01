@@ -6,6 +6,7 @@ import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.openai.application.MedicationProcessingState;
 import com.mediko.mediko_server.domain.openai.application.MedicationTemplateService;
 import com.mediko.mediko_server.domain.openai.dto.response.MedicationTemplateResponseDTO;
+import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import static com.mediko.mediko_server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 
 @Tag(name = "medication-template", description = "약물 템플릿(약 추천) API")
 @Slf4j
@@ -112,13 +117,18 @@ public class MedicationTemplateController {
         return ResponseEntity.ok().build();
     }
 
-    // 증상 설정
+    // 증상 설정 (한글 디코딩 추가)
     @PostMapping("/sign")
     public ResponseEntity<Void> saveSign(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("sign") String sign,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
+        try {
+            sign = URLDecoder.decode(sign, StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            throw new BadRequestException(INTERNAL_SERVER_ERROR, "인코딩 오류");
+        }
         medicationTemplateService.saveSign(member, sessionId, sign);
         return ResponseEntity.ok().build();
     }
