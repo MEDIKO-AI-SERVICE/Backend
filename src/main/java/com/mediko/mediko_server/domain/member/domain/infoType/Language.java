@@ -13,6 +13,10 @@ public enum Language {
         this.value = value;
     }
 
+    public int getValue() {
+        return this.value;
+    }
+
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Language fromString(String value) {
         if (value == null) return null;
