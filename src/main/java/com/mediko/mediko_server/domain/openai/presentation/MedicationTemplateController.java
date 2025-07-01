@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Tag(name = "medication-template", description = "약물 템플릿(약 추천) API")
 @Slf4j
 @RestController
@@ -25,12 +27,12 @@ public class MedicationTemplateController {
 
     // isSelf 설정 + 세션 생성
     @PostMapping("/is-self")
-    public ResponseEntity<String> saveIsSelf(
+    public ResponseEntity<Map<String, String>> saveIsSelf(
             @RequestParam("isSelf") boolean isSelf,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         String sessionId = medicationTemplateService.saveIsSelf(member, isSelf);
-        return ResponseEntity.ok(sessionId);
+        return ResponseEntity.ok(Map.of("sessionId", sessionId));
     }
 
     // 관계 설정

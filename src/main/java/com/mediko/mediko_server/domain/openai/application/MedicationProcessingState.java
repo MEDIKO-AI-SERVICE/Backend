@@ -2,12 +2,10 @@ package com.mediko.mediko_server.domain.openai.application;
 
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
