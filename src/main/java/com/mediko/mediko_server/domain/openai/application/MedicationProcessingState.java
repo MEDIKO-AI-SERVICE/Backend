@@ -10,19 +10,32 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicationProcessingState {
-    private Long memberId; // ⭐ 소유자 ID 저장
+
+    private Long memberId;
 
     private Language language;
+
     private Boolean isSelf;
+
     private String relation;
+
     private Gender gender;
+
     private Integer age;
+
     private String allergy;
+
     private String familyHistory;
+
     private String nowMedicine;
+
     private String pastHistory;
+
     private String sign;
+
     private String sessionId;
+
+    private Boolean complete;
 
     // 필수값 입력 검증
     public boolean isComplete() {
