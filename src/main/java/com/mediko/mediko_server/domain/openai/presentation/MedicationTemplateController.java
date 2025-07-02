@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 
-@Tag(name = "medication-template", description = "약물 템플릿(약 추천) API")
+@Tag(name = "medication-template", description = "약 추천 템플릿 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class MedicationTemplateController {
     private final MedicationTemplateService medicationTemplateService;
 
     // isSelf 설정 + 세션 생성
+    @Operation(summary = "본인/타인 여부 설정", description = "1. 본인/타인 여부를 선택 및 세션을 생성합니다.")
     @PostMapping("/is-self")
     public ResponseEntity<Map<String, String>> saveIsSelf(
             @RequestParam("isSelf") boolean isSelf,
@@ -41,6 +42,7 @@ public class MedicationTemplateController {
     }
 
     // 관계 설정
+    @Operation(summary = "타인과의 관계 설정", description = "2. 타인일 경우 관계를 입력합니다. (선택)")
     @PostMapping("/relation")
     public ResponseEntity<Void> saveRelation(
             @RequestParam("sessionId") String sessionId,
@@ -52,6 +54,7 @@ public class MedicationTemplateController {
     }
 
     // 성별 설정
+    @Operation(summary = "타인의 성별 설정", description = "2. 타인일 경우 성별을 입력합니다. (필수)")
     @PostMapping("/gender")
     public ResponseEntity<Void> saveGender(
             @RequestParam("sessionId") String sessionId,
@@ -63,6 +66,7 @@ public class MedicationTemplateController {
     }
 
     // 나이 설정
+    @Operation(summary = "타인의 나이 설정", description = "2. 타인일 경우 나이를 입력합니다. (필수)")
     @PostMapping("/age")
     public ResponseEntity<Void> saveAge(
             @RequestParam("sessionId") String sessionId,
@@ -74,6 +78,7 @@ public class MedicationTemplateController {
     }
 
     // 알레르기 설정
+    @Operation(summary = "타인의 알레르기 설정", description = "2. 타인일 경우 알레르기를 입력합니다. (선택)")
     @PostMapping("/allergy")
     public ResponseEntity<Void> saveAllergy(
             @RequestParam("sessionId") String sessionId,
@@ -85,6 +90,7 @@ public class MedicationTemplateController {
     }
 
     // 가족력 설정
+    @Operation(summary = "타인의 가족력 설정", description = "2. 타인일 경우 가족력을 입력합니다. (선택)")
     @PostMapping("/family-history")
     public ResponseEntity<Void> saveFamilyHistory(
             @RequestParam("sessionId") String sessionId,
@@ -96,6 +102,7 @@ public class MedicationTemplateController {
     }
 
     // 복용 중인 약 설정
+    @Operation(summary = "타인의 복용약 설정", description = "2. 타인일 경우 복용약을 입력합니다. (선택)")
     @PostMapping("/medication")
     public ResponseEntity<Void> saveMedication(
             @RequestParam("sessionId") String sessionId,
@@ -107,6 +114,7 @@ public class MedicationTemplateController {
     }
 
     // 과거 병력 설정
+    @Operation(summary = "타인의 과거 병력 설정", description = "2. 타인일 경우 과거 병력을 입력합니다. (선택)")
     @PostMapping("/past-history")
     public ResponseEntity<Void> savePastHistory(
             @RequestParam("sessionId") String sessionId,
@@ -117,9 +125,10 @@ public class MedicationTemplateController {
         return ResponseEntity.ok().build();
     }
 
-    // 증상 설정 (한글 디코딩 추가)
+
+    @Operation(summary = "증상 설명 입력", description = "3. 증상 설명을 입력합니다. 약 추천 결과가 조회됩니다.")
     @PostMapping("/sign")
-    public ResponseEntity<Void> saveSign(
+    public ResponseEntity<MedicationTemplateResponseDTO> saveSign(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("sign") String sign,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -129,38 +138,32 @@ public class MedicationTemplateController {
         } catch (Exception e) {
             throw new BadRequestException(INTERNAL_SERVER_ERROR, "인코딩 오류");
         }
-        medicationTemplateService.saveSign(member, sessionId, sign);
-        return ResponseEntity.ok().build();
-    }
 
-    // 결과 요청
-    @PostMapping("/result")
-    public ResponseEntity<MedicationTemplateResponseDTO> getResult(
-            @RequestParam("sessionId") String sessionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
+        // 증상 저장과 결과 요청을 동시에 처리
         MedicationTemplateResponseDTO response =
-                medicationTemplateService.requestMedicationTemplate(member, sessionId);
+                medicationTemplateService.saveSign(member, sessionId, sign);
+
         return ResponseEntity.ok(response);
     }
 
-    // 상태 조회
-    @GetMapping("/state")
-    public ResponseEntity<MedicationProcessingState> getState(
-            @RequestParam("sessionId") String sessionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        MedicationProcessingState state = medicationTemplateService.getState(member, sessionId);
-        return ResponseEntity.ok(state);
-    }
 
-    // 상태 삭제
-    @DeleteMapping("/state")
-    public ResponseEntity<Void> clearState(
-            @RequestParam("sessionId") String sessionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.clearState(member, sessionId);
-        return ResponseEntity.ok().build();
-    }
+//    // 상태 조회
+//    @GetMapping("/state")
+//    public ResponseEntity<MedicationProcessingState> getState(
+//            @RequestParam("sessionId") String sessionId,
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        Member member = userDetails.getMember();
+//        MedicationProcessingState state = medicationTemplateService.getState(member, sessionId);
+//        return ResponseEntity.ok(state);
+//    }
+//
+//    // 상태 삭제
+//    @DeleteMapping("/state")
+//    public ResponseEntity<Void> clearState(
+//            @RequestParam("sessionId") String sessionId,
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        Member member = userDetails.getMember();
+//        medicationTemplateService.clearState(member, sessionId);
+//        return ResponseEntity.ok().build();
+//    }
 }

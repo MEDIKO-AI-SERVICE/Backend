@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PatientInfoRequestDTO {
 
-    private Language language;
-
     private Gender gender;     // Step 1
 
     private Integer age;       // Step 2
