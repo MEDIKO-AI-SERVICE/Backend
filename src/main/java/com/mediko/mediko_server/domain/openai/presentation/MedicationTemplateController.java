@@ -3,10 +3,8 @@ package com.mediko.mediko_server.domain.openai.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
-import com.mediko.mediko_server.domain.openai.application.MedicationProcessingState;
 import com.mediko.mediko_server.domain.openai.application.MedicationTemplateService;
 import com.mediko.mediko_server.domain.openai.dto.response.MedicationTemplateResponseDTO;
-import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static com.mediko.mediko_server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 
 @Tag(name = "medication-template", description = "약 추천 템플릿 API")
 @Slf4j
@@ -31,7 +26,7 @@ public class MedicationTemplateController {
     private final MedicationTemplateService medicationTemplateService;
 
     // isSelf 설정 + 세션 생성
-    @Operation(summary = "본인/타인 여부 설정", description = "1. 본인/타인 여부를 선택 및 세션을 생성합니다.")
+    @Operation(summary = "1. 본인/타인 여부 설정", description = "본인/타인 여부를 선택 및 세션을 생성합니다.")
     @PostMapping("/is-self")
     public ResponseEntity<Map<String, String>> saveIsSelf(
             @RequestParam("isSelf") boolean isSelf,
@@ -42,7 +37,7 @@ public class MedicationTemplateController {
     }
 
     // 관계 설정
-    @Operation(summary = "타인과의 관계 설정", description = "2. 타인일 경우 관계를 입력합니다. (선택)")
+    @Operation(summary = "2. 타인과의 관계 설정 (선택)", description = "타인일 경우 관계를 입력합니다.")
     @PostMapping("/relation")
     public ResponseEntity<Void> saveRelation(
             @RequestParam("sessionId") String sessionId,
@@ -54,7 +49,7 @@ public class MedicationTemplateController {
     }
 
     // 성별 설정
-    @Operation(summary = "타인의 성별 설정", description = "2. 타인일 경우 성별을 입력합니다. (필수)")
+    @Operation(summary = "2. 타인의 성별 설정 (필수)", description = "타인일 경우 성별을 입력합니다.")
     @PostMapping("/gender")
     public ResponseEntity<Void> saveGender(
             @RequestParam("sessionId") String sessionId,
@@ -66,7 +61,7 @@ public class MedicationTemplateController {
     }
 
     // 나이 설정
-    @Operation(summary = "타인의 나이 설정", description = "2. 타인일 경우 나이를 입력합니다. (필수)")
+    @Operation(summary = "2. 타인의 나이 설정 (필수)", description = "타인일 경우 나이를 입력합니다.")
     @PostMapping("/age")
     public ResponseEntity<Void> saveAge(
             @RequestParam("sessionId") String sessionId,
@@ -78,7 +73,7 @@ public class MedicationTemplateController {
     }
 
     // 알레르기 설정
-    @Operation(summary = "타인의 알레르기 설정", description = "2. 타인일 경우 알레르기를 입력합니다. (선택)")
+    @Operation(summary = "2. 타인의 알레르기 설정 (선택)", description = "타인일 경우 알레르기를 입력합니다.")
     @PostMapping("/allergy")
     public ResponseEntity<Void> saveAllergy(
             @RequestParam("sessionId") String sessionId,
@@ -90,7 +85,7 @@ public class MedicationTemplateController {
     }
 
     // 가족력 설정
-    @Operation(summary = "타인의 가족력 설정", description = "2. 타인일 경우 가족력을 입력합니다. (선택)")
+    @Operation(summary = "2. 타인의 가족력 설정 (선택)", description = "타인일 경우 가족력을 입력합니다.")
     @PostMapping("/family-history")
     public ResponseEntity<Void> saveFamilyHistory(
             @RequestParam("sessionId") String sessionId,
@@ -102,7 +97,7 @@ public class MedicationTemplateController {
     }
 
     // 복용 중인 약 설정
-    @Operation(summary = "타인의 복용약 설정", description = "2. 타인일 경우 복용약을 입력합니다. (선택)")
+    @Operation(summary = "2. 타인의 복용약 설정 (선택)", description = "타인일 경우 복용약을 입력합니다.")
     @PostMapping("/medication")
     public ResponseEntity<Void> saveMedication(
             @RequestParam("sessionId") String sessionId,
@@ -114,7 +109,7 @@ public class MedicationTemplateController {
     }
 
     // 과거 병력 설정
-    @Operation(summary = "타인의 과거 병력 설정", description = "2. 타인일 경우 과거 병력을 입력합니다. (선택)")
+    @Operation(summary = "2. 타인의 과거 병력 설정 (선택)", description = "타인일 경우 과거 병력을 입력합니다.")
     @PostMapping("/past-history")
     public ResponseEntity<Void> savePastHistory(
             @RequestParam("sessionId") String sessionId,
@@ -126,20 +121,13 @@ public class MedicationTemplateController {
     }
 
 
-    @Operation(summary = "증상 설명 입력", description = "3. 증상 설명을 입력합니다. 약 추천 결과가 조회됩니다.")
+    @Operation(summary = "3. 증상 설명 입력", description = "증상 설명을 입력합니다. 약 추천 결과가 조회됩니다.")
     @PostMapping("/sign")
     public ResponseEntity<MedicationTemplateResponseDTO> saveSign(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("sign") String sign,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        try {
-            sign = URLDecoder.decode(sign, StandardCharsets.UTF_8.name());
-        } catch (Exception e) {
-            throw new BadRequestException(INTERNAL_SERVER_ERROR, "인코딩 오류");
-        }
-
-        // 증상 저장과 결과 요청을 동시에 처리
         MedicationTemplateResponseDTO response =
                 medicationTemplateService.saveSign(member, sessionId, sign);
 
