@@ -10,7 +10,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HospitalTemplateResposneDTO {
+public class DepartmentTemplateResposneDTO {
 
     private List<String> departmentRecommendation;
 

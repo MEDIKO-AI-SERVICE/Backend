@@ -30,6 +30,7 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.INTERNAL_SERVE
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MedicationTemplateService {
+
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
     private static final Duration STATE_DURATION = Duration.ofMinutes(30);

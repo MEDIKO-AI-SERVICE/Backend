@@ -19,7 +19,7 @@ public class MedicationTemplate extends BaseEntity {
     @Column(name = "is_self", nullable = false)
     private Boolean isSelf;
 
-    @Column(name = "sign", columnDefinition = "TEXT")
+    @Column(name = "sign", nullable = false)
     private String sign;
 
     @Column(name = "medication_names", columnDefinition = "TEXT")
@@ -40,7 +40,7 @@ public class MedicationTemplate extends BaseEntity {
     @Column(name = "warning_message")
     private String warningMessage;
 
-
+    @Column(name = "session_id")
     private String sessionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
