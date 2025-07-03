@@ -26,7 +26,7 @@ public class MedicationTemplateController {
     private final MedicationTemplateService medicationTemplateService;
 
     // isSelf 설정 + 세션 생성
-    @Operation(summary = "1. 본인/타인 여부 설정", description = "본인/타인 여부를 선택 및 세션을 생성합니다.")
+    @Operation(summary = "1. 본인/타인 여부 설정", description = "본인/타인 여부를 선택 및 세션 id를 생성합니다.")
     @PostMapping("/is-self")
     public ResponseEntity<Map<String, String>> saveIsSelf(
             @RequestParam("isSelf") boolean isSelf,
