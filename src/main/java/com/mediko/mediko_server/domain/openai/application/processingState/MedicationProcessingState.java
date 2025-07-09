@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.openai.application;
+package com.mediko.mediko_server.domain.openai.application.processingState;
 
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
@@ -13,7 +13,7 @@ public class MedicationProcessingState {
 
     private Long memberId;
 
-    private Language language;
+    private String sessionId;
 
     private Boolean isSelf;
 
@@ -32,8 +32,6 @@ public class MedicationProcessingState {
     private String pastHistory;
 
     private String sign;
-
-    private String sessionId;
 
     private Boolean complete;
 

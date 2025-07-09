@@ -22,23 +22,26 @@ public class MedicationTemplate extends BaseEntity {
     @Column(name = "sign", nullable = false)
     private String sign;
 
-    @Column(name = "medication_names", columnDefinition = "TEXT")
-    private String medicationNames;
+    @Column(name = "drug_name", nullable = false)
+    private String drugName;
 
-    @Column(name = "medication_indications", columnDefinition = "TEXT")
-    private String medicationIndications;
+    @Column(name = "drug_purpose", nullable = false)
+    private String drugPurpose;
 
-    @Column(name = "medication_img_1", columnDefinition = "TEXT")
-    private String medicationImageUrls_1;
+    @Column(name = "drug_image_url")
+    private String drugImageUrl;
 
-    @Column(name = "medication_img_2", columnDefinition = "TEXT")
-    private String medicationImageUrls_2;
+    @Column(name = "wrap_image_url")
+    private String wrapImageUrl;
 
-    @Column(name = "questions_ph", columnDefinition = "TEXT")
-    private String questionsForPharmacist;
+    @Column(name = "pharmacist_question1")
+    private String pharmacistQuestion1;
 
-    @Column(name = "warning_message")
-    private String warningMessage;
+    @Column(name = "pharmacist_question2")
+    private String pharmacistQuestion2;
+
+    @Column(name = "pharmacist_question3")
+    private String pharmacistQuestion3;
 
     @Column(name = "session_id")
     private String sessionId;

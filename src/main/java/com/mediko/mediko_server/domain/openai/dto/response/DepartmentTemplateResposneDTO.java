@@ -1,6 +1,8 @@
 package com.mediko.mediko_server.domain.openai.dto.response;
 
+import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,9 +14,18 @@ import java.util.Map;
 @NoArgsConstructor
 public class DepartmentTemplateResposneDTO {
 
-    private List<String> departmentRecommendation;
+    private String department;
 
-    private Map<String, String> departmentDescription;
+    private String departmentDescription;
 
-    private List<String> questionsForDoctor;
+    private List<String> questionsToDoctor;
+
+    public static DepartmentTemplateResposneDTO fromEntity(DepartmentTemplate department) {
+        return new DepartmentTemplateResposneDTO(
+                department.getDepartment(),
+                department.getDepartmentDescription(),
+                department.getQuestionsToDoctor()
+        );
+
+    }
 }

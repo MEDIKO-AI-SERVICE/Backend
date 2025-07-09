@@ -1,13 +1,13 @@
 package com.mediko.mediko_server.global.flask.application;
 
-import com.mediko.mediko_server.domain.openai.dto.request.MedicationTemplateRequestDTO;
-import com.mediko.mediko_server.domain.openai.dto.response.MedicationTemplateResponseDTO;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -15,21 +15,55 @@ import org.springframework.web.client.RestTemplate;
 public class FastApiCommunicationService {
     private final RestTemplate restTemplate;
 
-//    @Value("${fastapi.url.drug-template}")
-    private String fastApiUrl;
+    @Value("${fastapi.url.ai-template}")
+    private String aiTemplateUrl;
 
-    public MedicationTemplateResponseDTO requestDrugTemplate(MedicationTemplateRequestDTO requestDTO) {
+    @Value("${fastapi.url.medication-template}")
+    private String medicationTemplateUrl;
+
+    @Value("${fastapi.url.department-template}")
+    private String departmentTemplateUrl;
+
+    @Value("${fastapi.url.adjective}")
+    private String adjectiveUrl;
+
+    // AI 템플릿 요청
+    public <T, R> R postToAiTemplate(T requestDTO, Class<R> responseType) {
+        return post(aiTemplateUrl, requestDTO, responseType);
+    }
+
+    // 약 템플릿 요청
+    public <T, R> R postToMedicationTemplate(T requestDTO, Class<R> responseType) {
+        return post(medicationTemplateUrl, requestDTO, responseType);
+    }
+
+    // 진료과 템플릿 요청
+    public <T, R> R postToDepartmentTemplate(T requestDTO, Class<R> responseType) {
+        return post(departmentTemplateUrl, requestDTO, responseType);
+    }
+
+    // 증상 후보 요청
+    public <T, R> R postToAdjective(T requestDTO, Class<R> responseType) {
+        return post(adjectiveUrl, requestDTO, responseType);
+    }
+
+
+    // 공통 POST 메서드
+    public <T, R> R post(String url, T requestDTO, Class<R> responseType) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MedicationTemplateRequestDTO> entity = new HttpEntity<>(requestDTO, headers);
+        HttpEntity<T> entity = new HttpEntity<>(requestDTO, headers);
 
         try {
-            ResponseEntity<MedicationTemplateResponseDTO> response = restTemplate.exchange(
-                    fastApiUrl,
+            ResponseEntity<R> response = restTemplate.exchange(
+                    url,
                     HttpMethod.POST,
                     entity,
-                    MedicationTemplateResponseDTO.class
+                    responseType
             );
+            if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+                throw new RuntimeException("FastAPI 응답 오류");
+            }
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException("FastAPI 서버 통신 중 오류 발생", e);

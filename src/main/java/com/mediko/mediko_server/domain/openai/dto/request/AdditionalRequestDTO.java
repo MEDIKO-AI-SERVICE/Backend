@@ -5,12 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class SelectedSignRequestDTO {
-    private List<String> selectedSign;
+public class AdditionalRequestDTO {
+    private String additional;
 }
