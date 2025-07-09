@@ -1,26 +1,48 @@
 package com.mediko.mediko_server.domain.openai.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mediko.mediko_server.domain.openai.domain.MedicationTemplate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MedicationTemplateResponseDTO {
 
-    private List<String> medicationNames;
+    @JsonProperty("drug_name")
+    private String drugName;
 
-    private Map<String, List<String>> medicationIndications;
+    @JsonProperty("drug_purpose")
+    private String drugPurpose;
 
-    private Map<String, String> medicationImageUrls_1;
+    @JsonProperty("drug_image_url")
+    private String drugImageUrl;
 
-    private Map<String, String> medicationImageUrls_2;
+    @JsonProperty("wrap_image_url")
+    private String wrapImageUrl;;
 
-    private List<String> questionsForPharmacist;
+    @JsonProperty("pharmacist_question1")
+    private String pharmacistQuestion1;;
 
-    private String warningMessage;
+    @JsonProperty("pharmacist_question2")
+    private String pharmacistQuestion2;;
+
+    @JsonProperty("pharmacist_question3")
+    private String pharmacistQuestion3;
+
+    public static MedicationTemplateResponseDTO fromEntity(MedicationTemplate medication) {
+        return new MedicationTemplateResponseDTO(
+                medication.getDrugName(),
+                medication.getDrugPurpose(),
+                medication.getDrugImageUrl(),
+                medication.getWrapImageUrl(),
+                medication.getPharmacistQuestion1(),
+                medication.getPharmacistQuestion2(),
+                medication.getPharmacistQuestion3()
+        );
+    }
 }

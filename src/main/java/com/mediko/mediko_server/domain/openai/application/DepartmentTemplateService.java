@@ -2,9 +2,16 @@ package com.mediko.mediko_server.domain.openai.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.domain.Intensity;
-import com.mediko.mediko_server.domain.openai.dto.request.DepartmentTemplateRequestDTO;
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
+import com.mediko.mediko_server.domain.openai.application.processingState.AIProcessingState;
+import com.mediko.mediko_server.domain.openai.application.processingState.DepartmentProcessingState;
+import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
+import com.mediko.mediko_server.domain.openai.domain.repository.DepartmentTemplateRepository;
+import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
+import com.mediko.mediko_server.domain.openai.dto.request.*;
 import com.mediko.mediko_server.domain.openai.dto.response.DepartmentTemplateResposneDTO;
+import com.mediko.mediko_server.domain.openai.dto.response.SuggestSignResponseDTO;
+import com.mediko.mediko_server.global.flask.application.FastApiCommunicationService;
 import com.mediko.mediko_server.global.redis.RedisUtil;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.exception.ErrorCode;
@@ -18,7 +25,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import static com.mediko.mediko_server.global.exception.ErrorCode.INVALID_PARAMETER;
 
 @Slf4j
 @Service
@@ -29,11 +41,9 @@ public class DepartmentTemplateService {
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
     private static final Duration STATE_DURATION = Duration.ofMinutes(30);
-    private final RestTemplate restTemplate;
+    private final DepartmentTemplateRepository departmentTemplateRepository;
+    private final FastApiCommunicationService fastApiCommunicationService;
 
-
-    @Value("${fastapi.url.department-template}")
-    private String fastApiUrl;
 
     // Redis Key 생성
     private String getStateKey(Long memberId, String sessionId) {
@@ -58,67 +68,139 @@ public class DepartmentTemplateService {
         }
     }
 
-    // 1. sign 입력 및 세션 생성
+
+    // bodypart 저장 및 adjectives, 세션 아이디 반환
     @Transactional
-    public String saveSign(Member member, String sign) {
+    public Map<String, Object> saveBodyPart(Member member, SuggestSignRequestDTO requestDTO) {
         String sessionId = UUID.randomUUID().toString();
+
         DepartmentProcessingState state = DepartmentProcessingState.builder()
                 .memberId(member.getId())
                 .sessionId(sessionId)
-                .sign(sign)
+                .bodyPart(requestDTO.getBodyPart())
                 .build();
         saveState(member, sessionId, state);
-        return sessionId;
+
+        Language language = member.getBasicInfo().getLanguage();
+        SuggestSignRequestDTO fastApiRequest = SuggestSignRequestDTO.builder()
+                .language(language)
+                .bodyPart(requestDTO.getBodyPart())
+                .build();
+
+        SuggestSignResponseDTO response =
+                fastApiCommunicationService.postToAdjective(fastApiRequest, SuggestSignResponseDTO.class);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", sessionId);
+        result.put("adjectives", response.getAdjectives());
+        return result;
     }
 
-    // 2. startDate 입력
+
+
+    // adjectives에서 고른 selectedSign 저장
+    @Transactional
+    public void saveSelectedSign(Member member, String sessionId, SelectedSignRequestDTO requestDTO) {
+        DepartmentProcessingState state = getState(member, sessionId);
+        validateStateOwnership(state, member);
+        state.setSelectedSign(requestDTO.getSelectedSign());
+        saveState(member, sessionId, state);
+    }
+
+    // startDate 저장
     @Transactional
     public void saveStartDate(Member member, String sessionId, String startDate) {
         DepartmentProcessingState state = getState(member, sessionId);
-        if (state == null) throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "세션이 만료되었습니다");
+        validateStateOwnership(state, member);
         state.setStartDate(startDate);
         saveState(member, sessionId, state);
     }
 
-    // 3. intensity 입력 및 결과 반환
+    // intensity 저장
     @Transactional
-    public DepartmentTemplateResposneDTO saveIntensityAndGetResult(Member member, String sessionId, String intensityDesc) {
+    public void saveIntensity(Member member, String sessionId, String intensityDesc) {
         DepartmentProcessingState state = getState(member, sessionId);
-        if (state == null) throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "세션이 만료되었습니다");
-
+        validateStateOwnership(state, member);
         Intensity intensityEnum = Intensity.fromDescription(intensityDesc);
         state.setIntensity(intensityEnum);
-
         saveState(member, sessionId, state);
+    }
+
+    // 추가 정보 저장
+    @Transactional
+    public void saveAdditional(Member member, String sessionId, AdditionalRequestDTO requestDTO) {
+        DepartmentProcessingState state = getState(member, sessionId);
+        validateStateOwnership(state, member);
+        state.setAdditional(requestDTO.getAdditional());
+        saveState(member, sessionId, state);
+    }
+
+    // 결과 조회
+    @Transactional
+    public DepartmentTemplateResposneDTO getResult(Member member, String sessionId) {
+        DepartmentProcessingState state = getState(member, sessionId);
+        validateStateOwnership(state, member);
 
         if (!state.isComplete()) {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "모든 정보를 입력해야 결과를 조회할 수 있습니다.");
         }
 
-        return generateDepartmentResult(state);
+        DepartmentTemplateResposneDTO responseDTO = callFastApiForResult(member, state);
+
+        DepartmentTemplateRequestDTO requestDTO = DepartmentTemplateRequestDTO.builder()
+                .bodyPart(state.getBodyPart())
+                .selectedSign(state.getSelectedSign())
+                .symptom(
+                        SymptomRequest_2DTO.builder()
+                                .intensity(state.getIntensity())
+                                .startDate(state.getStartDate() != null ? LocalDate.parse(state.getStartDate()) : null)
+                                .additional(state.getAdditional())
+                                .build()
+                )
+                .build();
+
+        DepartmentTemplate departmentTemplate = requestDTO.toEntity(member, sessionId)
+                .toBuilder()
+                .department(responseDTO.getDepartment())
+                .departmentDescription(responseDTO.getDepartmentDescription())
+                .questionsToDoctor(responseDTO.getQuestionsToDoctor())
+                .build();
+
+        departmentTemplateRepository.save(departmentTemplate);
+
+        return DepartmentTemplateResposneDTO.fromEntity(departmentTemplate);
     }
 
 
-    // FastAPI department-template 호출
-    private DepartmentTemplateResposneDTO generateDepartmentResult(DepartmentProcessingState state) {
+    // fastapi 요청 메서드
+    private DepartmentTemplateResposneDTO callFastApiForResult(Member member, DepartmentProcessingState state) {
+        Language language = member.getBasicInfo().getLanguage();
+
         DepartmentTemplateRequestDTO requestDTO = DepartmentTemplateRequestDTO.builder()
-                .sign(state.getSign())
-                .startDate(LocalDate.parse(state.getStartDate()))
-                .intensity(state.getIntensity())
+                .language(language)
+                .bodyPart(state.getBodyPart())
+                .selectedSign(state.getSelectedSign())
+                .symptom(
+                        SymptomRequest_2DTO.builder()
+                                .intensity(state.getIntensity())
+                                .startDate(state.getStartDate() != null ? LocalDate.parse(state.getStartDate()) : null)
+                                .additional(state.getAdditional())
+                                .build()
+                )
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<DepartmentTemplateRequestDTO> requestEntity = new HttpEntity<>(requestDTO, headers);
+        return fastApiCommunicationService.postToDepartmentTemplate(requestDTO, DepartmentTemplateResposneDTO.class);
+    }
 
-        ResponseEntity<DepartmentTemplateResposneDTO> responseEntity =
-                restTemplate.exchange(fastApiUrl, HttpMethod.POST, requestEntity, DepartmentTemplateResposneDTO.class);
 
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new BadRequestException(ErrorCode.INTERNAL_SERVER_ERROR, "FastAPI 서버 오류");
+
+    private void validateStateOwnership(DepartmentProcessingState state, Member member) {
+        if (state == null) {
+            throw new BadRequestException(INVALID_PARAMETER, "세션이 만료되었습니다");
         }
-
-        return responseEntity.getBody();
+        if (!state.getMemberId().equals(member.getId())) {
+            throw new BadRequestException(ErrorCode.UNAUTHORIZED, "세션 소유자가 아닙니다");
+        }
     }
 
     // 상태 저장

@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.openai.domain;
+package com.mediko.mediko_server.domain.openai.domain.unit;
 
 public enum Intensity {
     MILD("통증이 약해요"),

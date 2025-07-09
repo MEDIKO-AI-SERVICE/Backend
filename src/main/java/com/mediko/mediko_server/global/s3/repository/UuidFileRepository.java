@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.global.s3.repository;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.domain.Symptom;
+import com.mediko.mediko_server.domain.openai.domain.AITemplate;
 import com.mediko.mediko_server.global.s3.UuidFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,7 +12,9 @@ public interface UuidFileRepository extends JpaRepository<UuidFile, Long> {
 
     Optional<UuidFile> findByMember(Member member);
 
-    List<UuidFile> findAllBySymptom(Symptom symptom);
+    List<UuidFile> findAllBySessionId(String sessionId);
+
+    List<UuidFile> findAllByAiTemplate(AITemplate aiTemplate);
 
     Optional<UuidFile> findByUuid(String uuid);
 }

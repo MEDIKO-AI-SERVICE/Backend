@@ -10,5 +10,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SuggestSignResponseDTO {
-    private List<String> suggestedSigns;
+    private List<String> adjectives;
 }

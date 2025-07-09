@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.openai.presentation;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.openai.application.MedicationTemplateService;
 import com.mediko.mediko_server.domain.openai.dto.response.MedicationTemplateResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-
 @Tag(name = "medication-template", description = "약 추천 템플릿 API")
 @Slf4j
 @RestController
@@ -25,8 +23,9 @@ public class MedicationTemplateController {
 
     private final MedicationTemplateService medicationTemplateService;
 
-    // isSelf 설정 + 세션 생성
-    @Operation(summary = "1. 본인/타인 여부 설정", description = "본인/타인 여부를 선택 및 세션 id를 생성합니다.")
+    // 1. isSelf 설정 + 세션 생성
+    @Operation(summary = "1. 본인/타인 여부 설정",
+            description = "본인/타인 여부를 선택하면 세션 id가 반환됩니다. false인 경우 이후 타인 정보를 입력해야합니다.")
     @PostMapping("/is-self")
     public ResponseEntity<Map<String, String>> saveIsSelf(
             @RequestParam("isSelf") boolean isSelf,
@@ -36,116 +35,40 @@ public class MedicationTemplateController {
         return ResponseEntity.ok(Map.of("sessionId", sessionId));
     }
 
-    // 관계 설정
-    @Operation(summary = "2. 타인과의 관계 설정 (선택)", description = "타인일 경우 관계를 입력합니다.")
-    @PostMapping("/relation")
-    public ResponseEntity<Void> saveRelation(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("relation") String relation,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateRelation(member, sessionId, relation);
-        return ResponseEntity.ok().build();
-    }
-
-    // 성별 설정
-    @Operation(summary = "2. 타인의 성별 설정 (필수)", description = "타인일 경우 성별을 입력합니다.")
-    @PostMapping("/gender")
-    public ResponseEntity<Void> saveGender(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("gender") Gender gender,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateGender(member, sessionId, gender);
-        return ResponseEntity.ok().build();
-    }
-
-    // 나이 설정
-    @Operation(summary = "2. 타인의 나이 설정 (필수)", description = "타인일 경우 나이를 입력합니다.")
-    @PostMapping("/age")
-    public ResponseEntity<Void> saveAge(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("age") Integer age,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateAge(member, sessionId, age);
-        return ResponseEntity.ok().build();
-    }
-
-    // 알레르기 설정
-    @Operation(summary = "2. 타인의 알레르기 설정 (선택)", description = "타인일 경우 알레르기를 입력합니다.")
-    @PostMapping("/allergy")
-    public ResponseEntity<Void> saveAllergy(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("allergy") String allergy,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateAllergy(member, sessionId, allergy);
-        return ResponseEntity.ok().build();
-    }
-
-    // 가족력 설정
-    @Operation(summary = "2. 타인의 가족력 설정 (선택)", description = "타인일 경우 가족력을 입력합니다.")
-    @PostMapping("/family-history")
-    public ResponseEntity<Void> saveFamilyHistory(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("familyHistory") String familyHistory,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateFamilyHistory(member, sessionId, familyHistory);
-        return ResponseEntity.ok().build();
-    }
-
-    // 복용 중인 약 설정
-    @Operation(summary = "2. 타인의 복용약 설정 (선택)", description = "타인일 경우 복용약을 입력합니다.")
-    @PostMapping("/medication")
-    public ResponseEntity<Void> saveMedication(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("medication") String medication,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updateMedication(member, sessionId, medication);
-        return ResponseEntity.ok().build();
-    }
-
-    // 과거 병력 설정
-    @Operation(summary = "2. 타인의 과거 병력 설정 (선택)", description = "타인일 경우 과거 병력을 입력합니다.")
-    @PostMapping("/past-history")
-    public ResponseEntity<Void> savePastHistory(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("pastHistory") String pastHistory,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        medicationTemplateService.updatePastHistory(member, sessionId, pastHistory);
-        return ResponseEntity.ok().build();
-    }
-
-
-    @Operation(summary = "3. 증상 설명 입력", description = "증상 설명을 입력합니다. 약 추천 결과가 조회됩니다.")
+    // 2. 증상 설명 입력 (저장만, 결과 반환 X)
+    @Operation(summary = "2. 증상 설명 입력", description = "증상 설명을 입력합니다. 결과는 별도의 API로 조회합니다.")
     @PostMapping("/sign")
-    public ResponseEntity<MedicationTemplateResponseDTO> saveSign(
+    public ResponseEntity<Void> saveSign(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("sign") String sign,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        MedicationTemplateResponseDTO response =
-                medicationTemplateService.saveSign(member, sessionId, sign);
+        medicationTemplateService.saveSign(member, sessionId, sign);
+        return ResponseEntity.ok().build();
+    }
 
+    // 3. 결과 조회 (FastAPI 호출 및 최종 결과 반환)
+    @Operation(summary = "3. 약 추천 결과 조회", description = "입력된 정보를 바탕으로 약 추천 결과를 조회합니다.")
+    @GetMapping("/result")
+    public ResponseEntity<MedicationTemplateResponseDTO> getResult(
+            @RequestParam("sessionId") String sessionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        MedicationTemplateResponseDTO response =
+                medicationTemplateService.getResult(member, sessionId);
         return ResponseEntity.ok(response);
     }
 
-
-//    // 상태 조회
+//    // 상태 조회 (선택)
 //    @GetMapping("/state")
-//    public ResponseEntity<MedicationProcessingState> getState(
+//    public ResponseEntity<?> getState(
 //            @RequestParam("sessionId") String sessionId,
 //            @AuthenticationPrincipal CustomUserDetails userDetails) {
 //        Member member = userDetails.getMember();
-//        MedicationProcessingState state = medicationTemplateService.getState(member, sessionId);
-//        return ResponseEntity.ok(state);
+//        return ResponseEntity.ok(medicationTemplateService.getState(member, sessionId));
 //    }
 //
-//    // 상태 삭제
+//    // 상태 삭제 (선택)
 //    @DeleteMapping("/state")
 //    public ResponseEntity<Void> clearState(
 //            @RequestParam("sessionId") String sessionId,

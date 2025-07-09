@@ -7,11 +7,9 @@ import com.mediko.mediko_server.domain.recommend.dto.response.ErResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
-import com.mediko.mediko_server.domain.report.dto.response.ReportResponseDTO;
 import com.mediko.mediko_server.global.flask.FlaskUrls;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,11 +29,6 @@ import java.util.Map;
 public class FlaskCommunicationService {
     private final RestTemplate restTemplate;
     private final FlaskUrls flaskUrls;
-
-    public ReportResponseDTO getReportResponse(Object requestData) {
-        log.info("Flask 서버로 보내는 요청 데이터: {}", requestData);
-        return sendRequestToFlask(requestData, flaskUrls.getProcessSymptoms(), ReportResponseDTO.class);
-    }
 
     public List<HospitalResponseDTO> getHospitalRecommendation(Map<String, Object> requestData) {
         return sendRequestToFlask(requestData, flaskUrls.getRecommendHospital(),

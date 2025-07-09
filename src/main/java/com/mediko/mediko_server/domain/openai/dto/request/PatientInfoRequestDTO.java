@@ -13,15 +13,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PatientInfoRequestDTO {
 
-    private Gender gender;     // Step 1
+    private Integer height;
 
-    private Integer age;       // Step 2
+    private Integer weight;
 
-    private String allergy;    // Step 3
+    private Gender gender;
 
-    private String familyHistory; // Step 4
+    private Integer age;
 
-    private String nowMedicine;    // Step 5
+    private String allergy;
 
-    private String pastHistory;   // Step 6
+    private String familyHistory;
+
+    private String nowMedicine;
+
+    private String pastHistory;
+
 }

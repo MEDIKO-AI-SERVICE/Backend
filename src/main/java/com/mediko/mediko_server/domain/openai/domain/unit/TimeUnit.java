@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.openai.domain;
+package com.mediko.mediko_server.domain.openai.domain.unit;
 
 import lombok.Getter;
 

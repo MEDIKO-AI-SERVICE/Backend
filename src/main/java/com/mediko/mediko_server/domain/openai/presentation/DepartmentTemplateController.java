@@ -2,8 +2,10 @@ package com.mediko.mediko_server.domain.openai.presentation;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.openai.application.DepartmentProcessingState;
 import com.mediko.mediko_server.domain.openai.application.DepartmentTemplateService;
+import com.mediko.mediko_server.domain.openai.dto.request.AdditionalRequestDTO;
+import com.mediko.mediko_server.domain.openai.dto.request.SelectedSignRequestDTO;
+import com.mediko.mediko_server.domain.openai.dto.request.SuggestSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.DepartmentTemplateResposneDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @Tag(name = "department-template", description = "진료과 추천 템플릿 API")
 @Slf4j
@@ -22,17 +27,28 @@ public class DepartmentTemplateController {
 
     private final DepartmentTemplateService departmentTemplateService;
 
-    @Operation(summary = "1. 증상 입력 및 세션 생성", description = "증상 입력 및 세션 id를 생성합니다..")
-    @PostMapping("/sign")
-    public ResponseEntity<String> saveSign(
-            @RequestParam("sign") String sign,
+    @Operation(summary = "1. 신체 부위 입력 및 세션 생성", description = "신체 부위를 입력하면 세션ID와 증상 후보(adjectives) 리스트가 반환됩니다.")
+    @PostMapping("/body-part")
+    public ResponseEntity<Map<String, Object>> saveBodyPart(
+            @RequestBody SuggestSignRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        String sessionId = departmentTemplateService.saveSign(member, sign);
-        return ResponseEntity.ok(sessionId);
+        Map<String, Object> result = departmentTemplateService.saveBodyPart(member, requestDTO);
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "2. 증상 시작일 입력", description = "증상 시작일을 입력합니다.")
+    @Operation(summary = "2. 증상 후보/직접입력 저장", description = "증상 후보에서 복수 선택하거나 직접 입력한 증상 리스트를 저장합니다.")
+    @PostMapping("/selected-sign")
+    public ResponseEntity<Void> saveSelectedSign(
+            @RequestParam("sessionId") String sessionId,
+            @RequestBody SelectedSignRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        departmentTemplateService.saveSelectedSign(member, sessionId, requestDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3. 증상 시작일 입력", description = "증상 시작일을 저장합니다.")
     @PostMapping("/start-date")
     public ResponseEntity<Void> saveStartDate(
             @RequestParam("sessionId") String sessionId,
@@ -43,29 +59,48 @@ public class DepartmentTemplateController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "3. 통증 강도 입력 및 결과 조회", description = "통증 강도를 입력합니다. 진료과 추천 결과가 조회됩니다.")
+    @Operation(summary = "4. 통증 강도 입력", description = "통증 강도를 저장합니다.")
     @PostMapping("/intensity")
-    public ResponseEntity<DepartmentTemplateResposneDTO> saveIntensityAndGetResult(
+    public ResponseEntity<Void> saveIntensity(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("intensity") String intensityDesc,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        DepartmentTemplateResposneDTO response =
-                departmentTemplateService.saveIntensityAndGetResult(member, sessionId, intensityDesc);
+        departmentTemplateService.saveIntensity(member, sessionId, intensityDesc);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "5. 추가 정보(문장) 입력", description = "증상에 대한 추가 정보를 저장합니다.")
+    @PostMapping("/additional")
+    public ResponseEntity<Void> saveAdditional(
+            @RequestParam("sessionId") String sessionId,
+            @RequestBody AdditionalRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        departmentTemplateService.saveAdditional(member, sessionId, requestDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "6. 진료과 추천 결과 조회", description = "입력한 정보를 바탕으로 진료과 추천 결과를 조회합니다.")
+    @GetMapping("/result")
+    public ResponseEntity<DepartmentTemplateResposneDTO> getResult(
+            @RequestParam("sessionId") String sessionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        DepartmentTemplateResposneDTO response = departmentTemplateService.getResult(member, sessionId);
         return ResponseEntity.ok(response);
     }
 
-//    @Operation(summary = "임시 상태 조회", description = "세션ID로 임시 상태를 조회합니다.")
+//    // 상태 조회 (선택)
 //    @GetMapping("/state")
-//    public ResponseEntity<DepartmentProcessingState> getState(
+//    public ResponseEntity<?> getState(
 //            @RequestParam("sessionId") String sessionId,
 //            @AuthenticationPrincipal CustomUserDetails userDetails) {
 //        Member member = userDetails.getMember();
-//        DepartmentProcessingState state = departmentTemplateService.getState(member, sessionId);
-//        return ResponseEntity.ok(state);
+//        return ResponseEntity.ok(departmentTemplateService.getState(member, sessionId));
 //    }
 //
-//    @Operation(summary = "임시 상태 삭제", description = "세션ID로 임시 상태를 삭제합니다.")
+//    // 상태 삭제 (선택)
 //    @DeleteMapping("/state")
 //    public ResponseEntity<Void> clearState(
 //            @RequestParam("sessionId") String sessionId,

@@ -6,7 +6,6 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
 import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequestDTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
-import com.mediko.mediko_server.domain.report.domain.Report;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +13,9 @@ import java.util.List;
 @Component
 public class HospitalConverter {
     public Hospital toEntity(HospitalResponseDTO response, HospitalRequestDTO requestDTO,
-                             String department, List<String> suspectedDisease,Report report, Member member) {
+                             String department, List<String> suspectedDisease,Member member
+//                             Report report
+    ) {
         return Hospital.builder()
                 .isReport(requestDTO.isReportBased())
                 .userDepartment(department)
@@ -41,7 +42,7 @@ public class HospitalConverter {
                 .sortScore(response.getSortScore())
                 .similarity(response.getSimilarity())
                 .url(response.getUrl())
-                .report(report)
+//                .report(report)
                 .member(member)
                 .build();
     }
