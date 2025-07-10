@@ -58,11 +58,11 @@ public class AIProcessingState {
     public boolean isComplete() {
         if (selectedSign == null || selectedSign.isEmpty()) return false;
         if (age == null || gender == null) return false;
-        if (intensity == null) return false;
-        if (startDate == null) return false;
-        if (durationValue == null) return false;
-        if (durationUnit == null) return false;
-        if (state == null) return false;
+//        if (intensity == null) return false;
+//        if (startDate == null) return false;
+//        if (durationValue == null) return false;
+//        if (durationUnit == null) return false;
+//        if (state == null) return false;
         return true;
     }
 

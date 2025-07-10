@@ -137,7 +137,7 @@ public class AITemplateController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
             @RequestParam("hasImages") boolean hasImages,
-            @RequestParam("file")  List<MultipartFile> files) {
+            @RequestPart("files") List<MultipartFile> files) {
         Member member = userDetails.getMember();
         AITemplateResponseDTO result = aitemplateService.uploadImagesAndReturnResult(
                 sessionId, files, hasImages, member
