@@ -35,29 +35,18 @@ public class MedicationTemplateController {
         return ResponseEntity.ok(Map.of("sessionId", sessionId));
     }
 
-    // 2. 증상 설명 입력 (저장만, 결과 반환 X)
-    @Operation(summary = "2. 증상 설명 입력", description = "증상 설명을 입력합니다. 결과는 별도의 API로 조회합니다.")
+    // 2. 증상 설명 입력 -> 결과 반환
+    @Operation(summary = "2. 증상 설명 입력 및 결과 반환", description = "증상 설명을 입력하면 약 추천 결과가 반환됩니다.")
     @PostMapping("/sign")
-    public ResponseEntity<Void> saveSign(
+    public ResponseEntity<MedicationTemplateResponseDTO> saveSign(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("sign") String sign,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        medicationTemplateService.saveSign(member, sessionId, sign);
-        return ResponseEntity.ok().build();
-    }
-
-    // 3. 결과 조회 (FastAPI 호출 및 최종 결과 반환)
-    @Operation(summary = "3. 약 추천 결과 조회", description = "입력된 정보를 바탕으로 약 추천 결과를 조회합니다.")
-    @GetMapping("/result")
-    public ResponseEntity<MedicationTemplateResponseDTO> getResult(
-            @RequestParam("sessionId") String sessionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        MedicationTemplateResponseDTO response =
-                medicationTemplateService.getResult(member, sessionId);
+        MedicationTemplateResponseDTO response = medicationTemplateService.saveSign(member, sessionId, sign);
         return ResponseEntity.ok(response);
     }
+
 
 //    // 상태 조회 (선택)
 //    @GetMapping("/state")

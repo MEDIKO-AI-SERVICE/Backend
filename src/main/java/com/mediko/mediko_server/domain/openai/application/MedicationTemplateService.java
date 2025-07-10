@@ -97,7 +97,7 @@ public class MedicationTemplateService {
 
     // sign 저장
     @Transactional
-    public void saveSign(Member member, String sessionId, String sign) {
+    public MedicationTemplateResponseDTO saveSign(Member member, String sessionId, String sign) {
         MedicationProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
 
@@ -107,13 +107,6 @@ public class MedicationTemplateService {
 
         state.setSign(sign);
         saveState(member, sessionId, state);
-    }
-
-    // 결과 조회
-    @Transactional
-    public MedicationTemplateResponseDTO getResult(Member member, String sessionId) {
-        MedicationProcessingState state = getState(member, sessionId);
-        validateStateOwnership(state, member);
 
         if (!state.isComplete()) {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "필수 정보가 누락되었습니다");
@@ -148,6 +141,8 @@ public class MedicationTemplateService {
 
         return MedicationTemplateResponseDTO.fromEntity(medication);
     }
+
+
 
     // PatientInfoRequestDTO 생성 부분만 수정
     private PatientInfoRequestDTO buildPatientInfo(Member member, MedicationProcessingState state) {
