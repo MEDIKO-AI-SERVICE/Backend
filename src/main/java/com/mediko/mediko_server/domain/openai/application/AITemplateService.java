@@ -225,6 +225,7 @@ public class AITemplateService {
         AITemplate aiTemplate = AITemplate.builder()
                 .member(member)
                 .isSelf(state.getIsSelf())
+                .bodyPart(state.getBodyPart())
                 .selectedSign(state.getSelectedSign())
                 .sessionId(sessionId)
                 .intensity(state.getIntensity())
