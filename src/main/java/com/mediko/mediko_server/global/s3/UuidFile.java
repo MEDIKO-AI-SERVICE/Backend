@@ -35,4 +35,18 @@ public class UuidFile extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "profile_id")
     private Member member;
+
+    // 업데이트 메서드 추가
+    public void updateForResult(AITemplate aiTemplate) {
+        this.aiTemplate = aiTemplate;
+        this.sessionId = null;
+    }
+
+    // 필요하다면 파일 URL 등 다른 필드도 추가적으로 업데이트 가능
+    public void updateFileInfo(String fileUrl, FilePath filePath) {
+        this.fileUrl = fileUrl;
+        this.filePath = filePath;
+    }
+
+
 }

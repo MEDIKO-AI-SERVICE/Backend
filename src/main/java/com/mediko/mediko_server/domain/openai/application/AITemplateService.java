@@ -214,20 +214,20 @@ public class AITemplateService {
                 throw new BadRequestException(INVALID_PARAMETER, "이미지를 첨부해야 합니다.");
             }
             for (MultipartFile file : files) {
-                UuidFile savedFile = uuidFileService.saveFile(file, FilePath.SYMPTOM)
+                UuidFile uuidFile = uuidFileService.saveFile(file, FilePath.SYMPTOM)
                         .toBuilder()
                         .sessionId(sessionId)
                         .member(member)
                         .build();
-                uuidFileRepository.save(savedFile);
+                uuidFileRepository.save(uuidFile);
             }
         }
         return getResult(member, sessionId);
     }
 
 
-
     // 결과 호출
+    @Transactional
     public AITemplateResponseDTO getResult(Member member, String sessionId) {
         AIProcessingState state = getState(member, sessionId);
         if (state == null || !state.isComplete()) {
@@ -251,17 +251,8 @@ public class AITemplateService {
 
         List<UuidFile> files = uuidFileRepository.findAllBySessionId(sessionId);
         for (UuidFile file : files) {
-            UuidFile updatedFile = UuidFile.builder()
-                    .uuid(file.getUuid())
-                    .filePath(file.getFilePath())
-                    .fileUrl(file.getFileUrl())
-                    .sessionId(null)
-                    .aiTemplate(aiTemplate)
-                    .member(file.getMember())
-                    .build();
-
-            uuidFileRepository.delete(file);
-            uuidFileRepository.save(updatedFile);
+            file.updateForResult(aiTemplate);
+            uuidFileRepository.save(file); // update만 발생
         }
 
         List<UuidFile> resultFiles = uuidFileRepository.findAllByAiTemplate(aiTemplate);
@@ -272,14 +263,13 @@ public class AITemplateService {
                 .map(f -> Map.of("imgUrl", f.getFileUrl()))
                 .toList();
 
-        AITemplateResponseDTO responseWithMapperFields = fastApiResponse.toBuilder()
+        return fastApiResponse.toBuilder()
                 .basicInfo(aiReportMapper.convertToBasicInfoMap(member, state))
                 .healthInfo(aiReportMapper.convertToHealthInfoMap(member, state))
                 .fileInfo(fileInfoList)
                 .build();
-
-        return responseWithMapperFields;
     }
+
 
 
     private PatientInfoRequestDTO buildPatientInfo(AIProcessingState state) {
