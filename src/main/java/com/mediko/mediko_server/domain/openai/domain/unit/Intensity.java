@@ -29,6 +29,6 @@ public enum Intensity {
 
     @Override
     public String toString() {
-        return description;
+        return name();
     }
 }
