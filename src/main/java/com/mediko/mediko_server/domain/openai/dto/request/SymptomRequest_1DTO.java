@@ -1,5 +1,6 @@
 package com.mediko.mediko_server.domain.openai.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
 import com.mediko.mediko_server.domain.openai.domain.unit.State;
 import com.mediko.mediko_server.domain.openai.domain.unit.TimeUnit;
@@ -19,6 +20,7 @@ public class SymptomRequest_1DTO {
 
     private Intensity intensity;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     private Integer durationValue;
