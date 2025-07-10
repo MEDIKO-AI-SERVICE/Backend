@@ -114,28 +114,36 @@ public class AITemplateController {
     }
 
     // 8. 추가 정보 저장
-    @Operation(summary = "8. 추가 정보 저장", description = "증상에 대한 추가 정보를 저장합니다.")
+    @Operation(summary = "8. 추가 정보 저장",
+               description = "hasAdditional=true면 body에 추가 정보를 입력, false면 추가 정보를 입려하지 않습니다.")
     @PostMapping("/additional")
     public ResponseEntity<Void> saveAdditional(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
-            @RequestBody AdditionalRequestDTO requestDTO) {
+            @RequestParam("hasAdditional") boolean hasAdditional,
+            @RequestBody(required = false) AdditionalRequestDTO requestDTO) {
         Member member = userDetails.getMember();
-        aitemplateService.saveAdditional(member, sessionId, requestDTO);
+        aitemplateService.saveAdditional(member, sessionId, hasAdditional, requestDTO);
         return ResponseEntity.ok().build();
     }
 
+
     // 9. 증상 관련 이미지 업로드
-    @Operation(summary = "9. 증상 관련 이미지 업로드", description = "증상과 관련된 이미지를 저장합니다.")
+    @Operation(summary = "9. 증상 관련 이미지 업로드",
+               description = "hasImages=true면 파일 첨부 필수, false면 파일 없이 결과를 반환합니다.")
     @PostMapping("/images")
-    public ResponseEntity<List<UuidFileResponseDTO>> uploadImages(
+    public ResponseEntity<AITemplateResponseDTO> uploadImages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
-            @RequestPart List<MultipartFile> files) {
+            @RequestParam("hasImages") boolean hasImages,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         Member member = userDetails.getMember();
-        List<UuidFileResponseDTO> result = aitemplateService.uploadImages(sessionId, files, member);
+        AITemplateResponseDTO result = aitemplateService.uploadImagesAndReturnResult(
+                sessionId, files, hasImages, member
+        );
         return ResponseEntity.ok(result);
     }
+
 
     // 10. 사전문진 분석/요약 결과 동시 조회
     @Operation(summary = "10. 사전문진 분석/요약 결과 동시 조회", description = "사전문진 분석과 요약 결과를 동시에 조회합니다.")

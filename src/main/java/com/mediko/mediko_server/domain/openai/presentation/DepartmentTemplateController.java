@@ -70,26 +70,20 @@ public class DepartmentTemplateController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "5. 추가 정보(문장) 입력", description = "증상에 대한 추가 정보를 저장합니다.")
+    @Operation(summary = "5. 추가 정보 입력",
+               description = "hasAdditional=true면 body에 추가 정보를 입력, false면 입력 없이 결과를 반환합니다.")
     @PostMapping("/additional")
-    public ResponseEntity<Void> saveAdditional(
+    public ResponseEntity<DepartmentTemplateResposneDTO> saveAdditional(
+            @RequestParam("hasAdditional") boolean hasAdditional,
             @RequestParam("sessionId") String sessionId,
             @RequestBody AdditionalRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        departmentTemplateService.saveAdditional(member, sessionId, requestDTO);
-        return ResponseEntity.ok().build();
+        DepartmentTemplateResposneDTO result = departmentTemplateService.saveAdditionalAndReturnResult(
+                member, sessionId, hasAdditional, requestDTO);
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "6. 진료과 추천 결과 조회", description = "입력한 정보를 바탕으로 진료과 추천 결과를 조회합니다.")
-    @GetMapping("/result")
-    public ResponseEntity<DepartmentTemplateResposneDTO> getResult(
-            @RequestParam("sessionId") String sessionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        DepartmentTemplateResposneDTO response = departmentTemplateService.getResult(member, sessionId);
-        return ResponseEntity.ok(response);
-    }
 
 //    // 상태 조회 (선택)
 //    @GetMapping("/state")
