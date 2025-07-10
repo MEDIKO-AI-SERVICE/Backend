@@ -1,9 +1,8 @@
 package com.mediko.mediko_server.domain.recommend.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mediko.mediko_server.domain.member.domain.BasicInfo;
-import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
+import com.mediko.mediko_server.domain.recommend.domain.SortType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,24 +12,16 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class HospitalRequestDTO {
-    @JsonProperty("lat")
-    private Double userLatitude;
+public class HospitalRequest_2DTO {
 
-    @JsonProperty("lon")
-    private Double userLongitude;
+    @JsonProperty("u_department")
+    private List<String> userDepartment;
 
-    @JsonProperty("is_report")
-    private boolean reportBased;
+    @JsonProperty("sort_type")
+    private SortType sortType;
 
-    @JsonProperty("report_id")
-    private Long reportId;
-
-    @JsonProperty("department")
-    private String userDepartment;
-
-    @JsonProperty("suspected_disease")
-    private List<String> suspectedDisease;
+    @JsonProperty("primary_hospital")
+    private boolean primaryHospital;
 
     @JsonProperty("secondary_hospital")
     private boolean secondaryHospital;
@@ -38,16 +29,22 @@ public class HospitalRequestDTO {
     @JsonProperty("tertiary_hospital")
     private boolean tertiaryHospital;
 
+    @JsonProperty("lat")
+    private Double userLatitude;
+
+    @JsonProperty("lon")
+    private Double userLongitude;
+
 
     public Hospital toEntity() {
         return Hospital.builder()
-                .userLatitude(this.userLatitude)
-                .userLongitude(this.userLongitude)
-                .isReport(this.reportBased)
                 .userDepartment(this.userDepartment)
-                .suspectedDisease(this.suspectedDisease)
+                .sortType(this.sortType)
+                .primaryHospital(this.primaryHospital)
                 .secondaryHospital(this.secondaryHospital)
                 .tertiaryHospital(this.tertiaryHospital)
+                .userLatitude(this.userLatitude)
+                .userLongitude(this.userLongitude)
                 .build();
     }
 }
