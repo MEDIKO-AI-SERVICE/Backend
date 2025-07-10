@@ -174,37 +174,48 @@ public class AITemplateService {
 
     // 추가 정보 저장
     @Transactional
-    public void saveAdditional(Member member, String sessionId, AdditionalRequestDTO requestDTO) {
+    public void saveAdditional(
+            Member member, String sessionId,
+            boolean hasAdditional, AdditionalRequestDTO requestDTO) {
         AIProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
-        state = state.toBuilder()
-                .additional(requestDTO.getAdditional())
-                .build();
+
+        if (!hasAdditional) {
+            state = state.toBuilder().additional(null).build();
+        } else {
+            if (requestDTO == null || requestDTO.getAdditional() == null || requestDTO.getAdditional().trim().isEmpty()) {
+                throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "추가정보를 입력해야 합니다.");
+            }
+            state = state.toBuilder().additional(requestDTO.getAdditional()).build();
+        }
         saveState(member, sessionId, state);
     }
 
+
     // 통증 이미지 저장
     @Transactional
-    public List<UuidFileResponseDTO> uploadImages(String sessionId, List<MultipartFile> files, Member member) {
-        if (files == null || files.isEmpty()) {
-            throw new BadRequestException(INVALID_PARAMETER, "파일이 비어 있습니다.");
+    public AITemplateResponseDTO uploadImagesAndReturnResult(
+            String sessionId, List<MultipartFile> files,
+            boolean hasImages, Member member ) {
+        if (hasImages) {
+            if (files == null || files.isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "이미지를 첨부해야 합니다.");
+            }
+            for (MultipartFile file : files) {
+                UuidFile savedFile = uuidFileService.saveFile(file, FilePath.SYMPTOM)
+                        .toBuilder()
+                        .sessionId(sessionId)
+                        .member(member)
+                        .build();
+                uuidFileRepository.save(savedFile);
+            }
         }
-
-        List<UuidFileResponseDTO> uploadedImages = new ArrayList<>();
-        for (MultipartFile file : files) {
-            UuidFile savedFile = uuidFileService.saveFile(file, FilePath.SYMPTOM)
-                    .toBuilder()
-                    .sessionId(sessionId)
-                    .member(member)
-                    .build();
-            uploadedImages.add(UuidFileResponseDTO.from(uuidFileRepository.save(savedFile)));
-        }
-        return uploadedImages;
+        return getResult(member, sessionId);
     }
 
 
+
     // 결과 호출
-    @Transactional
     public AITemplateResponseDTO getResult(Member member, String sessionId) {
         AIProcessingState state = getState(member, sessionId);
         if (state == null || !state.isComplete()) {

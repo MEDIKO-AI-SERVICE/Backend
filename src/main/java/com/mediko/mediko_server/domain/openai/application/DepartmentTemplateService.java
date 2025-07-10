@@ -128,15 +128,26 @@ public class DepartmentTemplateService {
 
     // 추가 정보 저장
     @Transactional
-    public void saveAdditional(Member member, String sessionId, AdditionalRequestDTO requestDTO) {
+    public DepartmentTemplateResposneDTO saveAdditionalAndReturnResult(
+            Member member, String sessionId, boolean hasAdditional, AdditionalRequestDTO requestDTO) {
         DepartmentProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
-        state.setAdditional(requestDTO.getAdditional());
+
+        if (!hasAdditional) {
+            state.setAdditional(null);
+        } else {
+            if (requestDTO == null || requestDTO.getAdditional() == null || requestDTO.getAdditional().trim().isEmpty()) {
+                throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "추가정보를 입력해야 합니다.");
+            }
+            state.setAdditional(requestDTO.getAdditional());
+        }
         saveState(member, sessionId, state);
+
+        return getResult(member, sessionId);
     }
 
+
     // 결과 조회
-    @Transactional
     public DepartmentTemplateResposneDTO getResult(Member member, String sessionId) {
         DepartmentProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
