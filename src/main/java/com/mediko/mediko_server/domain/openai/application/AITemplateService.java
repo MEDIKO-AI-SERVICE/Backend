@@ -251,11 +251,17 @@ public class AITemplateService {
 
         List<UuidFile> files = uuidFileRepository.findAllBySessionId(sessionId);
         for (UuidFile file : files) {
-            file = file.toBuilder()
-                    .aiTemplate(aiTemplate)
+            UuidFile updatedFile = UuidFile.builder()
+                    .uuid(file.getUuid())
+                    .filePath(file.getFilePath())
+                    .fileUrl(file.getFileUrl())
                     .sessionId(null)
+                    .aiTemplate(aiTemplate)
+                    .member(file.getMember())
                     .build();
-            uuidFileRepository.save(file);
+
+            uuidFileRepository.delete(file);
+            uuidFileRepository.save(updatedFile);
         }
 
         List<UuidFile> resultFiles = uuidFileRepository.findAllByAiTemplate(aiTemplate);
