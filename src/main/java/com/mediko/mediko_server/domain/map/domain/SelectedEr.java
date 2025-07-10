@@ -28,4 +28,8 @@ public class SelectedEr extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "er_id", nullable = false)
     private Er er;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 }
