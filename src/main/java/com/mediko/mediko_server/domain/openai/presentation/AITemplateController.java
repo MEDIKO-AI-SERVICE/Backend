@@ -4,6 +4,7 @@ import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.application.AITemplateService;
 import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
+import com.mediko.mediko_server.domain.openai.domain.unit.State;
 import com.mediko.mediko_server.domain.openai.domain.unit.TimeUnit;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SuggestSignRequestDTO;
@@ -114,8 +115,22 @@ public class AITemplateController {
         return ResponseEntity.ok().build();
     }
 
-    // 8. 추가 정보 저장
-    @Operation(summary = "8. 추가 정보 저장",
+
+    // 8. 증상 경과 저장
+    @Operation(summary = "8. 증상 경과 저장", description = "증상이 경과된 상태를 저장합니다.")
+    @PostMapping("/state")
+    public ResponseEntity<Void> saveState(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("state") State state) {
+        Member member = userDetails.getMember();
+        aitemplateService.saveState(member, sessionId, state);
+        return ResponseEntity.ok().build();
+    }
+
+
+    // 9. 추가 정보 저장
+    @Operation(summary = "9. 추가 정보 저장",
                description = "hasAdditional=true면 body에 추가 정보를 입력, false면 추가 정보를 입려하지 않습니다.")
     @PostMapping("/additional")
     public ResponseEntity<Void> saveAdditional(
@@ -129,8 +144,8 @@ public class AITemplateController {
     }
 
 
-    // 9. 증상 관련 이미지 업로드
-    @Operation(summary = "9. 증상 관련 이미지 업로드",
+    // 10. 증상 관련 이미지 업로드
+    @Operation(summary = "10. 증상 관련 이미지 업로드",
                description = "hasImages=true면 파일 첨부 필수, false면 파일 없이 결과를 반환합니다.")
     @PostMapping(value ="/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AITemplateResponseDTO> uploadImages(
@@ -146,8 +161,8 @@ public class AITemplateController {
     }
 
 
-    // 10. 사전문진 분석/요약 결과 동시 조회
-    @Operation(summary = "10. 사전문진 분석/요약 결과 동시 조회", description = "사전문진 분석과 요약 결과를 동시에 조회합니다.")
+    // 11. 사전문진 분석/요약 결과 동시 조회
+    @Operation(summary = "11. 사전문진 분석/요약 결과 동시 조회", description = "사전문진 분석과 요약 결과를 동시에 조회합니다.")
     @GetMapping("/result")
     public ResponseEntity<Map<String, AITemplateResponseDTO>> getSummaryAndAnalysisResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -161,8 +176,8 @@ public class AITemplateController {
         return ResponseEntity.ok(result);
     }
 
-    // 11. 사전문진 분석 결과 조회
-    @Operation(summary = "11. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
+    // 12. 사전문진 분석 결과 조회
+    @Operation(summary = "12. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
     @GetMapping("/result/analysis")
     public ResponseEntity<AITemplateResponseDTO> getAnalysisResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -172,8 +187,8 @@ public class AITemplateController {
         return ResponseEntity.ok(dto.convertToAnalysisResponse());
     }
 
-    // 12. 사전문진 요약 결과 조회
-    @Operation(summary = "12. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
+    // 13. 사전문진 요약 결과 조회
+    @Operation(summary = "13. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
     @GetMapping("/result/summary")
     public ResponseEntity<AITemplateResponseDTO> getSummaryResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,

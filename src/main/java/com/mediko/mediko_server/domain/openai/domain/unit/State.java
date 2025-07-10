@@ -26,4 +26,8 @@ public enum State {
         }
         throw new IllegalArgumentException("Unknown description: " + description);
     }
+    @Override
+    public String toString() {
+        return name();
+    }
 }
