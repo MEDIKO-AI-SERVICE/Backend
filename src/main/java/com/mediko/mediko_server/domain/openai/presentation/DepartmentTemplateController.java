@@ -3,6 +3,7 @@ package com.mediko.mediko_server.domain.openai.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.application.DepartmentTemplateService;
+import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SuggestSignRequestDTO;
@@ -63,10 +64,10 @@ public class DepartmentTemplateController {
     @PostMapping("/intensity")
     public ResponseEntity<Void> saveIntensity(
             @RequestParam("sessionId") String sessionId,
-            @RequestParam("intensity") String intensityDesc,
+            @RequestParam("intensity") Intensity intensity,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        departmentTemplateService.saveIntensity(member, sessionId, intensityDesc);
+        departmentTemplateService.saveIntensity(member, sessionId, intensity);
         return ResponseEntity.ok().build();
     }
 

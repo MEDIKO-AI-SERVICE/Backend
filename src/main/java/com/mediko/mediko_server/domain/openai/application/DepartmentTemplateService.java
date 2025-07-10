@@ -118,13 +118,13 @@ public class DepartmentTemplateService {
 
     // intensity 저장
     @Transactional
-    public void saveIntensity(Member member, String sessionId, String intensityDesc) {
+    public void saveIntensity(Member member, String sessionId, Intensity intensity) {
         DepartmentProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
-        Intensity intensityEnum = Intensity.fromDescription(intensityDesc);
-        state.setIntensity(intensityEnum);
+        state = state.toBuilder().intensity(intensity).build();
         saveState(member, sessionId, state);
     }
+
 
     // 추가 정보 저장
     @Transactional
