@@ -12,6 +12,7 @@ import com.mediko.mediko_server.global.s3.UuidFileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -131,12 +132,12 @@ public class AITemplateController {
     // 9. 증상 관련 이미지 업로드
     @Operation(summary = "9. 증상 관련 이미지 업로드",
                description = "hasImages=true면 파일 첨부 필수, false면 파일 없이 결과를 반환합니다.")
-    @PostMapping("/images")
+    @PostMapping(value ="/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AITemplateResponseDTO> uploadImages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
             @RequestParam("hasImages") boolean hasImages,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+            @RequestParam("file")  List<MultipartFile> files) {
         Member member = userDetails.getMember();
         AITemplateResponseDTO result = aitemplateService.uploadImagesAndReturnResult(
                 sessionId, files, hasImages, member
@@ -181,6 +182,7 @@ public class AITemplateController {
         AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
         return ResponseEntity.ok(dto.convertToSummaryResponse());
     }
+
 
 //    // 상태 조회 (선택)
 //    @GetMapping("/state")
