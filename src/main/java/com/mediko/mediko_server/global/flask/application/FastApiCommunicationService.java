@@ -55,18 +55,27 @@ public class FastApiCommunicationService {
         HttpEntity<T> entity = new HttpEntity<>(requestDTO, headers);
 
         try {
+            log.info("FastAPI 요청 URL: {}", url);
+            log.info("요청 데이터: {}", requestDTO);
+
             ResponseEntity<R> response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     entity,
                     responseType
             );
+
+            log.info("FastAPI 응답 상태 코드: {}", response.getStatusCode());
+            log.info("FastAPI 응답 바디: {}", response.getBody());
+
             if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
                 throw new RuntimeException("FastAPI 응답 오류");
             }
             return response.getBody();
         } catch (Exception e) {
+            log.error("FastAPI 서버 통신 중 오류 발생", e);
             throw new RuntimeException("FastAPI 서버 통신 중 오류 발생", e);
         }
     }
+
 }
