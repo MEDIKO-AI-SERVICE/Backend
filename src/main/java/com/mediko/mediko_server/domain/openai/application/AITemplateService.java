@@ -7,6 +7,7 @@ import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.openai.application.processingState.AIProcessingState;
 import com.mediko.mediko_server.domain.openai.domain.AITemplate;
 import com.mediko.mediko_server.domain.openai.domain.repository.AITemplateRepository;
+import com.mediko.mediko_server.domain.openai.domain.unit.State;
 import com.mediko.mediko_server.domain.openai.dto.request.*;
 import com.mediko.mediko_server.domain.openai.dto.response.AITemplateResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SuggestSignResponseDTO;
@@ -171,6 +172,17 @@ public class AITemplateService {
         state = state.toBuilder().durationUnit(durationUnit).build();
         saveState(member, sessionId, state);
     }
+
+
+    // 상태(State) 저장
+    @Transactional
+    public void saveState(Member member, String sessionId, State state) {
+        AIProcessingState aiState = getState(member, sessionId);
+        validateStateOwnership(aiState, member);
+        aiState = aiState.toBuilder().state(state).build();
+        saveState(member, sessionId, aiState);
+    }
+
 
     // 추가 정보 저장
     @Transactional
