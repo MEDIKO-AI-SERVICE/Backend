@@ -1,6 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
 import com.mediko.mediko_server.global.converter.StringListConvert;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -20,15 +21,16 @@ import java.util.List;
 @Table(name= "hospital")
 public class Hospital extends BaseEntity {
 
-    @Column(name = "is_report", nullable = false)
-    private boolean isReport;
-
     @Column(name = "u_department", nullable = false)
-    private String userDepartment;
-
     @Convert(converter = StringListConvert.class)
-    @Column(name = "disease", nullable = false)
-    private List<String> suspectedDisease;
+    private List<String> userDepartment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sort_type", nullable = false)
+    private SortType sortType;
+
+    @Column(name = "primary_hp", nullable = false)
+    private boolean primaryHospital;
 
     @Column(name = "secondary_hp", nullable = false)
     private boolean secondaryHospital;
@@ -99,9 +101,9 @@ public class Hospital extends BaseEntity {
     @Column(name = "hp_url")
     private String url;
 
-//    @ManyToOne
-//    @JoinColumn(name = "report_id")
-//    private Report report;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private DepartmentTemplate departmentTemplate;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
