@@ -47,36 +47,6 @@ public class FastApiCommunicationService {
         return post(adjectiveUrl, requestDTO, responseType);
     }
 
-    public <R> R postRawJsonToAiTemplate(String json, Class<R> responseType) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(json, headers);
-
-        try {
-            log.info("FastAPI 요청 URL: {}", aiTemplateUrl);
-            log.info("요청 데이터: {}", json);
-
-            ResponseEntity<R> response = restTemplate.exchange(
-                    aiTemplateUrl,
-                    HttpMethod.POST,
-                    entity,
-                    responseType
-            );
-
-            log.info("FastAPI 응답 상태 코드: {}", response.getStatusCode());
-            log.info("FastAPI 응답 바디: {}", response.getBody());
-
-            if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
-                throw new RuntimeException("FastAPI 응답 오류");
-            }
-            return response.getBody();
-        } catch (Exception e) {
-            log.error("FastAPI 서버 통신 중 오류 발생", e);
-            throw new RuntimeException("FastAPI 서버 통신 중 오류 발생", e);
-        }
-    }
-
-
 
     // 공통 POST 메서드
     public <T, R> R post(String url, T requestDTO, Class<R> responseType) {

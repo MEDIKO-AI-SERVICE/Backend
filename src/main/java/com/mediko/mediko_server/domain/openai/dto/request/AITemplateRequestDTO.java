@@ -19,7 +19,7 @@ public class AITemplateRequestDTO {
 
     private boolean isSelf;
 
-    @JsonProperty("body_part")
+    @JsonProperty("bodypart")
     private String bodyPart;
 
     private List<String> selectedSign;
