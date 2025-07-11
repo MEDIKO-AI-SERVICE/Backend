@@ -53,7 +53,7 @@ public class AITemplateService {
 
     // Redis Key 생성
     private String getStateKey(Long memberId, String sessionId) {
-        return "MEDICATION_STATE:" + memberId + ":" + sessionId;
+        return "AI_STATE:" + memberId + ":" + sessionId;
     }
 
     // 객체 → JSON
