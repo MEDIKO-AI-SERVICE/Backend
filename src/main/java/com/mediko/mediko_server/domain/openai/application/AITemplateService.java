@@ -305,35 +305,11 @@ public class AITemplateService {
                 .isSelf(state.getIsSelf())
                 .patientInfo(patientInfo)
                 .bodyPart(state.getBodyPart())
-                .selectedSign(state.getSelectedSign()) // List<String> 그대로!
+                .selectedSign(state.getSelectedSign())
                 .symptom(symptom)
                 .build();
 
-        // === 여기서부터 핵심 ===
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("language", requestDTO.getLanguage());
-        paramMap.put("isSelf", requestDTO.isSelf());
-        paramMap.put("body_part", requestDTO.getBodyPart());
-        paramMap.put("patientinfo", objectMapper.convertValue(requestDTO.getPatientInfo(), Map.class));
-        paramMap.put("symptom", objectMapper.convertValue(requestDTO.getSymptom(), Map.class));
-
-        // selectedSign만 String으로 변환해서 넣기!
-        List<String> selectedSignList = requestDTO.getSelectedSign();
-        String selectedSignStr = String.join(",", selectedSignList);
-        paramMap.put("selectedSign", selectedSignStr);
-
-        // JSON 문자열로 변환
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(paramMap);
-        } catch (Exception e) {
-            throw new RuntimeException("JSON 직렬화 오류", e);
-        }
-
-        // FastAPI로 전송 (raw JSON)
-        AITemplateResponseDTO response = fastApiCommunicationService.postRawJsonToAiTemplate(json, AITemplateResponseDTO.class);
-
-        return response;
+        return fastApiCommunicationService.postToAiTemplate(requestDTO, AITemplateResponseDTO.class);
     }
 
 
