@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,22 +41,23 @@ public class AIReportMapper {
     // 건강 정보
     public List<Map<String, String>> convertToHealthInfoMap(Member member, AIProcessingState state) {
         List<Map<String, String>> healthInfoList = new ArrayList<>();
+        Map<String, String> healthInfoMap = new HashMap<>();
+
         if (state.getIsSelf()) {
             var healthInfo = member.getHealthInfo();
-            healthInfoList.add(Map.of(
-                    "past_history", healthInfo != null ? healthInfo.getPastHistory() : null,
-                    "family_history", healthInfo != null ? healthInfo.getFamilyHistory() : null,
-                    "now_medicine", healthInfo != null ? healthInfo.getNowMedicine() : null,
-                    "allergy", healthInfo != null ? healthInfo.getAllergy() : null
-            ));
+            healthInfoMap.put("past_history", healthInfo != null ? healthInfo.getPastHistory() : null);
+            healthInfoMap.put("family_history", healthInfo != null ? healthInfo.getFamilyHistory() : null);
+            healthInfoMap.put("now_medicine", healthInfo != null ? healthInfo.getNowMedicine() : null);
+            healthInfoMap.put("allergy", healthInfo != null ? healthInfo.getAllergy() : null);
         } else {
-            healthInfoList.add(Map.of(
-                    "past_history", state.getPastHistory(),
-                    "family_history", state.getFamilyHistory(),
-                    "now_medicine", state.getNowMedicine(),
-                    "allergy", state.getAllergy()
-            ));
+            healthInfoMap.put("past_history", state.getPastHistory());
+            healthInfoMap.put("family_history", state.getFamilyHistory());
+            healthInfoMap.put("now_medicine", state.getNowMedicine());
+            healthInfoMap.put("allergy", state.getAllergy());
         }
+
+        healthInfoList.add(healthInfoMap);
         return healthInfoList;
     }
+
 }
