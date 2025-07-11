@@ -149,7 +149,7 @@ public class AITemplateController {
     @Operation(summary = "10. 증상 이미지 첨부 및 결과 반환",
                description = "hasImages=true면 part에 이미지를 첨부, false면 이미지를 첨부하지 않고 결과를 반환합니다")
     @PostMapping(value ="/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, AITemplateResponseDTO>> uploadImages(
+    public ResponseEntity<Map<String, Object>> uploadImages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
             @RequestParam("hasImages") boolean hasImages,
@@ -158,9 +158,9 @@ public class AITemplateController {
         AITemplateResponseDTO dto = aitemplateService.uploadImagesAndReturnResult(
                 sessionId, files, hasImages, member
         );
-        Map<String, AITemplateResponseDTO> result = Map.of(
-                "summary", dto.convertToSummaryResponse(),
-                "analysis", dto.convertToAnalysisResponse()
+        Map<String, Object> result = Map.of(
+                "summary", dto.toSummaryMap(),
+                "analysis", dto.toAnalysisMap()
         );
         return ResponseEntity.ok(result);
     }
@@ -169,23 +169,23 @@ public class AITemplateController {
     // 11. 사전문진 분석 결과 조회
     @Operation(summary = "11. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
     @GetMapping("/result/analysis")
-    public ResponseEntity<AITemplateResponseDTO> getAnalysisResult(
+    public ResponseEntity<Map<String, Object>> getAnalysisResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId) {
         Member member = userDetails.getMember();
         AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
-        return ResponseEntity.ok(dto.convertToAnalysisResponse());
+        return ResponseEntity.ok(dto.toAnalysisMap());
     }
 
     // 12. 사전문진 요약 결과 조회
     @Operation(summary = "12. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
     @GetMapping("/result/summary")
-    public ResponseEntity<AITemplateResponseDTO> getSummaryResult(
+    public ResponseEntity<Map<String, Object>> getSummaryResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId) {
         Member member = userDetails.getMember();
         AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
-        return ResponseEntity.ok(dto.convertToSummaryResponse());
+        return ResponseEntity.ok(dto.toSummaryMap());
     }
 
 
