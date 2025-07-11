@@ -36,17 +36,17 @@ public class AIReportMapper {
     }
 
 
+
     // 건강 정보
     public List<Map<String, String>> convertToHealthInfoMap(Member member, AIProcessingState state) {
         List<Map<String, String>> healthInfoList = new ArrayList<>();
         if (state.getIsSelf()) {
-            // 본인 정보
             var healthInfo = member.getHealthInfo();
             healthInfoList.add(Map.of(
-                    "past_history", healthInfo.getPastHistory(),
-                    "family_history", healthInfo.getFamilyHistory(),
-                    "now_medicine", healthInfo.getNowMedicine(),
-                    "allergy", healthInfo.getAllergy()
+                    "past_history", healthInfo != null ? healthInfo.getPastHistory() : null,
+                    "family_history", healthInfo != null ? healthInfo.getFamilyHistory() : null,
+                    "now_medicine", healthInfo != null ? healthInfo.getNowMedicine() : null,
+                    "allergy", healthInfo != null ? healthInfo.getAllergy() : null
             ));
         } else {
             healthInfoList.add(Map.of(
