@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.openai.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.openai.domain.AITemplate;
+import com.mediko.mediko_server.global.converter.StringMapConverter;
 import com.mediko.mediko_server.global.converter.StringMapListConverter;
 import jakarta.persistence.Convert;
 import lombok.AllArgsConstructor;
@@ -34,7 +35,7 @@ public class AITemplateResponseDTO {
     private String departmentDescription;
 
     @JsonProperty("questions_to_doctor")
-    @Convert(converter = StringMapListConverter.class)
+    @Convert(converter = StringMapConverter.class)
     private Map<String, String> questionsToDoctor;
 
     @JsonProperty("symptom_summary")

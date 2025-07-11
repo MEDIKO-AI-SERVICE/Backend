@@ -70,7 +70,7 @@ public class AITemplate extends BaseEntity {
     @Column(name = "description")
     private String departmentDescription;
 
-    @Convert(converter = StringMapListConverter.class)
+    @Convert(converter = StringMapConverter.class)
     @Column(name = "questions", length = 1000)
     private Map<String, String> questionsToDoctor;
 

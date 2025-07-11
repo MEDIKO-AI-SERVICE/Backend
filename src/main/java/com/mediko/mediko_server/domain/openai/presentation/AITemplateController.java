@@ -35,12 +35,12 @@ public class AITemplateController {
     // 1. 본인/타인 여부 저장 및 세션ID 발급
     @Operation(summary = "1. 본인/타인 여부 설정", description = "본인/타인 여부를 선택하면 세션 id가 반환됩니다. false인 경우 이후 타인 정보를 입력해야합니다.")
     @PostMapping("/is-self")
-    public ResponseEntity<String> saveIsSelf(
+    public ResponseEntity<Map<String, String>>  saveIsSelf(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("isSelf") boolean isSelf) {
         Member member = userDetails.getMember();
         String sessionId = aitemplateService.saveIsSelf(member, isSelf);
-        return ResponseEntity.ok(sessionId);
+        return ResponseEntity.ok(Map.of("sessionId", sessionId));
     }
 
     // 2. 신체 부위 입력 및 증상 후보 조회
@@ -132,7 +132,7 @@ public class AITemplateController {
 
     // 9. 추가 정보 저장
     @Operation(summary = "9. 추가 정보 저장",
-               description = "hasAdditional=true면 body에 추가 정보를 입력, false면 추가 정보를 입려하지 않습니다.")
+               description = "hasAdditional=true면 body에 추가 정보를 입력, false면 추가 정보를 입력하지 않습니다.")
     @PostMapping("/additional")
     public ResponseEntity<Void> saveAdditional(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -146,6 +146,8 @@ public class AITemplateController {
 
 
     // 10. 증상 관련 이미지 업로드
+    @Operation(summary = "10. 증상 이미지 첨부 및 결과 반환",
+               description = "hasImages=true면 part에 이미지를 첨부, false면 이미지를 첨부하지 않고 결과를 반환합니다")
     @PostMapping(value ="/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, AITemplateResponseDTO>> uploadImages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -165,7 +167,7 @@ public class AITemplateController {
 
 
     // 11. 사전문진 분석 결과 조회
-    @Operation(summary = "12. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
+    @Operation(summary = "11. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
     @GetMapping("/result/analysis")
     public ResponseEntity<AITemplateResponseDTO> getAnalysisResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -176,7 +178,7 @@ public class AITemplateController {
     }
 
     // 12. 사전문진 요약 결과 조회
-    @Operation(summary = "13. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
+    @Operation(summary = "12. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
     @GetMapping("/result/summary")
     public ResponseEntity<AITemplateResponseDTO> getSummaryResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
