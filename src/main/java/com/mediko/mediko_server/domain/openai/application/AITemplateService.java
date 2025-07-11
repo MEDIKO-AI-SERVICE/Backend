@@ -269,6 +269,7 @@ public class AITemplateService {
                 .toList();
 
         return fastApiResponse.toBuilder()
+                .aiTemplateId(aiTemplate.getId())
                 .basicInfo(aiReportMapper.convertToBasicInfoMap(member, state))
                 .healthInfo(aiReportMapper.convertToHealthInfoMap(member, state))
                 .fileInfo(fileInfoList)
