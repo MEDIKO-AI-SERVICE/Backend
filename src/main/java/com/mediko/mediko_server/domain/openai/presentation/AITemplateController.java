@@ -7,6 +7,7 @@ import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
 import com.mediko.mediko_server.domain.openai.domain.unit.State;
 import com.mediko.mediko_server.domain.openai.domain.unit.TimeUnit;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalRequestDTO;
+import com.mediko.mediko_server.domain.openai.dto.request.SelectedSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SuggestSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.AITemplateResponseDTO;
 import com.mediko.mediko_server.global.s3.UuidFileResponseDTO;
@@ -60,9 +61,9 @@ public class AITemplateController {
     public ResponseEntity<Void> saveSelectedSign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
-            @RequestBody List<String> selectedSigns) {
+            @RequestBody SelectedSignRequestDTO requestDTO) {
         Member member = userDetails.getMember();
-        aitemplateService.saveSelectedSign(member, sessionId, selectedSigns);
+        aitemplateService.saveSelectedSign(member, sessionId, requestDTO);
         return ResponseEntity.ok().build();
     }
 

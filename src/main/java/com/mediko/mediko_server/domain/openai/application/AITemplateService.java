@@ -5,6 +5,7 @@ import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.openai.application.processingState.AIProcessingState;
+import com.mediko.mediko_server.domain.openai.application.processingState.DepartmentProcessingState;
 import com.mediko.mediko_server.domain.openai.domain.AITemplate;
 import com.mediko.mediko_server.domain.openai.domain.repository.AITemplateRepository;
 import com.mediko.mediko_server.domain.openai.domain.unit.State;
@@ -128,14 +129,13 @@ public class AITemplateService {
 
     // adjectives에서 고른 selectedSign 저장
     @Transactional
-    public void saveSelectedSign(Member member, String sessionId, List<String> selectedSigns) {
+    public void saveSelectedSign(Member member, String sessionId, SelectedSignRequestDTO requestDTO) {
         AIProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
-        state = state.toBuilder()
-                .selectedSign(selectedSigns)
-                .build();
+        state.setSelectedSign(requestDTO.getSelectedSign());
         saveState(member, sessionId, state);
     }
+
 
     // intensity 저장
     @Transactional
