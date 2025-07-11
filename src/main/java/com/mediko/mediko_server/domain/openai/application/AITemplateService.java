@@ -234,6 +234,8 @@ public class AITemplateService {
             throw new BadRequestException(INVALID_PARAMETER, "필수 정보가 누락되었습니다");
         }
 
+        AITemplateResponseDTO fastApiResponse = callFastApiForResult(member, state);
+
         AITemplate aiTemplate = AITemplate.builder()
                 .member(member)
                 .isSelf(state.getIsSelf())
@@ -246,18 +248,21 @@ public class AITemplateService {
                 .durationUnit(state.getDurationUnit())
                 .state(state.getState())
                 .additional(state.getAdditional())
+                .summary(fastApiResponse.getSummary())
+                .department(fastApiResponse.getDepartment())
+                .departmentDescription(fastApiResponse.getDepartmentDescription())
+                .questionsToDoctor(fastApiResponse.getQuestionsToDoctor())
+                .symptomSummary(fastApiResponse.getSymptomSummary())
                 .build();
-        aiTemplateRepository.save(aiTemplate);
+        aiTemplate = aiTemplateRepository.save(aiTemplate);
 
         List<UuidFile> files = uuidFileRepository.findAllBySessionId(sessionId);
         for (UuidFile file : files) {
             file.updateForResult(aiTemplate);
-            uuidFileRepository.save(file); // update만 발생
+            uuidFileRepository.save(file);
         }
 
         List<UuidFile> resultFiles = uuidFileRepository.findAllByAiTemplate(aiTemplate);
-
-        AITemplateResponseDTO fastApiResponse = callFastApiForResult(member, state);
 
         List<Map<String, String>> fileInfoList = resultFiles.stream()
                 .map(f -> Map.of("imgUrl", f.getFileUrl()))
@@ -269,7 +274,6 @@ public class AITemplateService {
                 .fileInfo(fileInfoList)
                 .build();
     }
-
 
 
     private PatientInfoRequestDTO buildPatientInfo(AIProcessingState state) {

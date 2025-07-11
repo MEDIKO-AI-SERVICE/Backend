@@ -146,30 +146,16 @@ public class AITemplateController {
 
 
     // 10. 증상 관련 이미지 업로드
-    @Operation(summary = "10. 증상 관련 이미지 업로드",
-               description = "hasImages=true면 파일 첨부 필수, false면 파일 없이 결과를 반환합니다.")
     @PostMapping(value ="/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AITemplateResponseDTO> uploadImages(
+    public ResponseEntity<Map<String, AITemplateResponseDTO>> uploadImages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
             @RequestParam("hasImages") boolean hasImages,
-            @RequestPart("files") List<MultipartFile> files) {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         Member member = userDetails.getMember();
-        AITemplateResponseDTO result = aitemplateService.uploadImagesAndReturnResult(
+        AITemplateResponseDTO dto = aitemplateService.uploadImagesAndReturnResult(
                 sessionId, files, hasImages, member
         );
-        return ResponseEntity.ok(result);
-    }
-
-
-    // 11. 사전문진 분석/요약 결과 동시 조회
-    @Operation(summary = "11. 사전문진 분석/요약 결과 동시 조회", description = "사전문진 분석과 요약 결과를 동시에 조회합니다.")
-    @GetMapping("/result")
-    public ResponseEntity<Map<String, AITemplateResponseDTO>> getSummaryAndAnalysisResult(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("sessionId") String sessionId) {
-        Member member = userDetails.getMember();
-        AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
         Map<String, AITemplateResponseDTO> result = Map.of(
                 "summary", dto.convertToSummaryResponse(),
                 "analysis", dto.convertToAnalysisResponse()
@@ -177,7 +163,8 @@ public class AITemplateController {
         return ResponseEntity.ok(result);
     }
 
-    // 12. 사전문진 분석 결과 조회
+
+    // 11. 사전문진 분석 결과 조회
     @Operation(summary = "12. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
     @GetMapping("/result/analysis")
     public ResponseEntity<AITemplateResponseDTO> getAnalysisResult(
@@ -188,7 +175,7 @@ public class AITemplateController {
         return ResponseEntity.ok(dto.convertToAnalysisResponse());
     }
 
-    // 13. 사전문진 요약 결과 조회
+    // 12. 사전문진 요약 결과 조회
     @Operation(summary = "13. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
     @GetMapping("/result/summary")
     public ResponseEntity<AITemplateResponseDTO> getSummaryResult(
