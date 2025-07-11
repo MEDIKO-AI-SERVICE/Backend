@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,24 +52,25 @@ public class AITemplateResponseDTO {
     private List<Map<String, String>> fileInfo;
 
     // AI 증상 분석 응답 변환
-    public AITemplateResponseDTO convertToAnalysisResponse() {
-        return AITemplateResponseDTO.builder()
-                .aiTemplateId(this.aiTemplateId)
-                .department(this.department)
-                .departmentDescription(this.departmentDescription)
-                .questionsToDoctor(this.questionsToDoctor)
-                .build();
+    public Map<String, Object> toSummaryMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("ai_id", this.aiTemplateId);
+        map.put("basic_info", this.basicInfo);
+        map.put("health_info", this.healthInfo);
+        map.put("symptom_summary", this.symptomSummary);
+        map.put("image_info", this.fileInfo);
+        // 필요한 필드만 추가
+        return map;
     }
 
-    // AI 증상 요약 응답 변환
-    public AITemplateResponseDTO convertToSummaryResponse() {
-        return AITemplateResponseDTO.builder()
-                .aiTemplateId(this.aiTemplateId)
-                .basicInfo(this.basicInfo)
-                .healthInfo(this.healthInfo)
-                .symptomSummary(this.symptomSummary)
-                .fileInfo(this.fileInfo)
-                .build();
+    // AI 증상 분석 응답 변환
+    public Map<String, Object> toAnalysisMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("ai_id", this.aiTemplateId);
+        map.put("department", this.department);
+        map.put("department_description", this.departmentDescription);
+        map.put("questions_to_doctor", this.questionsToDoctor);
+        return map;
     }
 
     public static AITemplateResponseDTO fromEntity(
