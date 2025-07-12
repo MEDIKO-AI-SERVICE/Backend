@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +40,6 @@ public class BasicInfoController {
 
     @Operation(summary = "사용자 기본 정보 수정", description = "저장된 사용자의 기본 정보를 부분 수정합니다.")
     @PatchMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<BasicInfoResponseDTO> updateBasicInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BasicInfoRequestDTO requestDTO) {
@@ -53,7 +52,6 @@ public class BasicInfoController {
 
     @Operation(summary = "사용자 기본 정보 조회", description = "저장된 사용자의 기본 정보를 조회합니다.")
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<BasicInfoResponseDTO> getBasicInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();

@@ -2,10 +2,7 @@ package com.mediko.mediko_server.global.security;
 
 import java.security.Key;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetailsService;
 import com.mediko.mediko_server.domain.member.dto.request.TokenRequestDTO;
@@ -18,11 +15,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,26 +45,19 @@ public class JwtTokenProvider {
         this.redisUtil = redisUtil;
     }
 
-
     // Access Token과 Refresh Token 발급 메서드
     public TokenResponseDTO generateToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
         long now = (new Date()).getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenExpirationTime);
 
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
                 .setExpiration(new Date(now + refreshTokenExpirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -83,7 +70,6 @@ public class JwtTokenProvider {
                 .refreshToken(refreshToken)
                 .build();
     }
-
 
     // refresh token으로 access token을 재발급하는 메서드
     public TokenResponseDTO reissueToken(TokenRequestDTO tokenRequestDTO) {
@@ -103,7 +89,6 @@ public class JwtTokenProvider {
         return generateToken(authentication);
     }
 
-
     // refresh token 유효성 검사 메서드
     public boolean validateRefreshToken(String token) {
         if (!validateToken(token)) return false;
@@ -118,25 +103,14 @@ public class JwtTokenProvider {
         }
     }
 
-
     // JWT Token에서 username을 추출하는 메서드
     public String getUserNameFromToken(String token) {
         return parseClaims(token).getSubject();
     }
 
-
     // Access Token에서 인증 정보를 생성하여 반환하는 메서드
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
-
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
 
         String username = claims.getSubject();
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -145,9 +119,8 @@ public class JwtTokenProvider {
             throw new RuntimeException("사용자를 찾을 수 없습니다.");
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-
 
     // JWT Token 유효성 검사 메서드
     public boolean validateToken(String token) {
@@ -166,7 +139,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-
     // JWT Token을 파싱하여 Claims를 반환하는 메서드
     private Claims parseClaims(String accessToken) {
         try {
@@ -175,7 +147,6 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
 
     // JWT Token의 만료 시간을 반환하는 메서드
     public Long getExpirationTime(String token) {
