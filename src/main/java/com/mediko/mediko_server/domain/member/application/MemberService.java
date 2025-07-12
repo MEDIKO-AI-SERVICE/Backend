@@ -86,7 +86,6 @@ public class MemberService {
             throw new BadRequestException(MISSING_REQUIRED_FIELD, "필수 입력 항목이 누락되었습니다.");
         }
 
-        // 임시 멤버에서 언어 정보 가져오기
         TempMember tempMember = tempMemberRepository.findByIdAndIsUsedFalse(tempMemberId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "유효하지 않은 임시 멤버 ID입니다."));
         
@@ -97,19 +96,13 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(signUpRequestDTO.getPassword());
 
         Member member = signUpRequestDTO.toEntity(encodedPassword);
+        member.changeLanguage(tempMember.getLanguage());
         Member savedMember = memberRepository.save(member);
 
-        // 임시 멤버를 사용됨으로 표시
         tempMember.markAsUsed();
         tempMemberRepository.save(tempMember);
 
         return UserInfoResponseDTO.fromEntity(savedMember);
-    }
-
-    // 기존 회원가입 메서드 (하위 호환성 유지)
-    @Transactional
-    public UserInfoResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
-        return signUp(signUpRequestDTO, null);
     }
 
 
