@@ -137,7 +137,7 @@ public class MedicationTemplateService {
                 .pharmacistQuestion3(response.getPharmacistQuestion3())
                 .build();
 
-        medicationTemplateRepository.save(medication);
+        medication = medicationTemplateRepository.save(medication);
 
         return MedicationTemplateResponseDTO.fromEntity(medication);
     }

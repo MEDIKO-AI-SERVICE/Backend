@@ -81,11 +81,10 @@ public class DepartmentTemplateService {
                 .build();
         saveState(member, sessionId, state);
 
-        Language language = member.getLanguage();
-        SuggestSignRequestDTO fastApiRequest = SuggestSignRequestDTO.builder()
-                .language(language)
-                .bodyPart(requestDTO.getBodyPart())
-                .build();
+        // FastAPI 요청을 위한 별도 Map 생성 (language 포함)
+        Map<String, Object> fastApiRequest = new HashMap<>();
+        fastApiRequest.put("language", member.getLanguage());
+        fastApiRequest.put("body_part", requestDTO.getBodyPart());
 
         SuggestSignResponseDTO response =
                 fastApiCommunicationService.postToAdjective(fastApiRequest, SuggestSignResponseDTO.class);
@@ -177,7 +176,7 @@ public class DepartmentTemplateService {
                 .questionsToDoctor(responseDTO.getQuestionsToDoctor())
                 .build();
 
-        departmentTemplateRepository.save(departmentTemplate);
+        departmentTemplate = departmentTemplateRepository.save(departmentTemplate);
 
         return DepartmentTemplateResposneDTO.fromEntity(departmentTemplate);
     }
@@ -185,10 +184,7 @@ public class DepartmentTemplateService {
 
     // fastapi 요청 메서드
     private DepartmentTemplateResposneDTO callFastApiForResult(Member member, DepartmentProcessingState state) {
-        Language language = member.getLanguage();
-
         DepartmentTemplateRequestDTO requestDTO = DepartmentTemplateRequestDTO.builder()
-                .language(language)
                 .bodyPart(state.getBodyPart())
                 .selectedSign(state.getSelectedSign())
                 .symptom(
@@ -200,7 +196,14 @@ public class DepartmentTemplateService {
                 )
                 .build();
 
-        return fastApiCommunicationService.postToDepartmentTemplate(requestDTO, DepartmentTemplateResposneDTO.class);
+        // FastAPI 요청을 위한 별도 Map 생성 (language 포함)
+        Map<String, Object> fastApiRequest = new HashMap<>();
+        fastApiRequest.put("language", member.getLanguage());
+        fastApiRequest.put("body_part", requestDTO.getBodyPart());
+        fastApiRequest.put("selectedSign", requestDTO.getSelectedSign());
+        fastApiRequest.put("symptom", requestDTO.getSymptom());
+
+        return fastApiCommunicationService.postToDepartmentTemplate(fastApiRequest, DepartmentTemplateResposneDTO.class);
     }
 
 

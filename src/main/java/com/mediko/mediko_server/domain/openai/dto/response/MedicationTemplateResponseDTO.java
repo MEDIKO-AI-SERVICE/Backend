@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MedicationTemplateResponseDTO {
 
+    @JsonProperty("medication_id")
+    private Long medicationId;
+
     @JsonProperty("drug_name")
     private String drugName;
 
@@ -36,6 +39,7 @@ public class MedicationTemplateResponseDTO {
 
     public static MedicationTemplateResponseDTO fromEntity(MedicationTemplate medication) {
         return new MedicationTemplateResponseDTO(
+                medication.getId(),
                 medication.getDrugName(),
                 medication.getDrugPurpose(),
                 medication.getDrugImageUrl(),

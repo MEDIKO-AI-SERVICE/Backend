@@ -15,6 +15,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class DepartmentTemplateResposneDTO {
 
+    @JsonProperty("department_id")
+    private Long departmentId;
+
     private String department;
 
     @JsonProperty("department_description")
@@ -25,6 +28,7 @@ public class DepartmentTemplateResposneDTO {
 
     public static DepartmentTemplateResposneDTO fromEntity(DepartmentTemplate department) {
         return new DepartmentTemplateResposneDTO(
+                department.getId(),
                 department.getDepartment(),
                 department.getDepartmentDescription(),
                 department.getQuestionsToDoctor()

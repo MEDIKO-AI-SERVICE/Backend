@@ -172,14 +172,25 @@ public class HospitalService {
 
 
     private Map<String, Object> createBasicInfoMap(BasicInfo basicInfo, Member member) {
+        // 주소 정보 검증
+        String address = member.getAddress();
+        if (address == null || address.trim().isEmpty()) {
+            log.error("회원 ID: {}, 주소 정보가 없습니다. address: {}", member.getId(), address);
+            throw new BadRequestException(INVALID_PARAMETER, "주소 정보가 필요합니다. 기본정보에서 주소를 입력해주세요.");
+        }
+        
+        log.info("회원 ID: {}, 주소 정보: {}", member.getId(), address);
+        
         Map<String, Object> map = new HashMap<>();
         map.put("language", member.getLanguage());
         map.put("number", member.getNumber());
-        map.put("address", member.getAddress());
+        map.put("address", address);
         map.put("gender", basicInfo.getGender());
         map.put("age", basicInfo.getAge());
         map.put("height", basicInfo.getHeight());
         map.put("weight", basicInfo.getWeight());
+        
+        log.info("Flask 서버로 보낼 basic_info 데이터: {}", map);
         return map;
     }
 

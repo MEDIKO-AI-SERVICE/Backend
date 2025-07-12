@@ -10,6 +10,7 @@ import com.mediko.mediko_server.domain.openai.domain.AITemplate;
 import com.mediko.mediko_server.domain.openai.domain.repository.AITemplateRepository;
 import com.mediko.mediko_server.domain.openai.domain.unit.State;
 import com.mediko.mediko_server.domain.openai.dto.request.*;
+import com.mediko.mediko_server.domain.openai.dto.response.AITemplateListResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.AITemplateResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.SuggestSignResponseDTO;
 import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
@@ -29,9 +30,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.INVALID_PARAMETER;
 
@@ -103,8 +109,6 @@ public class AITemplateService {
 
     @Transactional
     public List<String> saveBodyPart(Member member, String sessionId, SuggestSignRequestDTO requestDTO) {
-        Language language = member.getLanguage();
-
         AIProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
 
@@ -113,10 +117,10 @@ public class AITemplateService {
                 .build();
         saveState(member, sessionId, state);
 
-        SuggestSignRequestDTO fastApiRequest = SuggestSignRequestDTO.builder()
-                .language(language)
-                .bodyPart(requestDTO.getBodyPart())
-                .build();
+        // FastAPI 요청을 위한 별도 DTO 생성 (language 포함)
+        Map<String, Object> fastApiRequest = new HashMap<>();
+        fastApiRequest.put("language", member.getLanguage());
+        fastApiRequest.put("body_part", requestDTO.getBodyPart());
 
         SuggestSignResponseDTO response =
                 fastApiCommunicationService.postToAdjective(fastApiRequest, SuggestSignResponseDTO.class);
@@ -236,6 +240,8 @@ public class AITemplateService {
 
         AITemplateResponseDTO fastApiResponse = callFastApiForResult(member, state);
 
+        String nowKst = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         AITemplate aiTemplate = AITemplate.builder()
                 .member(member)
                 .isSelf(state.getIsSelf())
@@ -253,6 +259,7 @@ public class AITemplateService {
                 .departmentDescription(fastApiResponse.getDepartmentDescription())
                 .questionsToDoctor(fastApiResponse.getQuestionsToDoctor())
                 .symptomSummary(fastApiResponse.getSymptomSummary())
+                .createdAtKst(fastApiResponse.getCreatedAtKst())
                 .build();
         aiTemplate = aiTemplateRepository.save(aiTemplate);
 
@@ -292,8 +299,6 @@ public class AITemplateService {
 
     // fastapi 요청 메서드
     private AITemplateResponseDTO callFastApiForResult(Member member, AIProcessingState state) {
-        Language language = member.getLanguage();
-
         PatientInfoRequestDTO patientInfo = buildPatientInfo(state);
 
         SymptomRequest_1DTO symptom = SymptomRequest_1DTO.builder()
@@ -306,7 +311,6 @@ public class AITemplateService {
                 .build();
 
         AITemplateRequestDTO requestDTO = AITemplateRequestDTO.builder()
-                .language(language)
                 .isSelf(state.getIsSelf())
                 .patientInfo(patientInfo)
                 .bodyPart(state.getBodyPart())
@@ -314,7 +318,16 @@ public class AITemplateService {
                 .symptom(symptom)
                 .build();
 
-        return fastApiCommunicationService.postToAiTemplate(requestDTO, AITemplateResponseDTO.class);
+        // FastAPI 요청을 위한 별도 Map 생성 (language 포함)
+        Map<String, Object> fastApiRequest = new HashMap<>();
+        fastApiRequest.put("language", member.getLanguage());
+        fastApiRequest.put("isSelf", requestDTO.isSelf());
+        fastApiRequest.put("bodypart", requestDTO.getBodyPart());
+        fastApiRequest.put("selectedSign", requestDTO.getSelectedSign());
+        fastApiRequest.put("patientinfo", requestDTO.getPatientInfo());
+        fastApiRequest.put("symptom", requestDTO.getSymptom());
+
+        return fastApiCommunicationService.postToAiTemplate(fastApiRequest, AITemplateResponseDTO.class);
     }
 
 
@@ -347,5 +360,85 @@ public class AITemplateService {
     public void clearState(Member member, String sessionId) {
         String key = getStateKey(member.getId(), sessionId);
         redisUtil.deleteValues(key);
+    }
+
+    // ai_id로 사전문진 결과 조회
+    public Map<String, Object> getResultByAiId(Long aiId, Member member) {
+        AITemplate aiTemplate = aiTemplateRepository.findById(aiId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "해당 사전문진을 찾을 수 없습니다."));
+
+        // 본인 확인
+        if (!aiTemplate.getMember().getId().equals(member.getId())) {
+            throw new BadRequestException(ErrorCode.UNAUTHORIZED, "해당 사전문진에 접근할 권한이 없습니다.");
+        }
+
+        // 파일 정보 조회
+        List<UuidFile> resultFiles = uuidFileRepository.findAllByAiTemplate(aiTemplate);
+        List<Map<String, String>> fileInfoList = resultFiles.stream()
+                .map(f -> Map.of("imgUrl", f.getFileUrl()))
+                .toList();
+
+        // AITemplateResponseDTO 생성
+        AITemplateResponseDTO responseDTO = AITemplateResponseDTO.builder()
+                .aiTemplateId(aiTemplate.getId())
+                .createdAtKst(aiTemplate.getCreatedAtKst())
+                .summary(aiTemplate.getSummary())
+                .department(aiTemplate.getDepartment())
+                .departmentDescription(aiTemplate.getDepartmentDescription())
+                .questionsToDoctor(aiTemplate.getQuestionsToDoctor())
+                .symptomSummary(aiTemplate.getSymptomSummary())
+                .fileInfo(fileInfoList)
+                .build();
+
+        // AIProcessingState 재구성 (기본 정보와 건강 정보를 위해)
+        AIProcessingState state = AIProcessingState.builder()
+                .memberId(member.getId())
+                .isSelf(aiTemplate.getIsSelf())
+                .bodyPart(aiTemplate.getBodyPart())
+                .selectedSign(aiTemplate.getSelectedSign())
+                .intensity(aiTemplate.getIntensity())
+                .startDate(aiTemplate.getStartDate())
+                .durationValue(aiTemplate.getDurationValue())
+                .durationUnit(aiTemplate.getDurationUnit())
+                .state(aiTemplate.getState())
+                .additional(aiTemplate.getAdditional())
+                .build();
+
+        // 본인인 경우 기본 정보와 건강 정보 추가
+        if (aiTemplate.getIsSelf()) {
+            state = state.toBuilder()
+                    .age(member.getBasicInfo().getAge())
+                    .gender(member.getBasicInfo().getGender())
+                    .allergy(member.getHealthInfo() != null ? member.getHealthInfo().getAllergy() : null)
+                    .familyHistory(member.getHealthInfo() != null ? member.getHealthInfo().getFamilyHistory() : null)
+                    .nowMedicine(member.getHealthInfo() != null ? member.getHealthInfo().getNowMedicine() : null)
+                    .pastHistory(member.getHealthInfo() != null ? member.getHealthInfo().getPastHistory() : null)
+                    .build();
+        }
+
+        // basicInfo와 healthInfo 추가
+        responseDTO = responseDTO.toBuilder()
+                .basicInfo(aiReportMapper.convertToBasicInfoMap(member, state))
+                .healthInfo(aiReportMapper.convertToHealthInfoMap(member, state))
+                .build();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("summary", responseDTO.toSummaryMap());
+        result.put("analysis", responseDTO.toAnalysisMap());
+
+        return result;
+    }
+
+    // 사용자의 모든 사전문진 조회 (최신순)
+    public List<AITemplateListResponseDTO> getAllUserResults(Member member) {
+        List<AITemplate> aiTemplates = aiTemplateRepository.findByMemberOrderByCreatedAtDesc(member);
+        return AITemplateListResponseDTO.fromEntityList(aiTemplates);
+    }
+
+    // 사용자의 최신 사전문진 3개 조회
+    public List<AITemplateListResponseDTO> getLatestThreeResults(Member member) {
+        Pageable pageable = PageRequest.of(0, 3);
+        List<AITemplate> aiTemplates = aiTemplateRepository.findTop3ByMemberOrderByCreatedAtDesc(member, pageable);
+        return AITemplateListResponseDTO.fromEntityList(aiTemplates);
     }
 }
