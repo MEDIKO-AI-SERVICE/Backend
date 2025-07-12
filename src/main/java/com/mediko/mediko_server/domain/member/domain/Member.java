@@ -9,7 +9,6 @@ import com.mediko.mediko_server.global.s3.UuidFile;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;

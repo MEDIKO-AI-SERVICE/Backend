@@ -2,10 +2,7 @@ package com.mediko.mediko_server.global.security;
 
 import java.security.Key;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 import com.mediko.mediko_server.domain.member.application.CustomUserDetailsService;
 import com.mediko.mediko_server.domain.member.dto.request.TokenRequestDTO;
@@ -18,11 +15,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +45,6 @@ public class JwtTokenProvider {
         this.redisUtil = redisUtil;
     }
 
-
     // Access Token과 Refresh Token 발급 메서드
     public TokenResponseDTO generateToken(Authentication authentication) {
         long now = (new Date()).getTime();
@@ -78,7 +71,6 @@ public class JwtTokenProvider {
                 .build();
     }
 
-
     // refresh token으로 access token을 재발급하는 메서드
     public TokenResponseDTO reissueToken(TokenRequestDTO tokenRequestDTO) {
         String refreshToken = tokenRequestDTO.getRefreshToken();
@@ -97,7 +89,6 @@ public class JwtTokenProvider {
         return generateToken(authentication);
     }
 
-
     // refresh token 유효성 검사 메서드
     public boolean validateRefreshToken(String token) {
         if (!validateToken(token)) return false;
@@ -112,12 +103,10 @@ public class JwtTokenProvider {
         }
     }
 
-
     // JWT Token에서 username을 추출하는 메서드
     public String getUserNameFromToken(String token) {
         return parseClaims(token).getSubject();
     }
-
 
     // Access Token에서 인증 정보를 생성하여 반환하는 메서드
     public Authentication getAuthentication(String accessToken) {
@@ -132,7 +121,6 @@ public class JwtTokenProvider {
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-
 
     // JWT Token 유효성 검사 메서드
     public boolean validateToken(String token) {
@@ -151,7 +139,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-
     // JWT Token을 파싱하여 Claims를 반환하는 메서드
     private Claims parseClaims(String accessToken) {
         try {
@@ -160,7 +147,6 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
 
     // JWT Token의 만료 시간을 반환하는 메서드
     public Long getExpirationTime(String token) {
