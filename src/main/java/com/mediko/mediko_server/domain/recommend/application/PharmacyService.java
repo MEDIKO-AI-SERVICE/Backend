@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.DATA_NOT_EXIST;
+import static com.mediko.mediko_server.global.exception.ErrorCode.INVALID_PARAMETER;
 
 @Slf4j
 @Service
@@ -40,11 +41,20 @@ public class PharmacyService {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
+        // 주소 정보 검증
+        String address = member.getAddress();
+        if (address == null || address.trim().isEmpty()) {
+            log.error("회원 ID: {}, 주소 정보가 없습니다. address: {}", member.getId(), address);
+            throw new BadRequestException(INVALID_PARAMETER, "주소 정보가 필요합니다. 기본정보에서 주소를 입력해주세요.");
+        }
+        
+        log.info("회원 ID: {}, 주소 정보: {}", member.getId(), address);
+
         // 직접 Map 생성
         Map<String, Object> basicInfoMap = new HashMap<>();
         basicInfoMap.put("language", member.getLanguage().toString());
         basicInfoMap.put("number", member.getNumber());
-        basicInfoMap.put("address", member.getAddress());
+        basicInfoMap.put("address", address);
         basicInfoMap.put("gender", basicInfo.getGender().toString());
         basicInfoMap.put("age", basicInfo.getAge());
         basicInfoMap.put("height", basicInfo.getHeight());
@@ -56,6 +66,8 @@ public class PharmacyService {
         requestMap.put("lon", requestDTO.getUserLongitude());
         requestMap.put("sort_type", requestDTO.getSortType().name());
         requestMap.put("member_id", member.getId());
+
+        log.info("Flask 서버로 보낼 약국 추천 데이터: {}", requestMap);
 
         List<PharmacyResponseDTO> flaskResponses = flaskCommunicationService.getPharmacyRecommendation(requestMap);
 
@@ -79,6 +91,15 @@ public class PharmacyService {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
+        // 주소 정보 검증
+        String address = member.getAddress();
+        if (address == null || address.trim().isEmpty()) {
+            log.error("회원 ID: {}, 주소 정보가 없습니다. address: {}", member.getId(), address);
+            throw new BadRequestException(INVALID_PARAMETER, "주소 정보가 필요합니다. 기본정보에서 주소를 입력해주세요.");
+        }
+        
+        log.info("회원 ID: {}, 주소 정보: {}", member.getId(), address);
+
         // sortType 고정
         SortType sortType = SortType.RECOMMEND;
 
@@ -86,7 +107,7 @@ public class PharmacyService {
         Map<String, Object> basicInfoMap = new HashMap<>();
         basicInfoMap.put("language", member.getLanguage().toString());
         basicInfoMap.put("number", member.getNumber());
-        basicInfoMap.put("address", member.getAddress());
+        basicInfoMap.put("address", address);
         basicInfoMap.put("gender", basicInfo.getGender().toString());
         basicInfoMap.put("age", basicInfo.getAge());
         basicInfoMap.put("height", basicInfo.getHeight());
@@ -98,6 +119,8 @@ public class PharmacyService {
         requestMap.put("lon", requestDTO.getUserLongitude());
         requestMap.put("sort_type", sortType.name());
         requestMap.put("member_id", member.getId());
+
+        log.info("Flask 서버로 보낼 약국 추천 데이터: {}", requestMap);
 
         List<PharmacyResponseDTO> flaskResponses = flaskCommunicationService.getPharmacyRecommendation(requestMap);
 
