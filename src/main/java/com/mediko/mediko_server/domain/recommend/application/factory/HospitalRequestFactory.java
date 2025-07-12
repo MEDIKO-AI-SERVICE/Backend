@@ -21,9 +21,9 @@ public class HospitalRequestFactory {
         Map<String, Object> basicInfoMap = new HashMap<>();
         basicInfoMap.put("height", basicInfo.getHeight());
         basicInfoMap.put("age", basicInfo.getAge());
-        basicInfoMap.put("language", basicInfo.getLanguage());
-        basicInfoMap.put("number", basicInfo.getNumber());
-        basicInfoMap.put("address", basicInfo.getAddress());
+        basicInfoMap.put("language", member.getLanguage());
+        basicInfoMap.put("number", member.getNumber());
+        basicInfoMap.put("address", member.getAddress());
         basicInfoMap.put("gender", basicInfo.getGender());
         basicInfoMap.put("weight", basicInfo.getWeight());
 

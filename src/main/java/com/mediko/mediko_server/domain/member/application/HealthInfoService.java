@@ -65,22 +65,5 @@ public class HealthInfoService {
         return HealthInfoResponseDTO.fromEntity(healthInfo);
     }
 
-    // 번역된 사용자 건강정보 조회
-    public HealthInfoResponseDTO getTranslatedHealthInfo(Member member) {
-        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강 정보가 설정되지 않았습니다."));
-
-        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
-
-        HealthInfoResponseDTO response = HealthInfoResponseDTO.fromEntity(healthInfo);
-
-        Language language = basicInfo.getLanguage();
-        if (language != null && language != Language.KO) {
-            response = flaskCommunicationService.translateHealthInfo(response, language.name().toLowerCase());
-        }
-
-        return response;
-    }
 }
 

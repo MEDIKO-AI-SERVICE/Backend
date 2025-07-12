@@ -21,8 +21,8 @@ public class FormInputResponseDTO {
     public static FormInputResponseDTO from(Member member) {
         return new FormInputResponseDTO(
                 member.getName(),
-                member.getBasicInfo().getNumber(),
-                member.getBasicInfo().getAddress(),
+                member.getNumber(),
+                member.getAddress(),
                 member.getPassword()
         );
     }

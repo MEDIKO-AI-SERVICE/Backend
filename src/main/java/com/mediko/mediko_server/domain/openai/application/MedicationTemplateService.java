@@ -179,7 +179,7 @@ public class MedicationTemplateService {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "필수 정보가 누락되었습니다");
         }
 
-        Language language = member.getBasicInfo().getLanguage();
+        Language language = member.getLanguage();
         PatientInfoRequestDTO patientInfo = buildPatientInfo(member, state);
 
         MedicationTemplateRequestDTO requestDTO = MedicationTemplateRequestDTO.builder()

@@ -36,8 +36,11 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "nickname", nullable = false, unique = true)
-    private String nickname;
+    @Column(name = "number", nullable = false)
+    private String number;
+
+    @Column(name = "address", nullable = false)
+    private String address;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false)
@@ -48,6 +51,19 @@ public class Member extends BaseEntity implements UserDetails {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private HealthInfo healthInfo;
+
+    public String getNumber() {
+        return number;
+    }
+    public void setNumber(String number) {
+        this.number = number;
+    }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     /**
      * UserDetails 인터페이스 메서드
@@ -97,13 +113,6 @@ public class Member extends BaseEntity implements UserDetails {
     /**
      * 사용자 편의 메서드
      */
-    public void changeNickname(String nickname) {
-        if (nickname == null || nickname.trim().isEmpty()) {
-            throw new BadRequestException(INVALID_PARAMETER, "닉네임은 비어 있을 수 없습니다.");
-        }
-        this.nickname = nickname;
-    }
-
     public void changeLanguage(Language language) {
         if (language == null) {
             throw new BadRequestException(INVALID_PARAMETER, "언어는 비어 있을 수 없습니다.");

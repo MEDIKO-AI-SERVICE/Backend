@@ -68,10 +68,6 @@ public class CustomUserDetails implements UserDetails {
         return member.getEmail();
     }
 
-    //사용자 닉네임 반환
-    public String getNickname() {
-        return member.getNickname();
-    }
 
 //    //사용자 이메일 인증 여부 확인
 //    public Boolean getIsEmailVerified() {

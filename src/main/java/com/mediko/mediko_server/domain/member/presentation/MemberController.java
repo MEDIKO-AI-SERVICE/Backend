@@ -7,6 +7,7 @@ import com.mediko.mediko_server.domain.member.dto.request.*;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,16 +30,16 @@ import java.util.Map;
 public class MemberController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
+    @Operation(summary = "회원2. 회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
     public ResponseEntity<UserInfoResponseDTO> signUp(
             @RequestBody SignUpRequestDTO signUpRequestDTO,
-            @RequestParam(value = "tempMemberId", required = false) Long tempMemberId) {
+            @RequestParam(value = "tempMemberId") Long tempMemberId) {
         UserInfoResponseDTO responseDTO = memberService.signUp(signUpRequestDTO, tempMemberId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @Operation(summary = "언어 설정", description = "회원가입 전 언어를 설정합니다.")
+    @Operation(summary = "회원1. 언어 설정", description = "회원가입 전 언어를 설정합니다.")
     @PostMapping("/set-language")
     public ResponseEntity<Map<String, Long>> setLanguage(@RequestBody LanguageRequestDTO languageRequestDTO) {
         Long tempMemberId = memberService.setLanguageBeforeSignUp(languageRequestDTO);
@@ -46,7 +47,18 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "로그인", description = "등록된 회원을 로그인시킵니다.")
+    @Operation(summary = "사용자 언어 변경", description = "사용자의 언어를 변경합니다.")
+    @PatchMapping("/language")
+    public ResponseEntity<LanguageResponseDTO> updateLanguage(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody LanguageRequestDTO languageRequestDTO) {
+        Member member = customUserDetails.getMember();
+        LanguageResponseDTO responseDTO = memberService.updateLanguage(member, languageRequestDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+
+    @Operation(summary = "회원5. 로그인", description = "등록된 회원을 로그인시킵니다.")
     @PostMapping("/sign-in")
     public ResponseEntity<TokenResponseDTO> signIn(@RequestBody SignInRequestDTO signInRequestDTO) {
         TokenResponseDTO tokenResponseDTO = memberService.signIn(signInRequestDTO.getLoginId(), signInRequestDTO.getPassword());
@@ -79,28 +91,6 @@ public class MemberController {
         memberService.deleteAccount(loginId, request, response);
         return ResponseEntity.ok().build();
 
-    }
-
-
-    @Operation(summary = "닉네임 조회", description = "회원의 닉네임을 조회합니다.")
-    @GetMapping("/nickname")
-    public ResponseEntity<Map<String, String>> getUserNickname(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        String loginId = customUserDetails.getUsername();
-        String nickname = memberService.getUserNickname(loginId);
-        return ResponseEntity.ok(Map.of("nickname", nickname));
-    }
-
-
-    @Operation(summary = "닉네임 변경", description = "회원의 닉네임을 변경합니다.")
-    @PatchMapping("/nickname")
-    public ResponseEntity<Void> updateUserNickName(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody Map<String, String> requestBody) {
-        String loginId = customUserDetails.getUsername();
-        String nickname = requestBody.get("nickname");
-        memberService.updateUserNickName(loginId, nickname);
-        return ResponseEntity.ok().build();
     }
 
 

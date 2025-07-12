@@ -103,7 +103,7 @@ public class AITemplateService {
 
     @Transactional
     public List<String> saveBodyPart(Member member, String sessionId, SuggestSignRequestDTO requestDTO) {
-        Language language = member.getBasicInfo().getLanguage();
+        Language language = member.getLanguage();
 
         AIProcessingState state = getState(member, sessionId);
         validateStateOwnership(state, member);
@@ -292,7 +292,7 @@ public class AITemplateService {
 
     // fastapi 요청 메서드
     private AITemplateResponseDTO callFastApiForResult(Member member, AIProcessingState state) {
-        Language language = member.getBasicInfo().getLanguage();
+        Language language = member.getLanguage();
 
         PatientInfoRequestDTO patientInfo = buildPatientInfo(state);
 

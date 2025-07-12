@@ -2,6 +2,8 @@ package com.mediko.mediko_server.domain.member.domain;
 
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
+import com.mediko.mediko_server.domain.member.domain.infoType.WeightUnit;
+import com.mediko.mediko_server.domain.member.domain.infoType.HeightUnit;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
 import com.mediko.mediko_server.global.converter.LanguageConverter;
 import com.mediko.mediko_server.global.converter.StringEncryptConverter;
@@ -20,18 +22,6 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.MISSING_REQUIR
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicInfo extends BaseEntity {
 
-    @Convert(converter = LanguageConverter.class)
-    @Column(name = "language", nullable = false)
-    private Language language;
-
-    @Convert(converter = StringEncryptConverter.class)
-    @Column(name = "number")
-    private String number;
-
-    @Convert(converter = StringEncryptConverter.class)
-    @Column(name = "address")
-    private String address;
-
     @Convert(converter = StringEncryptConverter.class)
     @Column(name = "er_password", updatable = false)
     private String erPassword;
@@ -45,8 +35,17 @@ public class BasicInfo extends BaseEntity {
     @Column(name = "height")
     private Integer height;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "height_unit")
+    private HeightUnit heightUnit;
+
     @Column(name = "weight")
     private Integer weight;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "weight_unit")
+    private WeightUnit weightUnit;
+
 
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)
@@ -55,7 +54,6 @@ public class BasicInfo extends BaseEntity {
     public static BasicInfo createBasicInfo(Member member, Language language, String erPassword) {
         BasicInfo basicInfo = BasicInfo.builder()
                 .member(member)
-                .language(language)
                 .erPassword(erPassword)
                 .build();
 
@@ -66,8 +64,6 @@ public class BasicInfo extends BaseEntity {
 
 
     public void updateBasicInfo(BasicInfoRequestDTO basicInfoRequestDTO) {
-        this.number = basicInfoRequestDTO.getNumber();
-        this.address = basicInfoRequestDTO.getAddress();
         this.gender = basicInfoRequestDTO.getGender();
         this.age = basicInfoRequestDTO.getAge();
         this.height = basicInfoRequestDTO.getHeight();
@@ -77,16 +73,36 @@ public class BasicInfo extends BaseEntity {
     }
 
     public void validateBasicInfoFields() {
-        if (this.language == null ||
-                this.number == null || this.number.isBlank() ||
-                this.address == null || this.address.isBlank() ||
+        if (this.age == null ||
                 this.gender == null) {
             throw new BadRequestException(MISSING_REQUIRED_FIELD, "필수 입력 항목이 누락되었습니다.");
         }
     }
 
-    public void updateLanguage(Language language) {
-        this.language = language;
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public void setWeightUnit(WeightUnit weightUnit) {
+        this.weightUnit = weightUnit;
+    }
+    public void setHeightUnit(HeightUnit heightUnit) {
+        this.heightUnit = heightUnit;
+    }
+    public WeightUnit getWeightUnit() {
+        return weightUnit;
+    }
+    public HeightUnit getHeightUnit() {
+        return heightUnit;
     }
 
     protected void setMember(Member member) {

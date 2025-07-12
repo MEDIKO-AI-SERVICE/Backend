@@ -13,6 +13,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     //이메일 중복 여부 확인
     Boolean existsByEmail(String email);
 
-    //닉네임 중복 여부 확인
-    Boolean existsByNickname(String nickname);
+    // 닉네임 관련 메서드 삭제
 }
