@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/v1/member/sign-up").permitAll()
+                        .requestMatchers("/api/v1/member/set-language").permitAll()
                         .requestMatchers("/api/v1/member/sign-in").permitAll()
                         .requestMatchers("/api/v1/basicInfo/language").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/basicInfo").permitAll()

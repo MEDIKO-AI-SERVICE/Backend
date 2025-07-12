@@ -31,9 +31,18 @@ public class MemberController {
 
     @Operation(summary = "회원 가입", description = "신규 회원을 등록합니다.")
     @PostMapping("/sign-up")
-    public ResponseEntity<UserInfoResponseDTO> signUp(@RequestBody SignUpRequestDTO signUpRequestDTO) {
-        UserInfoResponseDTO responseDTO = memberService.signUp(signUpRequestDTO);
+    public ResponseEntity<UserInfoResponseDTO> signUp(
+            @RequestBody SignUpRequestDTO signUpRequestDTO,
+            @RequestParam(value = "tempMemberId", required = false) Long tempMemberId) {
+        UserInfoResponseDTO responseDTO = memberService.signUp(signUpRequestDTO, tempMemberId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @Operation(summary = "언어 설정", description = "회원가입 전 언어를 설정합니다.")
+    @PostMapping("/set-language")
+    public ResponseEntity<Map<String, Long>> setLanguage(@RequestBody LanguageRequestDTO languageRequestDTO) {
+        Long tempMemberId = memberService.setLanguageBeforeSignUp(languageRequestDTO);
+        return ResponseEntity.ok(Map.of("tempMemberId", tempMemberId));
     }
 
 

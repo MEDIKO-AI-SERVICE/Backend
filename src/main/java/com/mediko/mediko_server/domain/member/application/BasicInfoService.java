@@ -3,7 +3,6 @@ package com.mediko.mediko_server.domain.member.application;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
-import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.BasicInfoRequestDTO;
@@ -71,7 +70,16 @@ public class BasicInfoService {
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "먼저 language 설정이 필요합니다."));
+                .orElseGet(() -> {
+                    // 기본 언어는 한국어로 설정
+                    String erPassword = flaskCommunicationService.generate119Password();
+                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
+                            member,
+                            Language.KO,
+                            erPassword
+                    );
+                    return basicInfoRepository.save(newBasicInfo);
+                });
 
         if (basicInfo.getNumber() != null || basicInfo.getAddress() != null ||
                 basicInfo.getGender() != null || basicInfo.getAge() != null) {
@@ -79,7 +87,6 @@ public class BasicInfoService {
         }
 
         basicInfo.updateBasicInfo(requestDTO);
-        member.changeRole(UserStatus.ROLE_USER);
 
         return BasicInfoResponseDTO.fromEntity(basicInfo);
     }

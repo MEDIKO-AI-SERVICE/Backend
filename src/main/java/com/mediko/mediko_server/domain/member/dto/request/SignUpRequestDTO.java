@@ -1,9 +1,7 @@
 package com.mediko.mediko_server.domain.member.dto.request;
 
 import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
-import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,7 +33,6 @@ public class SignUpRequestDTO {
                 .email(this.email)
                 .name(this.name)
                 .nickname(this.nickname)
-                .role(UserStatus.ROLE_GUEST)
                 .build();
     }
 }
