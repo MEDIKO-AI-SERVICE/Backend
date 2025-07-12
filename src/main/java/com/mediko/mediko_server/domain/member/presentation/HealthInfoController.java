@@ -36,7 +36,6 @@ public class HealthInfoController {
 
     @Operation(summary = "사용자 건강 정보 조회", description = "저장된 사용자의 건강 정보를 조회합니다.")
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<HealthInfoResponseDTO> getHealthInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
@@ -46,7 +45,6 @@ public class HealthInfoController {
 
     @Operation(summary = "사용자 건강 정보 수정", description = "저장된 사용자의 건강 정보를 수정합니다.")
     @PatchMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<HealthInfoResponseDTO> updateHealthInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody HealthInfoRequestDTO healthInfoRequestDTO) {

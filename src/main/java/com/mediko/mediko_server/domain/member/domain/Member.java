@@ -70,7 +70,7 @@ public class Member extends BaseEntity implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return new ArrayList<>(); // 권한 없음
     }
 
     //사용자 id 반환
@@ -108,7 +108,6 @@ public class Member extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
     /**
      * 사용자 편의 메서드

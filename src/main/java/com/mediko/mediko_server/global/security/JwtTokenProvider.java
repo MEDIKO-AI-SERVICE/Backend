@@ -54,23 +54,17 @@ public class JwtTokenProvider {
 
     // Access Token과 Refresh Token 발급 메서드
     public TokenResponseDTO generateToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
         long now = (new Date()).getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenExpirationTime);
 
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
                 .setExpiration(new Date(now + refreshTokenExpirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -129,15 +123,6 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
         String username = claims.getSubject();
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
@@ -145,7 +130,7 @@ public class JwtTokenProvider {
             throw new RuntimeException("사용자를 찾을 수 없습니다.");
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 
