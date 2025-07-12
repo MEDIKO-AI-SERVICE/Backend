@@ -1,10 +1,15 @@
 package com.mediko.mediko_server.domain.member.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
+import com.mediko.mediko_server.domain.member.domain.BasicInfo;
+import com.mediko.mediko_server.domain.member.domain.TempMember;
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
+import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
+import com.mediko.mediko_server.domain.member.domain.repository.TempMemberRepository;
 import com.mediko.mediko_server.domain.member.dto.request.SignUpRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.request.TokenRequestDTO;
+import com.mediko.mediko_server.domain.member.dto.request.LanguageRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
@@ -12,6 +17,7 @@ import com.mediko.mediko_server.global.exception.exceptionType.BadRequestExcepti
 import com.mediko.mediko_server.global.exception.exceptionType.UnauthorizedException;
 import com.mediko.mediko_server.global.redis.RedisUtil;
 import com.mediko.mediko_server.global.security.JwtTokenProvider;
+import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
@@ -36,14 +44,35 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 @Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final BasicInfoRepository basicInfoRepository;
+    private final TempMemberRepository tempMemberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
+    private final FlaskCommunicationService flaskCommunicationService;
+
+    // 언어 설정 시 임시 멤버 ID 발급
+    @Transactional
+    public Long setLanguageBeforeSignUp(LanguageRequestDTO languageRequestDTO) {
+        TempMember tempMember = TempMember.builder()
+                .language(languageRequestDTO.getLanguage())
+                .expiredAt(LocalDateTime.now().plusHours(24)) // 24시간 유효
+                .isUsed(false)
+                .build();
+        
+        TempMember savedTempMember = tempMemberRepository.save(tempMember);
+        return savedTempMember.getId();
+    }
+
+    // 119 비밀번호 생성
+    private String generate119Password() {
+        return flaskCommunicationService.generate119Password();
+    }
 
     //회원 가입
     @Transactional
-    public UserInfoResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
+    public UserInfoResponseDTO signUp(SignUpRequestDTO signUpRequestDTO, Long tempMemberId) {
         if (memberRepository.existsByEmail(signUpRequestDTO.getEmail())) {
             throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 이메일입니다.");
         }
@@ -57,13 +86,30 @@ public class MemberService {
             throw new BadRequestException(MISSING_REQUIRED_FIELD, "필수 입력 항목이 누락되었습니다.");
         }
 
+        // 임시 멤버에서 언어 정보 가져오기
+        TempMember tempMember = tempMemberRepository.findByIdAndIsUsedFalse(tempMemberId)
+                .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "유효하지 않은 임시 멤버 ID입니다."));
+        
+        if (tempMember.isExpired()) {
+            throw new BadRequestException(INVALID_PARAMETER, "만료된 임시 멤버 ID입니다.");
+        }
+
         String encodedPassword = passwordEncoder.encode(signUpRequestDTO.getPassword());
 
         Member member = signUpRequestDTO.toEntity(encodedPassword);
-        member.addRole(UserStatus.ROLE_GUEST);
         Member savedMember = memberRepository.save(member);
 
+        // 임시 멤버를 사용됨으로 표시
+        tempMember.markAsUsed();
+        tempMemberRepository.save(tempMember);
+
         return UserInfoResponseDTO.fromEntity(savedMember);
+    }
+
+    // 기존 회원가입 메서드 (하위 호환성 유지)
+    @Transactional
+    public UserInfoResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
+        return signUp(signUpRequestDTO, null);
     }
 
 

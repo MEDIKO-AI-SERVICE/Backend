@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.member.domain;
 
 import java.util.*;
 
-import com.mediko.mediko_server.domain.member.domain.infoType.UserStatus;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.s3.UuidFile;
@@ -39,16 +38,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
-//    @Column(name = "is_email_verified")
-//    private Boolean isEmailVerified;
-
-//    @Column(name = "is_phone_verified")
-//    private Boolean isPhoneVerified;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private UserStatus role;
-
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private BasicInfo basicInfo;
 
@@ -60,10 +49,7 @@ public class Member extends BaseEntity implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role == null) {
-            return List.of();
-        }
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of();
     }
 
     //사용자 id 반환
@@ -106,17 +92,6 @@ public class Member extends BaseEntity implements UserDetails {
     /**
      * 사용자 편의 메서드
      */
-    public void addRole(UserStatus role) {
-        this.role = role;
-    }
-
-    public void changeRole(UserStatus newRole) {
-        if (role == null) {
-            throw new BadRequestException(DATA_NOT_EXIST, "사용자가 가진 권한이 없습니다.");
-        }
-        this.role = newRole;
-    }
-
     public void changeNickname(String nickname) {
         if (nickname == null || nickname.trim().isEmpty()) {
             throw new BadRequestException(INVALID_PARAMETER, "닉네임은 비어 있을 수 없습니다.");
