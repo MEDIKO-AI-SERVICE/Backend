@@ -9,6 +9,7 @@ import com.mediko.mediko_server.domain.openai.domain.unit.TimeUnit;
 import com.mediko.mediko_server.domain.openai.dto.request.AdditionalRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SelectedSignRequestDTO;
 import com.mediko.mediko_server.domain.openai.dto.request.SuggestSignRequestDTO;
+import com.mediko.mediko_server.domain.openai.dto.response.AITemplateListResponseDTO;
 import com.mediko.mediko_server.domain.openai.dto.response.AITemplateResponseDTO;
 import com.mediko.mediko_server.global.s3.UuidFileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -167,25 +168,56 @@ public class AITemplateController {
 
 
     // 11. 사전문진 분석 결과 조회
-    @Operation(summary = "11. 사전문진 분석 결과 조회", description = "사전문진 분석 결과를 조회합니다.")
-    @GetMapping("/result/analysis")
+    @Operation(summary = "특정 사전문진 결과 조회 (분석용)", description = "사전문진 분석 결과를 조회합니다.")
+    @GetMapping("/result/analysis/{aiId}")
     public ResponseEntity<Map<String, Object>> getAnalysisResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("sessionId") String sessionId) {
+            @PathVariable("aiId") Long aiId) {
         Member member = userDetails.getMember();
-        AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
-        return ResponseEntity.ok(dto.toAnalysisMap());
+        Map<String, Object> result = aitemplateService.getResultByAiId(aiId, member);
+        return ResponseEntity.ok((Map<String, Object>) result.get("analysis"));
     }
 
     // 12. 사전문진 요약 결과 조회
-    @Operation(summary = "12. 사전문진 요약 결과 조회", description = "사전문진 요약 결과를 조회합니다.")
-    @GetMapping("/result/summary")
+    @Operation(summary = "특정 사전문진 결과 조회 (요약용)", description = "사전문진 요약 결과를 조회합니다.")
+    @GetMapping("/result/summary/{aiId}")
     public ResponseEntity<Map<String, Object>> getSummaryResult(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("sessionId") String sessionId) {
+            @PathVariable("aiId") Long aiId) {
         Member member = userDetails.getMember();
-        AITemplateResponseDTO dto = aitemplateService.getResult(member, sessionId);
-        return ResponseEntity.ok(dto.toSummaryMap());
+        Map<String, Object> result = aitemplateService.getResultByAiId(aiId, member);
+        return ResponseEntity.ok((Map<String, Object>) result.get("summary"));
+    }
+
+    // 13. ai_id로 사전문진 결과 조회
+    @Operation(summary = "특정 사전문진 결과 조회", description = "ai_id를 입력하면 해당 사전문진의 summary와 analysis 결과를 조회합니다.")
+    @GetMapping("/result/{aiId}")
+    public ResponseEntity<Map<String, Object>> getResultByAiId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("aiId") Long aiId) {
+        Member member = userDetails.getMember();
+        Map<String, Object> result = aitemplateService.getResultByAiId(aiId, member);
+        return ResponseEntity.ok(result);
+    }
+
+    // 14. 사용자의 모든 사전문진 조회 (최신순)
+    @Operation(summary = "리스트용 제목 조회 (모두)", description = "사용자가 생성한 모든 사전문진의 리스트용 제목을 최신순으로 조회합니다.")
+    @GetMapping("/results/all")
+    public ResponseEntity<List<AITemplateListResponseDTO>> getAllUserResults(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        List<AITemplateListResponseDTO> results = aitemplateService.getAllUserResults(member);
+        return ResponseEntity.ok(results);
+    }
+
+    // 15. 사용자의 최신 사전문진 3개 조회
+    @Operation(summary = "리스트용 제목 조회 (최신 3개)", description = "사용자가 생성한 사전문진의 리스트용 제목을 최신 3개만 조회합니다.")
+    @GetMapping("/results/latest")
+    public ResponseEntity<List<AITemplateListResponseDTO>> getLatestThreeResults(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+        List<AITemplateListResponseDTO> results = aitemplateService.getLatestThreeResults(member);
+        return ResponseEntity.ok(results);
     }
 
 

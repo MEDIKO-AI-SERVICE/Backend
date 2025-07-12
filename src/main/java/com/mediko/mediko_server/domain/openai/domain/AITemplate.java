@@ -71,7 +71,7 @@ public class AITemplate extends BaseEntity {
     private String departmentDescription;
 
     @Convert(converter = StringMapConverter.class)
-    @Column(name = "questions", length = 1000)
+    @Column(name = "questions", columnDefinition = "TEXT")
     private Map<String, String> questionsToDoctor;
 
     @Column(name = "symptom_summary")

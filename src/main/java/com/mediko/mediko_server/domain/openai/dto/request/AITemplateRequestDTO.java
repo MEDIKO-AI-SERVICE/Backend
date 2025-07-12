@@ -2,7 +2,6 @@ package com.mediko.mediko_server.domain.openai.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mediko.mediko_server.domain.member.domain.Member;
-import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.openai.domain.AITemplate;
 import lombok.*;
 
@@ -14,8 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AITemplateRequestDTO {
-
-    private Language language;
 
     private boolean isSelf;
 
