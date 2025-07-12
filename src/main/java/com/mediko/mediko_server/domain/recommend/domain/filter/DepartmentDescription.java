@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.recommend.domain;
+package com.mediko.mediko_server.domain.recommend.domain.filter;
 
 public enum DepartmentDescription {
     FAMILY_MEDICINE("건강증진, 예방, 만성질환 등"),

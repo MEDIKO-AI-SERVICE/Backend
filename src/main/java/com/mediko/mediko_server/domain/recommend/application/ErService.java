@@ -5,7 +5,7 @@ import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.repository.BasicInfoRepository;
 import com.mediko.mediko_server.domain.recommend.application.converter.ErConverter;
 import com.mediko.mediko_server.domain.recommend.application.factory.ErRequestFactory;
-import com.mediko.mediko_server.domain.recommend.domain.Condition;
+import com.mediko.mediko_server.domain.recommend.domain.filter.Condition;
 import com.mediko.mediko_server.domain.recommend.domain.Er;
 import com.mediko.mediko_server.domain.recommend.domain.repository.ErRepository;
 import com.mediko.mediko_server.domain.recommend.dto.request.ErRequestDTO;

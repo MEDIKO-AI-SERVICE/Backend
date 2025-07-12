@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.presentation;
 
 import com.mediko.mediko_server.domain.recommend.application.DepartmentService;
-import com.mediko.mediko_server.domain.recommend.domain.DepartmentTitle;
+import com.mediko.mediko_server.domain.recommend.domain.filter.DepartmentTitle;
 import com.mediko.mediko_server.domain.recommend.dto.response.DepartmentResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

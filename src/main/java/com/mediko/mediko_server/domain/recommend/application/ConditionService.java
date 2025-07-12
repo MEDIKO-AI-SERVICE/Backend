@@ -1,6 +1,6 @@
 package com.mediko.mediko_server.domain.recommend.application;
 
-import com.mediko.mediko_server.domain.recommend.domain.Condition;
+import com.mediko.mediko_server.domain.recommend.domain.filter.Condition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

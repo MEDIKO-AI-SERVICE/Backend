@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.application;
 
-import com.mediko.mediko_server.domain.recommend.domain.DepartmentDescription;
-import com.mediko.mediko_server.domain.recommend.domain.DepartmentTitle;
+import com.mediko.mediko_server.domain.recommend.domain.filter.DepartmentDescription;
+import com.mediko.mediko_server.domain.recommend.domain.filter.DepartmentTitle;
 import com.mediko.mediko_server.domain.recommend.dto.response.DepartmentResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

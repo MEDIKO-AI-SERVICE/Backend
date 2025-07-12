@@ -3,7 +3,8 @@ package com.mediko.mediko_server.domain.recommend.presentation;
 import com.mediko.mediko_server.domain.member.application.CustomUserDetails;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.recommend.application.PharmacyService;
-import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequestDTO;
+import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_1DTO;
+import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_2DTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,10 +27,24 @@ import java.util.List;
 public class PharmacyController {
     private final PharmacyService pharmacyService;
 
-    @Operation(summary = "약국 추천", description = "약국 추천 리스트를 반환합니다.")
-    @PostMapping
+    // 간단 위치 기반 약국 추천 (PharmacyRequest_1DTO, sortType은 RECOMMEND로 고정)
+    @Operation(summary = "약국 추천 (간단)", description = "위치 정보만으로 약국 추천 리스트를 반환합니다.")
+    @PostMapping("/template")
+    public ResponseEntity<List<PharmacyResponseDTO>> recommendPharmacySimple(
+            @RequestBody PharmacyRequest_1DTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Member member = userDetails.getMember();
+        List<PharmacyResponseDTO> responseDTOList = pharmacyService.recommendPharmacy(requestDTO, member);
+
+        return ResponseEntity.ok(responseDTOList);
+    }
+
+    // 상세 옵션 기반 약국 추천 (PharmacyRequest_2DTO)
+    @Operation(summary = "약국 추천 (상세)", description = "사용자 옵션 기반 약국 추천 리스트를 반환합니다.")
+    @PostMapping("/manual")
     public ResponseEntity<List<PharmacyResponseDTO>> recommendPharmacy(
-            @RequestBody PharmacyRequestDTO requestDTO,
+            @RequestBody PharmacyRequest_2DTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();

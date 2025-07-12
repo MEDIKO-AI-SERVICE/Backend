@@ -1,8 +1,9 @@
 package com.mediko.mediko_server.domain.recommend.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
 import com.mediko.mediko_server.domain.recommend.domain.Hospital;
-import com.mediko.mediko_server.domain.recommend.domain.SortType;
+import com.mediko.mediko_server.domain.recommend.domain.filter.SortType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

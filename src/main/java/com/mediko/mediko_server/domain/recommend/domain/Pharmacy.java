@@ -1,7 +1,8 @@
 package com.mediko.mediko_server.domain.recommend.domain;
 
-import com.mediko.mediko_server.domain.member.domain.BasicInfo;
 import com.mediko.mediko_server.domain.member.domain.Member;
+import com.mediko.mediko_server.domain.openai.domain.MedicationTemplate;
+import com.mediko.mediko_server.domain.recommend.domain.filter.SortType;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,10 @@ import java.util.List;
 @Entity
 @Table(name= "pharmacy")
 public class Pharmacy extends BaseEntity {
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sort_type", nullable = false)
+    private SortType sortType;
 
     @Column(name = "ph_maping")
     private String maping;
