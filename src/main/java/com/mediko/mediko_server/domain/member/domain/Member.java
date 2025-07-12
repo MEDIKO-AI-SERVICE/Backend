@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.member.domain;
 
 import java.util.*;
 
+import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.s3.UuidFile;
@@ -37,6 +38,10 @@ public class Member extends BaseEntity implements UserDetails {
 
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language", nullable = false)
+    private Language language;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private BasicInfo basicInfo;
@@ -97,6 +102,13 @@ public class Member extends BaseEntity implements UserDetails {
             throw new BadRequestException(INVALID_PARAMETER, "닉네임은 비어 있을 수 없습니다.");
         }
         this.nickname = nickname;
+    }
+
+    public void changeLanguage(Language language) {
+        if (language == null) {
+            throw new BadRequestException(INVALID_PARAMETER, "언어는 비어 있을 수 없습니다.");
+        }
+        this.language = language;
     }
 
     /**

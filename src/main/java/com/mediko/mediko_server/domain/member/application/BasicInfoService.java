@@ -60,6 +60,8 @@ public class BasicInfoService {
 
         basicInfo.updateLanguage(languageRequestDTO.getLanguage());
 
+        member.changeLanguage(languageRequestDTO.getLanguage());
+
         return LanguageResponseDTO.fromBasicInfo(basicInfo);
     }
 
@@ -71,11 +73,10 @@ public class BasicInfoService {
 
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseGet(() -> {
-                    // 기본 언어는 한국어로 설정
                     String erPassword = flaskCommunicationService.generate119Password();
                     BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
                             member,
-                            Language.KO,
+                            member.getLanguage(),  // Member의 언어 사용
                             erPassword
                     );
                     return basicInfoRepository.save(newBasicInfo);
