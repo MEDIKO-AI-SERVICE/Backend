@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class LanguageResponseDTO {
     private Language language;
 
-    public static LanguageResponseDTO fromBasicInfo(BasicInfo basicInfo) {
-        return new LanguageResponseDTO(basicInfo.getLanguage());
+    public static LanguageResponseDTO fromMember(com.mediko.mediko_server.domain.member.domain.Member member) {
+        return new LanguageResponseDTO(member.getLanguage());
     }
 }

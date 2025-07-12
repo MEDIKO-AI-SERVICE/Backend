@@ -29,42 +29,6 @@ public class BasicInfoService {
     private final BasicInfoRepository basicInfoRepository;
     private final FlaskCommunicationService flaskCommunicationService;
 
-    // 사용자 언어 설정
-    @Transactional
-    public LanguageResponseDTO setLanguage(Long memberId, LanguageRequestDTO languageRequestDTO) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseGet(() -> {
-                    String erPassword = flaskCommunicationService.generate119Password();
-                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
-                            member,
-                            languageRequestDTO.getLanguage(),
-                            erPassword
-                    );
-                    return basicInfoRepository.save(newBasicInfo);
-                });
-
-        if (basicInfo.getLanguage() != languageRequestDTO.getLanguage()) {
-            basicInfo.updateLanguage(languageRequestDTO.getLanguage());
-        }
-
-        return LanguageResponseDTO.fromBasicInfo(basicInfo);
-    }
-
-    @Transactional
-    public LanguageResponseDTO updateLanguage(Member member, LanguageRequestDTO languageRequestDTO) {
-        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
-
-        basicInfo.updateLanguage(languageRequestDTO.getLanguage());
-
-        member.changeLanguage(languageRequestDTO.getLanguage());
-
-        return LanguageResponseDTO.fromBasicInfo(basicInfo);
-    }
-
     // 사용자 기본정보 생성
     @Transactional
     public BasicInfoResponseDTO saveBasicInfo(Long memberId, BasicInfoRequestDTO requestDTO) {
@@ -72,22 +36,19 @@ public class BasicInfoService {
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseGet(() -> {
-                    String erPassword = flaskCommunicationService.generate119Password();
-                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
-                            member,
-                            member.getLanguage(),  // Member의 언어 사용
-                            erPassword
-                    );
-                    return basicInfoRepository.save(newBasicInfo);
-                });
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "기본 정보가 존재하지 않습니다. 회원가입 시 입력하세요."));
 
-        if (basicInfo.getNumber() != null || basicInfo.getAddress() != null ||
-                basicInfo.getGender() != null || basicInfo.getAge() != null) {
+        if (basicInfo.getGender() != null || basicInfo.getAge() != null) {
             throw new BadRequestException(DATA_ALREADY_EXIST, "이미 기본 정보가 설정되어 있습니다.");
         }
 
-        basicInfo.updateBasicInfo(requestDTO);
+        // 전화번호, 주소는 회원가입에서만 입력 가능. 여기서는 gender, age, height, weight, 단위만 수정
+        basicInfo.setGender(requestDTO.getGender());
+        basicInfo.setAge(requestDTO.getAge());
+        basicInfo.setHeight(requestDTO.getHeight());
+        basicInfo.setHeightUnit(requestDTO.getHeightUnit());
+        basicInfo.setWeight(requestDTO.getWeight());
+        basicInfo.setWeightUnit(requestDTO.getWeightUnit());
 
         return BasicInfoResponseDTO.fromEntity(basicInfo);
     }
@@ -98,8 +59,7 @@ public class BasicInfoService {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
 
-        if (basicInfo.getNumber() == null && basicInfo.getAddress() == null &&
-                basicInfo.getGender() == null && basicInfo.getAge() == null) {
+        if (basicInfo.getGender() == null && basicInfo.getAge() == null) {
             throw new BadRequestException(DATA_NOT_EXIST, "먼저 기본 정보를 생성해주세요.");
         }
 
@@ -130,7 +90,7 @@ public class BasicInfoService {
 
         BasicInfoResponseDTO response = BasicInfoResponseDTO.fromEntity(basicInfo);
 
-        Language language = basicInfo.getLanguage();
+        Language language = member.getLanguage();
         if (language != null && language != Language.KO) {
             response = flaskCommunicationService.translateBasicInfo(response, language.name().toLowerCase());
         }

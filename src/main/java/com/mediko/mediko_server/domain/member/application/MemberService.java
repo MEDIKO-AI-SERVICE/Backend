@@ -13,6 +13,7 @@ import com.mediko.mediko_server.domain.member.dto.request.LanguageRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.exception.exceptionType.UnauthorizedException;
 import com.mediko.mediko_server.global.redis.RedisUtil;
@@ -77,15 +78,13 @@ public class MemberService {
             throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 이메일입니다.");
         }
 
-        if (memberRepository.existsByNickname(signUpRequestDTO.getNickname())) {
-            throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 닉네임입니다.");
-        }
-
         if (signUpRequestDTO.getLoginId() == null ||  signUpRequestDTO.getPassword() == null ||
-                signUpRequestDTO.getEmail() == null || signUpRequestDTO.getName() == null || signUpRequestDTO.getNickname() == null) {
+                signUpRequestDTO.getEmail() == null || signUpRequestDTO.getName() == null
+                || signUpRequestDTO.getNumber() == null || signUpRequestDTO.getAddress() == null) {
             throw new BadRequestException(MISSING_REQUIRED_FIELD, "필수 입력 항목이 누락되었습니다.");
         }
 
+        // 임시 멤버에서 언어 정보 가져오기
         TempMember tempMember = tempMemberRepository.findByIdAndIsUsedFalse(tempMemberId)
                 .orElseThrow(() -> new BadRequestException(INVALID_PARAMETER, "유효하지 않은 임시 멤버 ID입니다."));
         
@@ -99,6 +98,16 @@ public class MemberService {
         member.changeLanguage(tempMember.getLanguage());
         Member savedMember = memberRepository.save(member);
 
+        // BasicInfo 생성 (언어, 응급비밀번호만)
+        String erPassword = generate119Password();
+        BasicInfo basicInfo = BasicInfo.createBasicInfo(
+            savedMember,
+            tempMember.getLanguage(),
+            erPassword
+        );
+        basicInfoRepository.save(basicInfo);
+
+        // 임시 멤버를 사용됨으로 표시
         tempMember.markAsUsed();
         tempMemberRepository.save(tempMember);
 
@@ -177,34 +186,43 @@ public class MemberService {
     }
 
 
-    // 닉네임 조회
-    @Transactional(readOnly = true)
-    public String getUserNickname(String loginId) {
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-        return member.getNickname();
-    }
-
-
-    // 닉네임 변경
-    @Transactional
-    public void updateUserNickName(String loginId, String nickname) {
-        if (memberRepository.existsByNickname(nickname)) {
-            throw new BadRequestException(DATA_ALREADY_EXIST, "이미 사용 중인 닉네임입니다.");
-        }
-
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        member.changeNickname(nickname);
-        memberRepository.save(member);
-    }
-
-
     // 119 폼 입력정보 조회
     @Transactional(readOnly = true)
     public FormInputResponseDTO getFormInputResponse(Member member) {
         return FormInputResponseDTO.from(member);
     }
 
+    // 사용자 언어 설정
+    @Transactional
+    public LanguageResponseDTO setLanguage(Long memberId, LanguageRequestDTO languageRequestDTO) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseGet(() -> {
+                    String erPassword = flaskCommunicationService.generate119Password();
+                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
+                            member,
+                            languageRequestDTO.getLanguage(),
+                            erPassword
+                    );
+                    return basicInfoRepository.save(newBasicInfo);
+                });
+
+        if (member.getLanguage() != languageRequestDTO.getLanguage()) {
+            member.changeLanguage(languageRequestDTO.getLanguage());
+        }
+
+        return new LanguageResponseDTO(member.getLanguage());
+    }
+
+    @Transactional
+    public LanguageResponseDTO updateLanguage(Member member, LanguageRequestDTO languageRequestDTO) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
+                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본 정보가 설정되지 않았습니다."));
+
+        member.changeLanguage(languageRequestDTO.getLanguage());
+
+        return new LanguageResponseDTO(member.getLanguage());
+    }
 }

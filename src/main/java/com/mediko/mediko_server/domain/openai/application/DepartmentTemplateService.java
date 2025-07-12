@@ -81,7 +81,7 @@ public class DepartmentTemplateService {
                 .build();
         saveState(member, sessionId, state);
 
-        Language language = member.getBasicInfo().getLanguage();
+        Language language = member.getLanguage();
         SuggestSignRequestDTO fastApiRequest = SuggestSignRequestDTO.builder()
                 .language(language)
                 .bodyPart(requestDTO.getBodyPart())
@@ -185,7 +185,7 @@ public class DepartmentTemplateService {
 
     // fastapi 요청 메서드
     private DepartmentTemplateResposneDTO callFastApiForResult(Member member, DepartmentProcessingState state) {
-        Language language = member.getBasicInfo().getLanguage();
+        Language language = member.getLanguage();
 
         DepartmentTemplateRequestDTO requestDTO = DepartmentTemplateRequestDTO.builder()
                 .language(language)

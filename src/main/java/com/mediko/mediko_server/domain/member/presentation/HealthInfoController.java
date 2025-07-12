@@ -25,7 +25,7 @@ public class HealthInfoController {
 
     private final HealthInfoService healthInfoService;
 
-    @Operation(summary = "사용자 건강 정보 저장", description = "회원가입 후 사용자의 건강 정보를 저장합니다.")
+    @Operation(summary = "회원4. 사용자 건강 정보 저장", description = "회원가입 후 사용자의 건강 정보를 저장합니다.")
     @PostMapping
     public ResponseEntity<HealthInfoResponseDTO> saveHealthInfo(
             @RequestParam("memberId") Long memberId,
@@ -55,11 +55,4 @@ public class HealthInfoController {
         return ResponseEntity.ok(updatedHealthInfo);
     }
 
-    @Operation(summary = "번역된 사용자 건강 정보 조회", description = "사용자의 건강 정보를 번역하여 조회합니다.")
-    @GetMapping("/translated")
-    public ResponseEntity<HealthInfoResponseDTO> getTranslatedHealthInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        return ResponseEntity.ok(healthInfoService.getTranslatedHealthInfo(member));
-    }
 }

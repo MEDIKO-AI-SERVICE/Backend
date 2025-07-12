@@ -45,10 +45,9 @@ public class SelectedErService {
             userLon = userLongitude;
         }
         else {
-            if (member != null && member.getBasicInfo() != null &&
-                    member.getBasicInfo().getAddress() != null) {
+            if (member != null && member.getAddress() != null) {
                 GeocodeResponseDTO coordinates = getCoordinatesFromAddress(
-                        member.getBasicInfo().getAddress());
+                        member.getAddress());
                 userLat = coordinates.getLatitude();
                 userLon = coordinates.getLongitude();
             } else {

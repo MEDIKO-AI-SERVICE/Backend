@@ -42,9 +42,9 @@ public class PharmacyService {
 
         // 직접 Map 생성
         Map<String, Object> basicInfoMap = new HashMap<>();
-        basicInfoMap.put("language", basicInfo.getLanguage().toString());
-        basicInfoMap.put("number", basicInfo.getNumber());
-        basicInfoMap.put("address", basicInfo.getAddress());
+        basicInfoMap.put("language", member.getLanguage().toString());
+        basicInfoMap.put("number", member.getNumber());
+        basicInfoMap.put("address", member.getAddress());
         basicInfoMap.put("gender", basicInfo.getGender().toString());
         basicInfoMap.put("age", basicInfo.getAge());
         basicInfoMap.put("height", basicInfo.getHeight());
@@ -84,9 +84,9 @@ public class PharmacyService {
 
         // 직접 Map 생성
         Map<String, Object> basicInfoMap = new HashMap<>();
-        basicInfoMap.put("language", basicInfo.getLanguage().toString());
-        basicInfoMap.put("number", basicInfo.getNumber());
-        basicInfoMap.put("address", basicInfo.getAddress());
+        basicInfoMap.put("language", member.getLanguage().toString());
+        basicInfoMap.put("number", member.getNumber());
+        basicInfoMap.put("address", member.getAddress());
         basicInfoMap.put("gender", basicInfo.getGender().toString());
         basicInfoMap.put("age", basicInfo.getAge());
         basicInfoMap.put("height", basicInfo.getHeight());

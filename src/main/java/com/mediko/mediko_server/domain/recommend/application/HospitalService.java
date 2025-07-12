@@ -85,7 +85,7 @@ public class HospitalService {
 
         final SortType sortType = SortType.RECOMMEND;
 
-        Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo);
+        Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo, member);
         Map<String, Object> healthInfoMap = healthInfoOpt
                 .map(this::createHealthInfoMap)
                 .orElse(null);
@@ -136,7 +136,7 @@ public class HospitalService {
 
         final List<String> departmentList = requestDTO.getUserDepartment();
 
-        Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo);
+        Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo, member);
         Map<String, Object> healthInfoMap = healthInfoOpt
                 .map(this::createHealthInfoMap)
                 .orElse(null);
@@ -171,11 +171,11 @@ public class HospitalService {
     }
 
 
-    private Map<String, Object> createBasicInfoMap(BasicInfo basicInfo) {
+    private Map<String, Object> createBasicInfoMap(BasicInfo basicInfo, Member member) {
         Map<String, Object> map = new HashMap<>();
-        map.put("language", basicInfo.getLanguage());
-        map.put("number", basicInfo.getNumber());
-        map.put("address", basicInfo.getAddress());
+        map.put("language", member.getLanguage());
+        map.put("number", member.getNumber());
+        map.put("address", member.getAddress());
         map.put("gender", basicInfo.getGender());
         map.put("age", basicInfo.getAge());
         map.put("height", basicInfo.getHeight());

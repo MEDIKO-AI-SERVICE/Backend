@@ -1,6 +1,5 @@
 package com.mediko.mediko_server.domain.member.dto.request;
 
-import com.mediko.mediko_server.domain.member.domain.infoType.Gender;
 import com.mediko.mediko_server.domain.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -22,8 +21,11 @@ public class SignUpRequestDTO {
     @NotBlank(message = "이름은 필수 입력 값입니다.")
     private String name;
 
-    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
-    private String nickname;
+    @NotBlank(message = "전화번호는 필수 입력 값입니다.")
+    private String number;
+
+    @NotBlank(message = "주소는 필수 입력 값입니다.")
+    private String address;
 
     //DTO -> Entity 변환
     public Member toEntity(String encodedPassword) {
@@ -32,7 +34,8 @@ public class SignUpRequestDTO {
                 .password(encodedPassword)
                 .email(this.email)
                 .name(this.name)
-                .nickname(this.nickname)
+                .number(this.number)
+                .address(this.address)
                 .build();
     }
 }
