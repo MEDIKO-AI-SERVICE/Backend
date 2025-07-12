@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.recommend.domain;
+package com.mediko.mediko_server.domain.recommend.domain.filter;
 
 public enum DepartmentTitle {
     FAMILY_MEDICINE("가정의학과"),

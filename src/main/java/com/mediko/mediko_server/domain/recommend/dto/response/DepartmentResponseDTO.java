@@ -1,7 +1,7 @@
 package com.mediko.mediko_server.domain.recommend.dto.response;
 
-import com.mediko.mediko_server.domain.recommend.domain.DepartmentDescription;
-import com.mediko.mediko_server.domain.recommend.domain.DepartmentTitle;
+import com.mediko.mediko_server.domain.recommend.domain.filter.DepartmentDescription;
+import com.mediko.mediko_server.domain.recommend.domain.filter.DepartmentTitle;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

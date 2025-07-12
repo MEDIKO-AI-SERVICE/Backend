@@ -1,8 +1,8 @@
 package com.mediko.mediko_server.domain.recommend.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
-import com.mediko.mediko_server.domain.recommend.domain.Hospital;
+import com.mediko.mediko_server.domain.recommend.domain.Pharmacy;
+import com.mediko.mediko_server.domain.recommend.domain.filter.SortType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,10 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class HospitalRequest_1DTO {
+public class PharmacyRequest_2DTO {
+
+    @JsonProperty("sort_type")
+    private SortType sortType;
 
     @JsonProperty("lat")
     private Double userLatitude;
@@ -20,13 +23,9 @@ public class HospitalRequest_1DTO {
     @JsonProperty("lon")
     private Double userLongitude;
 
-    @JsonProperty("department_id")
-    private Long departmentTemplateId;
-
-
-    public Hospital toEntity(DepartmentTemplate departmentTemplate) {
-        return Hospital.builder()
-                .departmentTemplate(departmentTemplate)
+    public Pharmacy toEntity() {
+        return Pharmacy.builder()
+                .sortType(this.sortType)
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
                 .build();

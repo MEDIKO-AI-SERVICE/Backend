@@ -9,7 +9,7 @@ import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
 import com.mediko.mediko_server.domain.openai.domain.repository.DepartmentTemplateRepository;
 import com.mediko.mediko_server.domain.openai.domain.unit.Intensity;
 import com.mediko.mediko_server.domain.recommend.application.converter.HospitalConverter;
-import com.mediko.mediko_server.domain.recommend.domain.SortType;
+import com.mediko.mediko_server.domain.recommend.domain.filter.SortType;
 import com.mediko.mediko_server.domain.recommend.domain.repository.HospitalRepository;
 import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequest_1DTO;
 import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequest_2DTO;
@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static com.mediko.mediko_server.domain.openai.domain.unit.Intensity.*;
 import static com.mediko.mediko_server.global.exception.ErrorCode.*;
 
 @Slf4j
@@ -44,8 +44,8 @@ public class HospitalService {
     public List<HospitalResponseDTO> recommendByDepartmentTemplate(HospitalRequest_1DTO requestDTO, Member member) {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
-        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강정보가 존재하지 않습니다."));
+
+        Optional<HealthInfo> healthInfoOpt = healthInfoRepository.findByMember(member);
 
         DepartmentTemplate departmentTemplate = departmentTemplateRepository.findById(requestDTO.getDepartmentTemplateId())
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "DepartmentTemplate을 찾을 수 없습니다."));
@@ -55,7 +55,6 @@ public class HospitalService {
         }
         Intensity intensity = departmentTemplate.getIntensity();
 
-        // 플래그를 final로 선언
         final boolean primaryHospital;
         final boolean secondaryHospital;
         final boolean tertiaryHospital;
@@ -87,7 +86,9 @@ public class HospitalService {
         final SortType sortType = SortType.RECOMMEND;
 
         Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo);
-        Map<String, Object> healthInfoMap = createHealthInfoMap(healthInfo);
+        Map<String, Object> healthInfoMap = healthInfoOpt
+                .map(this::createHealthInfoMap)
+                .orElse(null);
 
         Map<String, Object> fastApiRequest = new HashMap<>();
         fastApiRequest.put("member_id", member.getId());
@@ -121,12 +122,13 @@ public class HospitalService {
                 .toList();
     }
 
+
     @Transactional
     public List<HospitalResponseDTO> recommendByManual(HospitalRequest_2DTO requestDTO, Member member) {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
-        HealthInfo healthInfo = healthInfoRepository.findByMember(member)
-                .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 건강정보가 존재하지 않습니다."));
+
+        Optional<HealthInfo> healthInfoOpt = healthInfoRepository.findByMember(member);
 
         if (requestDTO.getUserDepartment() == null || requestDTO.getUserDepartment().isEmpty()) {
             throw new BadRequestException(INVALID_PARAMETER, "진료과 선택은 필수입니다.");
@@ -135,7 +137,9 @@ public class HospitalService {
         final List<String> departmentList = requestDTO.getUserDepartment();
 
         Map<String, Object> basicInfoMap = createBasicInfoMap(basicInfo);
-        Map<String, Object> healthInfoMap = createHealthInfoMap(healthInfo);
+        Map<String, Object> healthInfoMap = healthInfoOpt
+                .map(this::createHealthInfoMap)
+                .orElse(null);
 
         Map<String, Object> fastApiRequest = new HashMap<>();
         fastApiRequest.put("member_id", member.getId());
@@ -166,7 +170,7 @@ public class HospitalService {
                 .toList();
     }
 
-    // --------- 공통 Map 생성 메서드 ---------
+
     private Map<String, Object> createBasicInfoMap(BasicInfo basicInfo) {
         Map<String, Object> map = new HashMap<>();
         map.put("language", basicInfo.getLanguage());

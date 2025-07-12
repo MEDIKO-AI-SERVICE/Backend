@@ -40,6 +40,7 @@ public class FlaskCommunicationService {
                 new ParameterizedTypeReference<List<PharmacyResponseDTO>>() {});
     }
 
+
     public List<ErResponseDTO> getErRecommendation(Map<String, Object> requestData) {
         return sendRequestToFlask(requestData, flaskUrls.getRecommendEr(),
                 new ParameterizedTypeReference<List<ErResponseDTO>>() {});

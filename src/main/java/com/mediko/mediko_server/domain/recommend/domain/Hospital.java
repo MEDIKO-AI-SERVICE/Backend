@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.recommend.domain;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.openai.domain.DepartmentTemplate;
+import com.mediko.mediko_server.domain.recommend.domain.filter.SortType;
 import com.mediko.mediko_server.global.converter.StringListConvert;
 import com.mediko.mediko_server.global.domain.BaseEntity;
 import jakarta.persistence.*;

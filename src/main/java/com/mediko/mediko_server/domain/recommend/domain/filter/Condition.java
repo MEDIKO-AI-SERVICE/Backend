@@ -1,4 +1,4 @@
-package com.mediko.mediko_server.domain.recommend.domain;
+package com.mediko.mediko_server.domain.recommend.domain.filter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
