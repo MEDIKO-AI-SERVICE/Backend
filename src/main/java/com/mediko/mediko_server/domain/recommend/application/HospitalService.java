@@ -14,6 +14,7 @@ import com.mediko.mediko_server.domain.recommend.domain.repository.HospitalRepos
 import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequest_1DTO;
 import com.mediko.mediko_server.domain.recommend.dto.request.HospitalRequest_2DTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.HospitalResponseDTO;
+import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,23 @@ public class HospitalService {
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
         Optional<HealthInfo> healthInfoOpt = healthInfoRepository.findByMember(member);
+
+        // 위경도가 null인 경우 geocode API 호출
+        Double latitude = requestDTO.getUserLatitude();
+        Double longitude = requestDTO.getUserLongitude();
+        
+        if (latitude == null || longitude == null) {
+            String address = member.getAddress();
+            if (address == null || address.trim().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "위경도 또는 주소 정보가 필요합니다.");
+            }
+            
+            log.info("위경도가 null이므로 geocode API 호출: {}", address);
+            GeocodeResponseDTO geocodeResponse = flaskCommunicationService.getAddressToCoords(Map.of("address", address));
+            latitude = geocodeResponse.getLatitude();
+            longitude = geocodeResponse.getLongitude();
+            log.info("Geocode API 응답 - lat: {}, lon: {}", latitude, longitude);
+        }
 
         DepartmentTemplate departmentTemplate = departmentTemplateRepository.findById(requestDTO.getDepartmentTemplateId())
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "DepartmentTemplate을 찾을 수 없습니다."));
@@ -95,8 +113,8 @@ public class HospitalService {
         fastApiRequest.put("basic_info", basicInfoMap);
         fastApiRequest.put("health_info", healthInfoMap);
         fastApiRequest.put("department", department);
-        fastApiRequest.put("lat", requestDTO.getUserLatitude());
-        fastApiRequest.put("lon", requestDTO.getUserLongitude());
+        fastApiRequest.put("lat", latitude);
+        fastApiRequest.put("lon", longitude);
         fastApiRequest.put("primary_hospital", primaryHospital);
         fastApiRequest.put("secondary_hospital", secondaryHospital);
         fastApiRequest.put("tertiary_hospital", tertiaryHospital);
@@ -130,6 +148,23 @@ public class HospitalService {
 
         Optional<HealthInfo> healthInfoOpt = healthInfoRepository.findByMember(member);
 
+        // 위경도가 null인 경우 geocode API 호출
+        Double latitude = requestDTO.getUserLatitude();
+        Double longitude = requestDTO.getUserLongitude();
+        
+        if (latitude == null || longitude == null) {
+            String address = member.getAddress();
+            if (address == null || address.trim().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "위경도 또는 주소 정보가 필요합니다.");
+            }
+            
+            log.info("위경도가 null이므로 geocode API 호출: {}", address);
+            GeocodeResponseDTO geocodeResponse = flaskCommunicationService.getAddressToCoords(Map.of("address", address));
+            latitude = geocodeResponse.getLatitude();
+            longitude = geocodeResponse.getLongitude();
+            log.info("Geocode API 응답 - lat: {}, lon: {}", latitude, longitude);
+        }
+
         if (requestDTO.getUserDepartment() == null || requestDTO.getUserDepartment().isEmpty()) {
             throw new BadRequestException(INVALID_PARAMETER, "진료과 선택은 필수입니다.");
         }
@@ -146,8 +181,8 @@ public class HospitalService {
         fastApiRequest.put("basic_info", basicInfoMap);
         fastApiRequest.put("health_info", healthInfoMap);
         fastApiRequest.put("department", departmentList);
-        fastApiRequest.put("lat", requestDTO.getUserLatitude());
-        fastApiRequest.put("lon", requestDTO.getUserLongitude());
+        fastApiRequest.put("lat", latitude);
+        fastApiRequest.put("lon", longitude);
         fastApiRequest.put("primary_hospital", requestDTO.isPrimaryHospital());
         fastApiRequest.put("secondary_hospital", requestDTO.isSecondaryHospital());
         fastApiRequest.put("tertiary_hospital", requestDTO.isTertiaryHospital());
