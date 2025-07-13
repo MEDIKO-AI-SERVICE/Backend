@@ -24,6 +24,7 @@ public class HospitalConverter {
     ) {
         return Hospital.builder()
                 .userDepartment(List.of(department))
+                .sortType(com.mediko.mediko_server.domain.recommend.domain.filter.SortType.RECOMMEND)
                 .primaryHospital(primaryHospital)
                 .secondaryHospital(secondaryHospital)
                 .tertiaryHospital(tertiaryHospital)
@@ -60,6 +61,7 @@ public class HospitalConverter {
     ) {
         return Hospital.builder()
                 .userDepartment(userDepartment)
+                .sortType(requestDTO.getSortType())
                 .primaryHospital(requestDTO.isPrimaryHospital())
                 .secondaryHospital(requestDTO.isSecondaryHospital())
                 .tertiaryHospital(requestDTO.isTertiaryHospital())
