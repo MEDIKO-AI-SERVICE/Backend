@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.member.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
+import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.TempMember;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
@@ -14,6 +15,7 @@ import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.UserProfileResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.exception.exceptionType.UnauthorizedException;
 import com.mediko.mediko_server.global.redis.RedisUtil;
@@ -66,10 +68,7 @@ public class MemberService {
         return savedTempMember.getId();
     }
 
-    // 119 비밀번호 생성
-    private String generate119Password() {
-        return flaskCommunicationService.generate119Password();
-    }
+
 
     //회원 가입
     @Transactional
@@ -98,14 +97,7 @@ public class MemberService {
         member.changeLanguage(tempMember.getLanguage());
         Member savedMember = memberRepository.save(member);
 
-        // BasicInfo 생성 (언어, 응급비밀번호만)
-        String erPassword = generate119Password();
-        BasicInfo basicInfo = BasicInfo.createBasicInfo(
-            savedMember,
-            tempMember.getLanguage(),
-            erPassword
-        );
-        basicInfoRepository.save(basicInfo);
+        // BasicInfo는 사용자가 기본정보를 입력할 때 자동으로 생성됨
 
         // 임시 멤버를 사용됨으로 표시
         tempMember.markAsUsed();
@@ -198,17 +190,6 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseGet(() -> {
-                    String erPassword = flaskCommunicationService.generate119Password();
-                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
-                            member,
-                            languageRequestDTO.getLanguage(),
-                            erPassword
-                    );
-                    return basicInfoRepository.save(newBasicInfo);
-                });
-
         if (member.getLanguage() != languageRequestDTO.getLanguage()) {
             member.changeLanguage(languageRequestDTO.getLanguage());
         }
@@ -224,5 +205,14 @@ public class MemberService {
         member.changeLanguage(languageRequestDTO.getLanguage());
 
         return new LanguageResponseDTO(member.getLanguage());
+    }
+
+    // 사용자 프로필 통합 조회
+    @Transactional(readOnly = true)
+    public UserProfileResponseDTO getUserProfile(Member member) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member).orElse(null);
+        HealthInfo healthInfo = member.getHealthInfo();
+
+        return UserProfileResponseDTO.fromEntities(member, basicInfo, healthInfo);
     }
 }
