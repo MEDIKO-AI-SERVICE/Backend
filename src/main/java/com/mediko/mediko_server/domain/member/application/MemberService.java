@@ -66,10 +66,7 @@ public class MemberService {
         return savedTempMember.getId();
     }
 
-    // 119 비밀번호 생성
-    private String generate119Password() {
-        return flaskCommunicationService.generate119Password();
-    }
+
 
     //회원 가입
     @Transactional
@@ -98,14 +95,7 @@ public class MemberService {
         member.changeLanguage(tempMember.getLanguage());
         Member savedMember = memberRepository.save(member);
 
-        // BasicInfo 생성 (언어, 응급비밀번호만)
-        String erPassword = generate119Password();
-        BasicInfo basicInfo = BasicInfo.createBasicInfo(
-            savedMember,
-            tempMember.getLanguage(),
-            erPassword
-        );
-        basicInfoRepository.save(basicInfo);
+        // BasicInfo는 사용자가 기본정보를 입력할 때 자동으로 생성됨
 
         // 임시 멤버를 사용됨으로 표시
         tempMember.markAsUsed();
@@ -197,17 +187,6 @@ public class MemberService {
     public LanguageResponseDTO setLanguage(Long memberId, LanguageRequestDTO languageRequestDTO) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        BasicInfo basicInfo = basicInfoRepository.findByMember(member)
-                .orElseGet(() -> {
-                    String erPassword = flaskCommunicationService.generate119Password();
-                    BasicInfo newBasicInfo = BasicInfo.createBasicInfo(
-                            member,
-                            languageRequestDTO.getLanguage(),
-                            erPassword
-                    );
-                    return basicInfoRepository.save(newBasicInfo);
-                });
 
         if (member.getLanguage() != languageRequestDTO.getLanguage()) {
             member.changeLanguage(languageRequestDTO.getLanguage());

@@ -8,6 +8,7 @@ import com.mediko.mediko_server.domain.member.dto.request.LanguageRequestDTO;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.SimpleErPasswordResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,7 @@ public class BasicInfoController {
 
     @Operation(summary = "사용자 응급 비밀번호 조회", description = "저장된 사용자의 응급 비밀번호를 조회합니다.")
     @GetMapping("/er-pw")
-    public ResponseEntity<ErPasswordResponseDTO> getErPassword(
+    public ResponseEntity<SimpleErPasswordResponseDTO> getErPassword(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         return ResponseEntity.ok(basicInfoService.getErPassword(member));

@@ -23,7 +23,7 @@ import static com.mediko.mediko_server.global.exception.ErrorCode.MISSING_REQUIR
 public class BasicInfo extends BaseEntity {
 
     @Convert(converter = StringEncryptConverter.class)
-    @Column(name = "er_password", updatable = false)
+    @Column(name = "er_password")
     private String erPassword;
 
     @Column(name = "gender")
@@ -103,6 +103,10 @@ public class BasicInfo extends BaseEntity {
     }
     public HeightUnit getHeightUnit() {
         return heightUnit;
+    }
+    
+    public void setErPassword(String erPassword) {
+        this.erPassword = erPassword;
     }
 
     protected void setMember(Member member) {

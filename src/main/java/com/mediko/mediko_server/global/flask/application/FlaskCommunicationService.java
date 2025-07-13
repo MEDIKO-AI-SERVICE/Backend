@@ -1,5 +1,7 @@
 package com.mediko.mediko_server.global.flask.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediko.mediko_server.domain.member.dto.response.BasicInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.ErPasswordResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.HealthInfoResponseDTO;
@@ -54,13 +56,34 @@ public class FlaskCommunicationService {
 
     public String generate119Password() {
         try {
+            log.info("Flask 서버에서 119 비밀번호 생성 요청: {}", flaskUrls.getErPassword());
+            
+            // AWS Lambda + API Gateway 응답 형식으로 파싱
             ErPasswordResponseDTO response = restTemplate.getForObject(
                     flaskUrls.getErPassword(),
                     ErPasswordResponseDTO.class
             );
-            return response.getPassword();
+            log.info("파싱된 응답: {}", response);
+            
+            if (response != null && response.getBody() != null) {
+                // body 필드에서 password 추출
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode bodyNode = objectMapper.readTree(response.getBody());
+                    String password = bodyNode.get("password").asText();
+                    
+                    log.info("생성된 119 비밀번호: {}", password);
+                    return password;
+                } catch (Exception e) {
+                    log.error("body에서 password 파싱 실패: {}", e.getMessage());
+                    throw new RuntimeException("응답에서 password를 추출할 수 없습니다.", e);
+                }
+            } else {
+                log.error("Flask 서버에서 null 응답을 받았습니다.");
+                throw new RuntimeException("Flask 서버에서 유효하지 않은 응답을 받았습니다.");
+            }
         } catch (Exception e) {
-            log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage());
+            log.error("Flask 서버 통신 중 오류 발생: {}", e.getMessage(), e);
             throw new RuntimeException("Flask 서버 통신 중 오류 발생", e);
         }
     }
