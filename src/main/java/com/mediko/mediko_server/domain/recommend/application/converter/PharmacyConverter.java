@@ -9,12 +9,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class PharmacyConverter {
 
-    //request_2 DTO
-    public Pharmacy toEntity(PharmacyResponseDTO response, PharmacyRequest_2DTO requestDTO,
-                             Member member) {
+    //request_1 DTO
+    public Pharmacy toEntity(
+            PharmacyResponseDTO response,
+            com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_1DTO requestDTO,
+            com.mediko.mediko_server.domain.recommend.domain.filter.SortType sortType,
+            Member member) {
         return Pharmacy.builder()
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
+                .sortType(com.mediko.mediko_server.domain.recommend.domain.filter.SortType.RECOMMEND)
                 .name(response.getName())
                 .address(response.getAddress())
                 .tel(response.getTel())
@@ -52,16 +56,13 @@ public class PharmacyConverter {
                 .build();
     }
 
-    //request_1 DTO
-    public Pharmacy toEntity(
-            PharmacyResponseDTO response,
-            com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_1DTO requestDTO,
-            com.mediko.mediko_server.domain.recommend.domain.filter.SortType sortType,
-            Member member) {
+    //request_2 DTO
+    public Pharmacy toEntity(PharmacyResponseDTO response, PharmacyRequest_2DTO requestDTO,
+                             Member member) {
         return Pharmacy.builder()
                 .userLatitude(requestDTO.getUserLatitude())
                 .userLongitude(requestDTO.getUserLongitude())
-                .sortType(sortType)
+                .sortType(requestDTO.getSortType())
                 .name(response.getName())
                 .address(response.getAddress())
                 .tel(response.getTel())
