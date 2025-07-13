@@ -11,9 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErPasswordResponseDTO {
-    private String password;
+    private Integer statusCode;
+    private String body;
 
     public static ErPasswordResponseDTO fromBasicInfo(BasicInfo basicInfo) {
-        return new ErPasswordResponseDTO(basicInfo.getErPassword());
+        return new ErPasswordResponseDTO(200, "{\"password\": \"" + basicInfo.getErPassword() + "\"}");
+    }
+    
+    // 사용자 조회용 - 단순 password만 반환
+    public static ErPasswordResponseDTO forUser(BasicInfo basicInfo) {
+        return new ErPasswordResponseDTO(null, "{\"password\": \"" + basicInfo.getErPassword() + "\"}");
     }
 }
+
+
