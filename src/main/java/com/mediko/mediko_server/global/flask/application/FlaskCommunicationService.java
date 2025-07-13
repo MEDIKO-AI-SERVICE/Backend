@@ -31,6 +31,7 @@ public class FlaskCommunicationService {
     private final FlaskUrls flaskUrls;
 
     public List<HospitalResponseDTO> getHospitalRecommendation(Map<String, Object> requestData) {
+        log.info("Flask 서버 URL: {}", flaskUrls.getRecommendHospital());
         return sendRequestToFlask(requestData, flaskUrls.getRecommendHospital(),
                 new ParameterizedTypeReference<List<HospitalResponseDTO>>() {});
     }
