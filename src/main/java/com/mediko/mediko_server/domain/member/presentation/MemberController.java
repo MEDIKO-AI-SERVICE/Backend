@@ -102,7 +102,6 @@ public class MemberController {
 
         Member member = userDetails.getMember();
         FormInputResponseDTO responseDTO = memberService.getFormInputResponse(member);
-
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -111,9 +110,18 @@ public class MemberController {
     public ResponseEntity<UserProfileResponseDTO> getUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Member member = userDetails.getMember();
-        UserProfileResponseDTO responseDTO = memberService.getUserProfile(member);
-
+    Member member = userDetails.getMember();
+    UserProfileResponseDTO responseDTO = memberService.getUserProfile(member);
         return ResponseEntity.ok(responseDTO);
+}
+
+    @Operation(summary = "사용자 member_id 조회", description = "로그인한 사용자의 member_id를 조회합니다.")
+    @GetMapping("/my-id")
+    public ResponseEntity<Map<String, Long>> getMyMemberId(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Member member = customUserDetails.getMember();
+        Long memberId = member.getId();
+        return ResponseEntity.ok(Map.of("memberId", memberId));
     }
+
 }

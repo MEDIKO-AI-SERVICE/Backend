@@ -215,4 +215,9 @@ public class MemberService {
 
         return UserProfileResponseDTO.fromEntities(member, basicInfo, healthInfo);
     }
+
+
+    public Long getMemberId(Member member) {
+        return member.getId();
+    }
 }
