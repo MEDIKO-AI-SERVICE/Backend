@@ -38,4 +38,18 @@ public enum Language {
     public String toValue() {
         return name();
     }
+    
+    public String getKoreanName() {
+        switch (this) {
+            case KO: return "한국어";
+            case EN: return "영어";
+            case VI: return "베트남어";
+            case ZH_CN: return "중국어 간체";
+            case ZH_TW: return "중국어 번체";
+            case NE: return "네팔어";
+            case ID: return "인도네시아어";
+            case TH: return "태국어";
+            default: return name();
+        }
+    }
 }
