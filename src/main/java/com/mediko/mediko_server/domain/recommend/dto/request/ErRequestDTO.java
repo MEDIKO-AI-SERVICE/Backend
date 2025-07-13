@@ -22,8 +22,6 @@ public class ErRequestDTO {
     @JsonProperty("lon")
     private Double userLongitude;
 
-    private Boolean isCondition;
-
     private List<String> conditions;
 
 
@@ -31,7 +29,6 @@ public class ErRequestDTO {
         return Er.builder()
                 .userLatitude(this.userLatitude)
                 .userLongitude(this.userLongitude)
-                .isCondition(this.isCondition)
                 .conditions(conditions)
                 .build();
     }

@@ -21,7 +21,6 @@ public class ErConverter {
                 .userLongitude(requestDTO.getUserLongitude())
                 .erLatitude(response.getErLatitude())
                 .erLongitude(response.getErLongitude())
-                .isCondition(requestDTO.getIsCondition())
                 .conditions(requestDTO.getConditions())
                 .travelKm(response.getTravelKm())
                 .travelH(response.getTravelH())
