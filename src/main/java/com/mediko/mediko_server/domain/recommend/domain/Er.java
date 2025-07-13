@@ -47,9 +47,6 @@ public class Er extends BaseEntity {
     @Column(name = "travel_s")
     private Integer travelS;
 
-    @Column(name = "is_condition")
-    private Boolean isCondition;
-
     @Convert(converter = StringListConvert.class)
     private List<String> conditions = new ArrayList<>();
 

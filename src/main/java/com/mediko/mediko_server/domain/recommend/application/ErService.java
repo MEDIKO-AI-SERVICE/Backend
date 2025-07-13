@@ -41,14 +41,29 @@ public class ErService {
     // 응급실 추천 응답
     @Transactional
     public List<ErResponseDTO> recommendEr(ErRequestDTO requestDTO, Member member) {
-        validateConditions(requestDTO.getIsCondition(), requestDTO.getConditions());
-        validateCoordinates(requestDTO.getUserLatitude(), requestDTO.getUserLongitude());
+        // isCondition 관련 코드 삭제, conditions만 검사
+        validateConditions(requestDTO.getConditions());
+
+        // lat/lon이 null 또는 0이면 member.address로 geocode 변환
+        Double latitude = requestDTO.getUserLatitude();
+        Double longitude = requestDTO.getUserLongitude();
+        if (latitude == null || longitude == null || latitude == 0.0 || longitude == 0.0) {
+            String address = member.getAddress();
+            if (address == null || address.trim().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "위경도 또는 주소 정보가 필요합니다.");
+            }
+            log.info("위경도가 null 또는 0이므로 geocode API 호출: {}", address);
+            var geocodeResponse = flaskCommunicationService.getAddressToCoords(Map.of("address", address));
+            latitude = geocodeResponse.getLatitude();
+            longitude = geocodeResponse.getLongitude();
+            log.info("Geocode API 응답 - lat: {}, lon: {}", latitude, longitude);
+        }
 
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
         Map<String, Object> flaskRequestData = erRequestFactory.createFlaskRequest(
-                basicInfo, requestDTO.getUserLatitude(), requestDTO.getUserLongitude(), member
+                basicInfo, latitude, longitude, member
         );
 
         List<ErResponseDTO> flaskResponses = flaskCommunicationService
@@ -68,32 +83,17 @@ public class ErService {
                 .collect(Collectors.toList());
     }
 
-
-    private void validateConditions(Boolean isCondition, List<String> conditions) {
-        if (Boolean.FALSE.equals(isCondition) && conditions != null && !conditions.isEmpty()) {
-            throw new BadRequestException(INVALID_PARAMETER, "특수 상태를 입력할 수 없습니다.");
-        }
-
-        if (Boolean.TRUE.equals(isCondition) && (conditions == null || conditions.isEmpty())) {
-            throw new BadRequestException(INVALID_PARAMETER, "특수 상태를 입력해야 합니다.");
-        }
-
+    // isCondition 제거, conditions만 검사
+    private void validateConditions(List<String> conditions) {
         if (conditions != null && !conditions.isEmpty()) {
             Set<String> validConditions = Arrays.stream(Condition.values())
                     .map(Condition::getDescription)
                     .collect(Collectors.toSet());
-
             for (String condition : conditions) {
                 if (!validConditions.contains(condition)) {
                     throw new BadRequestException(INVALID_PARAMETER, "유효하지 않은 특수상태입니다.");
                 }
             }
-        }
-    }
-
-    private void validateCoordinates(Double latitude, Double longitude) {
-        if (latitude == null && longitude == null) {
-            throw new BadRequestException(INVALID_PARAMETER, "위경도 정보가 필요합니다.");
         }
     }
 }
