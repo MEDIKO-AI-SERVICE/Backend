@@ -45,6 +45,7 @@ public class FlaskCommunicationService {
 
 
     public List<ErResponseDTO> getErRecommendation(Map<String, Object> requestData) {
+        log.info("Flask 서버 URL: {}", flaskUrls.getRecommendEr());
         return sendRequestToFlask(requestData, flaskUrls.getRecommendEr(),
                 new ParameterizedTypeReference<List<ErResponseDTO>>() {});
     }

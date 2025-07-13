@@ -10,6 +10,7 @@ import com.mediko.mediko_server.domain.recommend.domain.repository.PharmacyRepos
 import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_1DTO;
 import com.mediko.mediko_server.domain.recommend.dto.request.PharmacyRequest_2DTO;
 import com.mediko.mediko_server.domain.recommend.dto.response.PharmacyResponseDTO;
+import com.mediko.mediko_server.domain.recommend.dto.response.GeocodeResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.flask.application.FlaskCommunicationService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,23 @@ public class PharmacyService {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
+        // 위경도가 null인 경우 geocode API 호출
+        Double latitude = requestDTO.getUserLatitude();
+        Double longitude = requestDTO.getUserLongitude();
+        
+        if (latitude == null || longitude == null) {
+            String address = member.getAddress();
+            if (address == null || address.trim().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "위경도 또는 주소 정보가 필요합니다.");
+            }
+            
+            log.info("위경도가 null이므로 geocode API 호출: {}", address);
+            GeocodeResponseDTO geocodeResponse = flaskCommunicationService.getAddressToCoords(Map.of("address", address));
+            latitude = geocodeResponse.getLatitude();
+            longitude = geocodeResponse.getLongitude();
+            log.info("Geocode API 응답 - lat: {}, lon: {}", latitude, longitude);
+        }
+
         // 주소 정보 검증
         String address = member.getAddress();
         if (address == null || address.trim().isEmpty()) {
@@ -62,8 +80,8 @@ public class PharmacyService {
 
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("basic_info", basicInfoMap);
-        requestMap.put("lat", requestDTO.getUserLatitude());
-        requestMap.put("lon", requestDTO.getUserLongitude());
+        requestMap.put("lat", latitude);
+        requestMap.put("lon", longitude);
         requestMap.put("sort_type", requestDTO.getSortType().name());
         requestMap.put("member_id", member.getId());
 
@@ -91,6 +109,23 @@ public class PharmacyService {
         BasicInfo basicInfo = basicInfoRepository.findByMember(member)
                 .orElseThrow(() -> new BadRequestException(DATA_NOT_EXIST, "사용자의 기본정보가 존재하지 않습니다."));
 
+        // 위경도가 null인 경우 geocode API 호출
+        Double latitude = requestDTO.getUserLatitude();
+        Double longitude = requestDTO.getUserLongitude();
+        
+        if (latitude == null || longitude == null) {
+            String address = member.getAddress();
+            if (address == null || address.trim().isEmpty()) {
+                throw new BadRequestException(INVALID_PARAMETER, "위경도 또는 주소 정보가 필요합니다.");
+            }
+            
+            log.info("위경도가 null이므로 geocode API 호출: {}", address);
+            GeocodeResponseDTO geocodeResponse = flaskCommunicationService.getAddressToCoords(Map.of("address", address));
+            latitude = geocodeResponse.getLatitude();
+            longitude = geocodeResponse.getLongitude();
+            log.info("Geocode API 응답 - lat: {}, lon: {}", latitude, longitude);
+        }
+
         // 주소 정보 검증
         String address = member.getAddress();
         if (address == null || address.trim().isEmpty()) {
@@ -115,8 +150,8 @@ public class PharmacyService {
 
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("basic_info", basicInfoMap);
-        requestMap.put("lat", requestDTO.getUserLatitude());
-        requestMap.put("lon", requestDTO.getUserLongitude());
+        requestMap.put("lat", latitude);
+        requestMap.put("lon", longitude);
         requestMap.put("sort_type", sortType.name());
         requestMap.put("member_id", member.getId());
 
