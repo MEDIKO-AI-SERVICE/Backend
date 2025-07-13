@@ -8,6 +8,7 @@ import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.UserProfileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -101,6 +102,17 @@ public class MemberController {
 
         Member member = userDetails.getMember();
         FormInputResponseDTO responseDTO = memberService.getFormInputResponse(member);
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @Operation(summary = "사용자 프로필 통합 조회", description = "회원정보, 기본정보, 건강정보, 언어정보를 통합적으로 조회합니다.")
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponseDTO> getUserProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Member member = userDetails.getMember();
+        UserProfileResponseDTO responseDTO = memberService.getUserProfile(member);
 
         return ResponseEntity.ok(responseDTO);
     }

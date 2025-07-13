@@ -2,6 +2,7 @@ package com.mediko.mediko_server.domain.member.application;
 
 import com.mediko.mediko_server.domain.member.domain.Member;
 import com.mediko.mediko_server.domain.member.domain.BasicInfo;
+import com.mediko.mediko_server.domain.member.domain.HealthInfo;
 import com.mediko.mediko_server.domain.member.domain.TempMember;
 import com.mediko.mediko_server.domain.member.domain.infoType.Language;
 import com.mediko.mediko_server.domain.member.domain.repository.MemberRepository;
@@ -14,6 +15,7 @@ import com.mediko.mediko_server.domain.member.dto.response.TokenResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.FormInputResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.UserInfoResponseDTO;
 import com.mediko.mediko_server.domain.member.dto.response.LanguageResponseDTO;
+import com.mediko.mediko_server.domain.member.dto.response.UserProfileResponseDTO;
 import com.mediko.mediko_server.global.exception.exceptionType.BadRequestException;
 import com.mediko.mediko_server.global.exception.exceptionType.UnauthorizedException;
 import com.mediko.mediko_server.global.redis.RedisUtil;
@@ -203,5 +205,14 @@ public class MemberService {
         member.changeLanguage(languageRequestDTO.getLanguage());
 
         return new LanguageResponseDTO(member.getLanguage());
+    }
+
+    // 사용자 프로필 통합 조회
+    @Transactional(readOnly = true)
+    public UserProfileResponseDTO getUserProfile(Member member) {
+        BasicInfo basicInfo = basicInfoRepository.findByMember(member).orElse(null);
+        HealthInfo healthInfo = member.getHealthInfo();
+
+        return UserProfileResponseDTO.fromEntities(member, basicInfo, healthInfo);
     }
 }
